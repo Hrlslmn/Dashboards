@@ -30,7 +30,7 @@ export default function Sidebar({ collapsed = false, setCollapsed, isMobile = fa
   return (
     <aside className={`h-full ${collapsed ? 'w-20' : 'w-64'} bg-[#1f2937] text-white transition-all duration-300`}>
       <div className="h-20 flex items-center justify-between px-4 border-b border-gray-700">
-        {!collapsed && <div className="text-2xl font-bold">Artifex AI</div>}
+        {!collapsed && <div className="text-2xl font-bold">MindPilot</div>}
 
         <button
           onClick={isMobile ? onClose : () => setCollapsed(!collapsed)}

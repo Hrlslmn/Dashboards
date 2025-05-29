@@ -100,7 +100,7 @@ export default function Header({ onMenuClick }) {
         <Menu size={24} />
       </button>
 
-      <h1 className="text-xl font-bold text-gray-800">Artifex Dashboard</h1>
+      <h1 className="text-xl font-bold text-gray-800">MindPilot Dashboard</h1>
 
       <div className="flex items-center gap-5 text-sm text-gray-600">
         <span>🕒 Japan Time: <span className="font-medium">{japanTime}</span></span>
