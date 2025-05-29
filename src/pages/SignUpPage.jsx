@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import { useNavigate } from 'react-router-dom';
-import SignupGIF from '../assets/GIF/login-img.gif';
 
 export default function SignUpPage() {
   const [name, setName] = useState('');
@@ -50,11 +49,6 @@ export default function SignUpPage() {
           <p className="text-base text-center leading-relaxed opacity-90">
             Sign up to build, create, and collaborate<br /> inside your dashboard.
           </p>
-          <img
-            src={SignupGIF}
-            alt="Signup Illustration"
-            className="mt-8 w-64 rounded-lg"
-          />
         </div>
 
         {/* Right Side Form */}

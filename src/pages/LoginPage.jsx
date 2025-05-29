@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import { useNavigate } from 'react-router-dom';
-import LoginGIF from '../assets/GIF/login-img.gif';
 import { Toaster, toast } from 'react-hot-toast';
 
 export default function LoginPage() {
@@ -34,11 +33,6 @@ export default function LoginPage() {
           <p className="text-base text-center leading-relaxed text-white/90">
             Sign in to manage your <br /> Artifex workspace
           </p>
-          <img
-            src={LoginGIF}
-            alt="Login Illustration"
-            className="mt-8 w-64 rounded-lg transform transition-transform duration-500 hover:scale-105"
-          />
         </div>
 
         {/* Login Form */}
