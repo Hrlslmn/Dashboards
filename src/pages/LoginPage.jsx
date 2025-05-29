@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { Toaster, toast } from 'react-hot-toast';
+import LoginGIF from '../assets/login-img.gif'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -34,7 +35,7 @@ export default function LoginPage() {
             Sign in to manage your <br /> Artifex workspace
           </p>
           <img
-            src="/assets/login-img.gif"
+            src={LoginGIF}
             alt="Login Graphic"
             className="mt-6 w-3/4 h-auto"
           />
