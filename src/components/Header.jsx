@@ -4,34 +4,15 @@ import { supabase } from '../../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 
 export default function Header({ onMenuClick }) {
-  const [japanTime, setJapanTime] = useState('');
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState({ full_name: '', avatar_url: '' });
   const navigate = useNavigate();
-
-  // Update Japan time every second
-  useEffect(() => {
-    const updateTime = () => {
-      const time = new Date().toLocaleString('en-US', {
-        timeZone: 'Asia/Tokyo',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true
-      });
-      setJapanTime(time);
-    };
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   // Fetch user session and profile
   useEffect(() => {
     const fetchProfile = async () => {
       const {
-        data: { session },
-        error
+        data: { session }
       } = await supabase.auth.getSession();
 
       const currentUser = session?.user || null;
@@ -100,27 +81,25 @@ export default function Header({ onMenuClick }) {
         <Menu size={24} />
       </button>
 
-      <h1 className="text-xl font-bold text-gray-800">MindPilot Dashboard</h1>
+      <h1 className="text-lg sm:text-xl font-bold text-gray-800 whitespace-nowrap">MindPilot Dashboard</h1>
 
-      <div className="flex items-center gap-5 text-sm text-gray-600">
-        <span>🕒 Japan Time: <span className="font-medium">{japanTime}</span></span>
-
+      <div className="flex items-center gap-3 sm:gap-5 text-sm sm:text-base text-gray-600">
         {user ? (
-          <div className="flex items-center gap-3">
-            <span className="text-gray-700">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="text-gray-700 hidden sm:inline">
               Welcome, <strong>{userProfile.full_name || 'User'}</strong>
             </span>
             <img
               src={userProfile.avatar_url || fallbackAvatar}
               alt="User Avatar"
-              className="w-9 h-9 rounded-full border shadow-sm"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border shadow-sm"
             />
             <button
               onClick={handleLogout}
               className="flex items-center gap-1 text-red-600 hover:text-red-800 transition"
             >
               <LogOut size={18} />
-              Logout
+              <span className="hidden sm:inline">Logout</span>
             </button>
           </div>
         ) : (
@@ -129,7 +108,7 @@ export default function Header({ onMenuClick }) {
             className="flex items-center gap-1 text-indigo-600 hover:text-indigo-800 transition"
           >
             <LogIn size={18} />
-            Login
+            <span className="hidden sm:inline">Login</span>
           </button>
         )}
       </div>
