@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import React from 'react';
 import Dashboard from './pages/Dashboard';
-import TrackingPage from './pages/TackingDashboard';
 import ProductPage from './pages/Product';
 import MessagesPage from './pages/Messages';
 import ChatWithAI from './pages/ChatWithAI';
@@ -22,7 +21,6 @@ export default function App() {
         <Route path="/products" element={<PrivateRoute><ProductPage /></PrivateRoute>} />
         <Route path="/messages" element={<PrivateRoute><MessagesPage /></PrivateRoute>} />
         <Route path="/chat" element={<PrivateRoute><ChatWithAI /></PrivateRoute>} />
-        <Route path="/Tracker" element={<PrivateRoute><TrackingPage /></PrivateRoute>} />
         <Route path="/todo" element={<PrivateRoute><TodoPage /></PrivateRoute>} />
         
       </Routes>
