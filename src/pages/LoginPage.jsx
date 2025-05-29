@@ -29,7 +29,7 @@ export default function LoginPage() {
         
         {/* Side Graphic Panel */}
         <div className="hidden md:flex flex-col justify-center items-center bg-gradient-to-br from-indigo-600 to-purple-700 w-1/2 p-10">
-          <h2 className="text-4xl font-bold mb-3 text-white">Welcome Back 👋</h2>
+          <h2 className="text-4xl font-bold mb-3 text-white">Welcomes Back 👋</h2>
           <p className="text-base text-center leading-relaxed text-white/90">
             Sign in to manage your <br /> Artifex workspace
           </p>
