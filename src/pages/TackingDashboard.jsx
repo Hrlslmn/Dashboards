@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Polyline, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import TruckImg from "../Assets/images/Truck-img.png";
-import VanImg from "../Assets/images/Van-img.png";
+import TruckImg from "../assets/images/Truck-img.png";
+import VanImg from "../assets/images/Van-img.png";
 import Sidebar2 from "../components/Sidebar2";
 
 const routePositions = [
