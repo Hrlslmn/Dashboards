@@ -17,7 +17,7 @@ import {
 
 const navItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
-  { label: 'Products', icon: Box, path: '/products' },
+  { label: 'Product', icon: Box, path: '/products' },
   { label: 'Messages', icon: MessageSquare, path: '/messages' },
   { label: 'Chat with AI', icon: Bot, path: '/chat' }, // ✅ Added this line
   { label: 'To-do list', icon: CheckSquare, path: '/todo' },
