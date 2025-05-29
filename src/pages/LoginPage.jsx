@@ -3,6 +3,7 @@ import { supabase } from '../../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { Toaster, toast } from 'react-hot-toast';
 
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,20 +28,20 @@ export default function LoginPage() {
 
       <div className="flex w-full max-w-5xl bg-white/90 dark:bg-gray-900/80 backdrop-blur-md shadow-2xl rounded-3xl overflow-hidden border border-indigo-200 dark:border-gray-800">
         
-        /* Side Graphic Panel */
-          <div className="hidden md:flex flex-col justify-center items-center bg-gradient-to-br from-indigo-600 to-purple-700 w-1/2 p-10">
-            <h2 className="text-4xl font-bold mb-3 text-white">Welcomes Back 👋</h2>
-            <p className="text-base text-center leading-relaxed text-white/90">
-              Sign in to manage your <br /> Artifex workspace
-            </p>
-            <img
-              src="/login-img-c867a861.gif"
-              alt="Login Graphic"
-              className="mt-6 w-3/4 h-auto"
-            />
-          </div>
+        {/* Side Graphic Panel */}
+        <div className="hidden md:flex flex-col justify-center items-center bg-gradient-to-br from-indigo-600 to-purple-700 w-1/2 p-10">
+          <h2 className="text-4xl font-bold mb-3 text-white">Welcome Back 👋</h2>
+          <p className="text-base text-center leading-relaxed text-white/90">
+            Sign in to manage your <br /> Artifex workspace
+          </p>
+          <img
+            src="assets/login-img.gif"
+            alt="Login Graphic"
+            className="mt-6 w-3/4 h-auto"
+          />
+        </div>
 
-          {/* Login Form */}
+        {/* Login Form */}
         <form
           onSubmit={handleLogin}
           className="w-full md:w-1/2 p-10 flex flex-col justify-center dark:text-white"
