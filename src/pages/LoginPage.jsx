@@ -35,7 +35,7 @@ export default function LoginPage() {
             Sign in to manage your <br /> Artifex workspace
           </p>
           <img
-            src="../assets/login-img.gif"
+            src="/assets/login-img.gif"
             alt="Login Graphic"
             className="mt-6 w-3/4 h-auto"
           />
