@@ -1,45 +1,55 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ChevronLeft,
   ChevronRight,
   LayoutDashboard,
   Box,
-  Store,
   MessageSquare,
-  BarChart2,
-  FileText,
   CheckSquare,
   DollarSign,
   Bot,
   X
-} from 'lucide-react'; // added Bot icon for Chat with AI
-
-const navItems = [
-  { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
-  { label: 'Product', icon: Box, path: '/products' },
-  { label: 'Messages', icon: MessageSquare, path: '/messages' },
-  { label: 'Chat with AI', icon: Bot, path: '/chat' }, // ✅ Added this line
-  { label: 'To-do list', icon: CheckSquare, path: '/todo' },
-  { label: 'Finances', icon: DollarSign, path: '/finances' },
-];
+} from 'lucide-react';
+import { supabase } from '../../supabaseClient'; // Adjust path as needed
 
 export default function Sidebar({ collapsed = false, setCollapsed, isMobile = false, onClose }) {
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const getUserRole = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('is_admin')
+          .eq('id', session.user.id)
+          .single();
+        setIsAdmin(profile?.is_admin);
+      }
+    };
+    getUserRole();
+  }, []);
+
+  const navItems = [
+    ...(isAdmin ? [{ label: 'Dashboard', icon: LayoutDashboard, path: '/' }] : []),
+    { label: 'Product', icon: Box, path: '/products' },
+    { label: 'Messages', icon: MessageSquare, path: '/messages' },
+    { label: 'Chat with AI', icon: Bot, path: '/chat' },
+    { label: 'To-do list', icon: CheckSquare, path: '/todo' },
+    { label: 'Finances', icon: DollarSign, path: '/finances' },
+  ];
 
   return (
     <aside className={`h-full ${collapsed ? 'w-20' : 'w-64'} bg-[#1f2937] text-white transition-all duration-300`}>
       <div className="h-20 flex items-center justify-between px-4 border-b border-gray-700">
         {!collapsed && <div className="text-2xl font-bold">MindPilot</div>}
-
         <button
           onClick={isMobile ? onClose : () => setCollapsed(!collapsed)}
           className="text-white p-2 hover:bg-[#374151] rounded"
         >
-          {isMobile
-            ? <X size={20} />
-            : collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />
-          }
+          {isMobile ? <X size={20} /> : collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
         </button>
       </div>
 
