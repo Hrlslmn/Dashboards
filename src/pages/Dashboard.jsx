@@ -6,7 +6,7 @@ import SalesChart from '../components/SalesChart';
 import StatCard from '../components/StatCard';
 import RecentInvoices from '../components/RecentInvoices';
 import {
-  Users,
+  ShoppingCart,
   DollarSign,
   TrendingUp,
   FileText,
@@ -17,32 +17,32 @@ export default function Dashboard() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-[#F5F7FB] relative overflow-hidden">
+    <div className="flex h-screen bg-gradient-to-br from-gray-100 to-indigo-50 dark:from-gray-900 dark:to-gray-800 relative overflow-hidden">
       {/* Sidebar for desktop */}
       <div className="hidden md:block">
         <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
       </div>
 
-    {/* Mobile Sidebar */}
-    {mobileOpen && (
-      <>
-        <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setMobileOpen(false)} />
-        <div className="fixed z-50 top-0 left-0 h-full">
-          <Sidebar collapsed={false} onClose={() => setMobileOpen(false)} isMobile />
-        </div>
-      </>
-    )}
+      {/* Mobile Sidebar */}
+      {mobileOpen && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setMobileOpen(false)} />
+          <div className="fixed z-50 top-0 left-0 h-full">
+            <Sidebar collapsed={false} onClose={() => setMobileOpen(false)} isMobile />
+          </div>
+        </>
+      )}
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header onMenuClick={() => setMobileOpen((prev) => !prev)} />
         <main className="p-6 space-y-6 overflow-y-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard title="Customers" value="7" change="+100%" icon={<Users />} />
-            <StatCard title="Current Rev" value="$5,061" change="+100%" icon={<DollarSign />} />
-            <StatCard title="Work In Progress" value="2" change="Stable" icon={<TrendingUp />} />
-            <StatCard title="Invoices" value="5" change="Issued" icon={<FileText />} />
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Dashboard Overview</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <StatCard title="Collections" value="18" change="+120%" icon={<ShoppingCart />} />
+            <StatCard title="Sales" value="$12,480" change="+80%" icon={<DollarSign />} />
+            <StatCard title="Number of sales" value="$7,250" change="+60%" icon={<TrendingUp />} />
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <InvoiceChart />
             <SalesChart />
           </div>
@@ -52,4 +52,5 @@ export default function Dashboard() {
     </div>
   );
 }
+
 

@@ -1,3 +1,4 @@
+// Sidebar.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -11,21 +12,21 @@ import {
   Bot,
   X
 } from 'lucide-react';
-import { supabase } from '../../supabaseClient'; // Adjust if path differs
+import { useAuth } from '../context/AuthContext'; // ✅ use Auth context
+import { supabase } from '../../supabaseClient';
 
 export default function Sidebar({ collapsed = false, setCollapsed, isMobile = false, onClose }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const getUserRole = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session?.user) {
+      if (user) {
         const { data: profile, error } = await supabase
           .from('profiles')
           .select('is_admin')
-          .eq('id', session.user.id)
+          .eq('id', user.id)
           .single();
 
         if (!error) {
@@ -37,28 +38,21 @@ export default function Sidebar({ collapsed = false, setCollapsed, isMobile = fa
     };
 
     getUserRole();
+  }, [user]);
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) getUserRole();
-      else setIsAdmin(false);
-    });
-
-    return () => authListener?.subscription.unsubscribe();
-  }, []);
-
-  const navItems = [
-    ...(isAdmin ? [{ label: 'Dashboard', icon: LayoutDashboard, path: '/' }] : []),
-    { label: 'Product', icon: Box, path: '/products' },
-    { label: 'Messages', icon: MessageSquare, path: '/messages' },
-    { label: 'Chat with AI', icon: Bot, path: '/chat' },
-    { label: 'To-do list', icon: CheckSquare, path: '/todo' },
-    { label: 'Finances', icon: DollarSign, path: '/finances' },
-  ];
+    const navItems = [
+      ...(isAdmin ? [{ label: 'Dashboard', icon: LayoutDashboard, path: '/' }] : []),
+      { label: 'Product', icon: Box, path: '/products' },
+      ...(isAdmin ? [
+        { label: 'Chat with AI', icon: Bot, path: '/chat' },
+        { label: 'To-do list', icon: CheckSquare, path: '/todo' }
+      ] : []),
+    ];
 
   return (
     <aside className={`h-full ${collapsed ? 'w-20' : 'w-64'} bg-[#1f2937] text-white transition-all duration-300`}>
       <div className="h-20 flex items-center justify-between px-4 border-b border-gray-700">
-        {!collapsed && <div className="text-2xl font-bold">MindPilot</div>}
+        {!collapsed && <div className="text-2xl font-bold">Fourth Division</div>}
         <button
           onClick={isMobile ? onClose : () => setCollapsed(!collapsed)}
           className="text-white p-2 hover:bg-[#374151] rounded"

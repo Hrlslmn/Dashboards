@@ -81,7 +81,7 @@ export default function Header({ onMenuClick }) {
         <Menu size={24} />
       </button>
 
-      <h1 className="text-lg sm:text-xl font-bold text-gray-800 whitespace-nowrap">MindPilot Dashboard</h1>
+      <h1 className="text-lg sm:text-xl font-bold text-gray-800 whitespace-nowrap">Fourth Division</h1>
 
       <div className="flex items-center gap-3 sm:gap-5 text-sm sm:text-base text-gray-600">
         {user ? (

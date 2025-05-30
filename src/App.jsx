@@ -1,29 +1,30 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import ProductPage from './pages/Product';
-import MessagesPage from './pages/Messages';
 import ChatWithAI from './pages/ChatWithAI';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import TodoPage from './pages/TodoPage';
-import PrivateRoute from './components/PrivateRoute'; // ✅ import PrivateRoute
+import PrivateRoute from './components/PrivateRoute';
+import { AuthProvider } from './context/AuthContext'; // ✅ Import your AuthContext
 
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        
-        {/* Protected routes */}
-        <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-        <Route path="/products" element={<PrivateRoute><ProductPage /></PrivateRoute>} />
-        <Route path="/messages" element={<PrivateRoute><MessagesPage /></PrivateRoute>} />
-        <Route path="/chat" element={<PrivateRoute><ChatWithAI /></PrivateRoute>} />
-        <Route path="/todo" element={<PrivateRoute><TodoPage /></PrivateRoute>} />
-        
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/products" element={<ProductPage />} />
+
+          {/* Protected routes */}
+          <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="/chat" element={<PrivateRoute><ChatWithAI /></PrivateRoute>} />
+          <Route path="/todo" element={<PrivateRoute><TodoPage /></PrivateRoute>} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
+
