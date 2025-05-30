@@ -7,7 +7,8 @@ import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import TodoPage from './pages/TodoPage';
 import PrivateRoute from './components/PrivateRoute';
-
+import SuccessPage from './pages/Success';
+import CancelPage from './pages/Cancel';
 
 export default function App() {
   return (
@@ -15,6 +16,8 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/success" element={<SuccessPage />} />
+          <Route path="/cancel" element={<CancelPage />} />
 
           {/* Protected routes */}
           <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
