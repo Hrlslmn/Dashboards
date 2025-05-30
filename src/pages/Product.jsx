@@ -199,7 +199,6 @@ export default function ProductPage() {
                 <div className="flex justify-between items-center">
                   <div>
                     <h2 className="text-lg font-bold text-gray-800 truncate max-w-[180px]">{product.name}</h2>
-                    <p className="text-xs text-gray-500">ID: {product.id}</p>
                   </div>
                 </div>
 
