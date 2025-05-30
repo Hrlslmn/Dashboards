@@ -7,8 +7,7 @@ import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import TodoPage from './pages/TodoPage';
 import PrivateRoute from './components/PrivateRoute';
-import { AuthProvider } from './context/AuthContext'; // if App.jsx is in /src
-
+import { AuthProvider } from './AuthContext'; // ✅ Import your AuthContext
 
 export default function App() {
   return (
@@ -17,10 +16,10 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
-          <Route path="/products" element={<ProductPage />} />
 
           {/* Protected routes */}
           <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="/products" element={<ProductPage />} />
           <Route path="/chat" element={<PrivateRoute><ChatWithAI /></PrivateRoute>} />
           <Route path="/todo" element={<PrivateRoute><TodoPage /></PrivateRoute>} />
         </Routes>

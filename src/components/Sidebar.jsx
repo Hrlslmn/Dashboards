@@ -12,7 +12,7 @@ import {
   Bot,
   X
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext'; // ✅ use Auth context
+import { useAuth } from '../AuthContext'; // ✅ use Auth context
 import { supabase } from '../../supabaseClient';
 
 export default function Sidebar({ collapsed = false, setCollapsed, isMobile = false, onClose }) {
