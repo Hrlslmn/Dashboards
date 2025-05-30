@@ -182,7 +182,6 @@ export default function ProductPage() {
             </div>
           )}
 
-          {/* Product Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map((product) => (
               <div key={product.id} className="bg-white rounded-2xl p-4 shadow space-y-4 relative">
@@ -193,7 +192,7 @@ export default function ProductPage() {
                   </div>
                 </div>
 
-                <div className="h-40 overflow-hidden rounded-xl">
+                <div className="h-60 overflow-hidden rounded-xl">
                   <img
                     src={product.image_url}
                     alt={product.name}
@@ -206,23 +205,24 @@ export default function ProductPage() {
                   <span className="text-lg">${product.price}</span>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => {
-                        if (!isAdmin) handleBuy(product);
-                      }}
-                      className={`text-sm ${
-                        isAdmin ? 'bg-indigo-600' : 'bg-green-600'
-                      } text-white px-3 py-1 rounded hover:brightness-110 transition`}
+                      onClick={() => handleBuy(product)}
+                      className="text-sm bg-green-600 text-white px-3 py-1 rounded hover:brightness-110 transition"
                     >
-                      {isAdmin ? 'View Details' : 'Buy'}
+                      Buy
                     </button>
                     {isAdmin && (
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className="text-red-500 hover:text-red-700"
-                        title="Delete Product"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                      <>
+                        <button className="text-sm bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700">
+                          View Details
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product.id)}
+                          className="text-red-500 hover:text-red-700"
+                          title="Delete Product"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -232,7 +232,6 @@ export default function ProductPage() {
         </main>
       </div>
 
-      {/* Image Modal */}
       {selectedImage && (
         <div
           className="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center"
@@ -252,6 +251,7 @@ export default function ProductPage() {
     </div>
   );
 }
+
 
 
 
