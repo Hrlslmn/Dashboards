@@ -7,7 +7,7 @@ import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import TodoPage from './pages/TodoPage';
 import PrivateRoute from './components/PrivateRoute';
-import { AuthProvider } from './AuthContext'; // ✅ Import your AuthContext
+import { AuthProvider } from './components/AuthContext'; // ✅ Import your AuthContext
 
 export default function App() {
   return (
