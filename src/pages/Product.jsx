@@ -215,27 +215,17 @@ export default function ProductPage() {
                 <div className="flex justify-between items-center text-gray-700 font-medium">
                   <span className="text-lg">${product.price}</span>
                   <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleBuy(product)}
-                      className="text-sm bg-green-600 text-white px-3 py-1 rounded hover:brightness-110 transition"
-                    >
-                      Buy
-                    </button>
                     {isAdmin && (
-                      <>
-                        <button className="text-sm bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700">
-                          View Details
-                        </button>
-                        <button
-                          onClick={() => handleDelete(product.id)}
-                          className="text-red-500 hover:text-red-700"
-                          title="Delete Product"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </>
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="text-red-500 hover:text-red-700"
+                        title="Delete Product"
+                      >
+                        <Trash2 size={18} />
+                      </button>
                     )}
                   </div>
+
                 </div>
               </div>
             ))}
