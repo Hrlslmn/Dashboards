@@ -1,5 +1,7 @@
+// src/pages/Success.jsx
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Success() {
   return (
@@ -9,12 +11,12 @@ export default function Success() {
       <p className="text-lg text-green-700 max-w-md">
         Thank you for your purchase. Your transaction has been completed, and a confirmation email will be sent to you shortly.
       </p>
-      <a
-        href="/products"
+      <Link
+        to="/products"
         className="mt-8 bg-green-600 text-white px-6 py-2 rounded-full shadow hover:bg-green-700 transition"
       >
         Continue Shopping
-      </a>
+      </Link>
     </div>
   );
 }
