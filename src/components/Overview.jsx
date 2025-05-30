@@ -15,65 +15,78 @@ export default function Overview() {
 
       {/* Main Content */}
       <main className="w-full px-4 sm:px-6 md:px-10 pt-12 pb-20">
-        {/* Header Section */}
+        {/* Intro Section */}
         <section className="text-center mb-16" data-aos="fade-down">
           <span className="text-sm uppercase tracking-widest text-[#FFD369] font-semibold">
-            Design & AI
+            Design & AI Synergy
           </span>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-[#EEEEEE] mt-3 drop-shadow-sm">
-            The Intersection of <span className="text-[#FFD369]">Design</span> &{" "}
-            <span className="text-[#FFD369]">AI</span>
+            Empowering Creativity with{" "}
+            <span className="text-[#FFD369]">Intelligence</span>
           </h1>
           <p className="mt-4 text-base sm:text-lg text-[#CCCCCC] max-w-2xl mx-auto">
-            Explore how cutting-edge creativity and machine intelligence are merging to define the next era of user experiences.
+            Discover how the fusion of human creativity and artificial intelligence is unlocking new frontiers in design, enabling creators to do more, faster — and with purpose.
           </p>
         </section>
 
-        {/* Hero Image */}
-        <div
-          className="rounded-2xl overflow-hidden shadow-xl mb-14 border border-[#393E46]"
-          data-aos="zoom-in"
-        >
-          <img
-            src="/images/overview-1.jpg"
-            alt="Design and AI"
-            className="w-full h-60 sm:h-[28rem] object-cover transition-transform duration-500 hover:scale-105"
-          />
-        </div>
+          {/* AI-Generated Banner */}
+          <div
+            className="rounded-xl overflow-hidden w-[70%] h-auto justify-self-center shadow-lg mb-12 border border-[#393E46]"
+            data-aos="zoom-in"
+          >
+            <img
+              src="/images/overview-1.jpg"
+              alt="AI Design Banner"
+              className="w-full h-40 sm:h-64 object-cover transition-transform duration-500 hover:scale-105"
+            />
+          </div>
+
 
         {/* Article Content */}
         <article
           className="prose prose-invert prose-lg lg:prose-xl max-w-4xl mx-auto prose-headings:text-[#FFD369] prose-blockquote:border-[#FFD369] prose-a:text-[#FFD369]"
           data-aos="fade-up"
         >
-          <h2>Design Reinvented by Algorithms</h2>
+          <h2>Design Enhanced by Intelligence</h2>
           <p>
-            Artificial Intelligence has revolutionized how designers approach creativity. Instead of starting with a blank canvas, AI can generate countless layout suggestions, color palettes, or even complete brand kits — all based on user behavior or brief input.
+            Artificial Intelligence isn't replacing the creative spark — it's magnifying it. Today, designers have tools that analyze patterns, generate unique variations, and offer assistance in ways that make the creative process more efficient and meaningful.
+          </p>
+
+          <h3>Collaboration, Not Competition</h3>
+          <p>
+            The rise of AI in design isn't about replacing human touch. Instead, it's about collaboration — where AI acts as a partner, offering suggestions, performing repetitive tasks, and letting designers focus on what truly matters: storytelling, vision, and emotion.
           </p>
 
           <blockquote>
-            “Designers won't be replaced by AI — but those who use AI will replace those who don't.”
+            “Great design will always need a human soul — AI simply helps amplify our ideas.”
           </blockquote>
 
-          <h3>Human + Machine = Super Creativity</h3>
-          <p>
-            The future belongs to creators who embrace tools that enhance their abilities. Think AI-generated illustrations, responsive interfaces built in seconds, and code written from a single design prompt. The possibilities are limitless.
-          </p>
-
-          <ul>
-            <li>✨ Faster Prototyping</li>
-            <li>🎨 Infinite Creative Explorations</li>
-            <li>⚙️ Smarter, data-driven UX</li>
+          <h3>Key Opportunities for Designers</h3>
+          <ul className="grid gap-4 mt-6 mb-10 sm:grid-cols-2">
+            <li>⚡ Rapid idea-to-prototype turnaround</li>
+            <li>🎨 Endless visual experimentation</li>
+            <li>📊 Smarter user insights and personalization</li>
+            <li>🛠️ Tools that scale with your imagination</li>
           </ul>
 
           <p>
-            As AI continues to learn and adapt, the role of the designer will evolve — from executors to curators of ideas. This synergy marks a golden age of design where inspiration meets automation.
+            As we enter a new era of design, those who embrace AI are finding themselves empowered with tools that stretch the limits of creativity. It's no longer about choosing between tradition and innovation — it's about blending both to design experiences that matter.
           </p>
 
-          <hr className="my-10 border-[#393E46]" />
+          {/* Closing Section */}
+          <div className="mt-16 text-center">
+            <h3 className="text-[#FFD369] text-2xl font-bold mb-2">
+              Ready to create with confidence?
+            </h3>
+            <p className="text-[#CCCCCC] text-lg">
+              Embrace the tools, lead with vision, and shape the future of design — one intelligent idea at a time.
+            </p>
+          </div>
+
+          <hr className="my-12 border-[#393E46]" />
 
           <p className="text-center text-sm text-[#AAAAAA]">
-            🧠 Curated by the DevBoard Team • Powered by React + AI • © 2025
+            ✨ Curated by the DevBoard Team • Powered by React + AI • © 2025
           </p>
         </article>
       </main>
