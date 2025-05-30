@@ -6,7 +6,7 @@ import SignUpPage from './pages/SignUpPage';
 import PrivateRoute from './components/PrivateRoute';
 import SuccessPage from './pages/Success';
 import CancelPage from './pages/Cancel';
-import Dashboard2 from './components/Overview';
+import Overview from './components/Overview';
 
 // New Sidebar pages
 import ComponentsPage from './pages/ComponentsPage';
@@ -26,7 +26,7 @@ export default function App() {
 
         {/* Sidebar routes */}
 
-        <Route path="/" element={<PrivateRoute><Dashboard2 /></PrivateRoute>} />
+        <Route path="/" element={<PrivateRoute><Overview /></PrivateRoute>} />
         <Route path="/components" element={<PrivateRoute><ComponentsPage /></PrivateRoute>} />
         <Route path="/designs" element={<PrivateRoute><DesignsPage /></PrivateRoute>} />
         <Route path="/themes" element={<PrivateRoute><ThemesPage /></PrivateRoute>} />
