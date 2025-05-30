@@ -1,13 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import {
-  Trash2,
-  CheckCircle,
-  Circle,
-  Calendar,
-  Tag,
-  Search,
-  XCircle
+  Trash2, CheckCircle, Circle, Calendar, Tag, Search, XCircle
 } from 'lucide-react';
 import dayjs from 'dayjs';
 import Sidebar from '../components/Sidebar';
@@ -45,7 +39,6 @@ export default function TodoPage() {
       setTimeout(() => setShake(false), 500);
       return;
     }
-
     const { data, error } = await supabase.from('todos').insert([
       { user_id: userId, title: newTask, completed: false, tag, due_date: dueDate || null }
     ]).select();
@@ -83,17 +76,16 @@ export default function TodoPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#f6f6f6]">
-      {/* Sidebar fixed width */}
-      <div className="w-64 shrink-0">
+    <div className="flex flex-col md:flex-row min-h-screen bg-[#f9fafb]">
+      <div className="w-full md:w-64 shrink-0">
         <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
       </div>
 
-      {/* Main Content */}
-      <main className="flex-1 px-6 py-10 overflow-y-auto">
-        <div className="max-w-6xl mx-auto space-y-10">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <h1 className="text-4xl font-bold text-gray-800">📝 My Tasks</h1>
+      <main className="flex-1 px-4 md:px-10 py-8 overflow-y-auto">
+        <div className="max-w-5xl mx-auto space-y-10">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800">📝 My Tasks</h1>
             <button
               onClick={clearCompleted}
               className="flex items-center gap-2 text-sm bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-xl transition"
@@ -103,32 +95,32 @@ export default function TodoPage() {
             </button>
           </div>
 
-          {/* Summary */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <SummaryCard label="Pending" value={summary.pending} color="bg-yellow-100 text-yellow-900" />
             <SummaryCard label="Completed" value={summary.completed} color="bg-green-100 text-green-900" />
             <SummaryCard label="Total Tasks" value={summary.total} color="bg-purple-100 text-purple-900" />
           </div>
 
-          {/* Add Task */}
-          <div className="bg-white rounded-3xl shadow-lg p-6 space-y-5 border border-gray-100">
+          {/* New Task Form */}
+          <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-200">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <motion.input
                 value={newTask}
                 onChange={(e) => setNewTask(e.target.value)}
                 placeholder="What's your next task?"
-                className={`col-span-2 px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-300 transition ${shake ? 'animate-shake' : ''}`}
+                className={`col-span-2 px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-300 transition w-full ${shake ? 'animate-shake' : ''}`}
               />
               <input
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="px-4 py-3 rounded-xl border border-gray-200"
+                className="px-4 py-3 rounded-xl border border-gray-300 w-full"
               />
               <select
                 value={tag}
                 onChange={(e) => setTag(e.target.value)}
-                className="px-4 py-3 rounded-xl border border-gray-200"
+                className="px-4 py-3 rounded-xl border border-gray-300 w-full"
               >
                 <option>General</option>
                 <option>Work</option>
@@ -136,7 +128,7 @@ export default function TodoPage() {
                 <option>Urgent</option>
               </select>
             </div>
-            <div className="flex justify-end">
+            <div className="flex justify-end pt-4">
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={addTodo}
@@ -148,17 +140,17 @@ export default function TodoPage() {
           </div>
 
           {/* Search */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 border border-gray-300 rounded-xl px-4 py-2 w-full sm:w-2/3">
             <Search size={18} className="text-gray-500" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search your tasks..."
-              className="w-full md:w-1/2 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-300"
+              placeholder="Search tasks..."
+              className="flex-1 bg-transparent focus:outline-none text-gray-700"
             />
           </div>
 
-          {/* Task List */}
+          {/* Todo List */}
           <AnimatePresence>
             <motion.ul layout className="space-y-4">
               {filteredTodos.map((todo) => (
@@ -169,7 +161,7 @@ export default function TodoPage() {
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.3 }}
                   layout
-                  className={`flex justify-between items-center p-5 rounded-2xl border shadow-sm transition ${
+                  className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-5 rounded-2xl border shadow-sm transition ${
                     todo.completed ? 'bg-green-50 border-green-200' : 'bg-white border-gray-100'
                   }`}
                 >
@@ -184,11 +176,11 @@ export default function TodoPage() {
                     ) : (
                       <Circle size={22} className="text-gray-400 group-hover:text-indigo-400" />
                     )}
-                    <span className={`text-lg font-medium ${todo.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                    <span className={`text-lg font-medium break-words ${todo.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
                       {todo.title}
                     </span>
                   </motion.button>
-                  <div className="flex items-center gap-5 text-sm">
+                  <div className="flex flex-wrap items-center gap-3 text-sm">
                     {todo.tag && (
                       <span className="flex items-center gap-1 text-gray-600 px-2 py-1 bg-gray-100 rounded-lg">
                         <Tag size={14} /> {todo.tag}
@@ -216,7 +208,7 @@ export default function TodoPage() {
 
 function SummaryCard({ label, value, color }) {
   return (
-    <div className={`rounded-3xl p-6 shadow-inner border border-gray-100 ${color} transition`}>
+    <div className={`rounded-2xl p-5 shadow-inner border border-gray-100 ${color} transition`}>
       <p className="text-sm font-medium mb-1">{label}</p>
       <h2 className="text-3xl font-bold">{value}</h2>
     </div>
