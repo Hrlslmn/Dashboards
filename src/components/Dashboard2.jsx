@@ -45,7 +45,7 @@ export default function Dashboard() {
               className="w-16 h-16 rounded-full border-4 border-white shadow-md"
             />
           </div>
-          <div className="text-xs text-white mt-2">24/7 Support</div>
+          <div className="text-xs text-white mt-2">24/7 Support service</div>
         </div>
       </aside>
 
