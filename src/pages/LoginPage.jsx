@@ -32,12 +32,12 @@ export default function LoginPage() {
         <div className="hidden md:flex flex-col justify-center items-center bg-gradient-to-br from-indigo-600 to-purple-700 w-1/2 p-10">
           <h2 className="text-4xl font-bold mb-3 text-white">Welcome Back 👋</h2>
           <p className="text-base text-center leading-relaxed text-white/90">
-            Sign in to manage your <br /> Artifex workspace
+            Sign in to manage your <br /> MindPilot workspace
           </p>
           <img
             src="/images/login-img.gif"
             alt="Login Graphic"
-            className="mt-6 w-3/4 h-auto"
+            className="mt-6 w-[250px] h-auto"
           />
         </div>
 
@@ -47,7 +47,7 @@ export default function LoginPage() {
           className="w-full md:w-1/2 p-10 flex flex-col justify-center dark:text-white"
         >
           <h2 className="text-3xl font-bold text-center mb-6 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent dark:from-indigo-400 dark:to-purple-400">
-            Login to Artifex
+            Login to MindPilot
           </h2>
 
           <input
