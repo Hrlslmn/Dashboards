@@ -1,4 +1,3 @@
-// ProductPage.jsx
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
@@ -16,28 +15,41 @@ export default function ProductPage() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    fetchUserRole();
-    fetchProducts();
+    const getSessionAndProfile = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const user = session?.user;
+      if (!user) return;
+
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single();
+
+      if (!error && profile?.is_admin) {
+        setIsAdmin(true);
+      }
+    };
+
+    getSessionAndProfile();
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        getSessionAndProfile();
+      }
+    });
+
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
   }, []);
 
-  const fetchUserRole = async () => {
-    const session = await supabase.auth.getSession();
-    const user = session?.data?.session?.user;
-    if (!user) return;
-
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single();
-
-    if (!profileError) {
-      setIsAdmin(profile?.is_admin || false);
-    } else {
-      console.error('Error fetching profile:', profileError.message);
-    }
-  };
-
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const fetchProducts = async () => {
     const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
@@ -96,10 +108,7 @@ export default function ProductPage() {
     const res = await fetch('/api/create-checkout-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: product.name,
-        price: product.price,
-      }),
+      body: JSON.stringify({ name: product.name, price: product.price }),
     });
 
     const data = await res.json();
@@ -182,6 +191,9 @@ export default function ProductPage() {
                     <h2 className="text-lg font-bold text-gray-800 truncate max-w-[180px]">{product.name}</h2>
                     <p className="text-xs text-gray-500">ID: {product.id}</p>
                   </div>
+                  <span className="text-sm bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full">
+                    Stock: {product.stock}
+                  </span>
                 </div>
 
                 <div className="h-40 overflow-hidden rounded-xl">
@@ -243,6 +255,7 @@ export default function ProductPage() {
     </div>
   );
 }
+
 
 
 
