@@ -184,9 +184,6 @@ export default function ProductPage() {
                     <h2 className="text-lg font-bold text-gray-800 truncate max-w-[180px]">{product.name}</h2>
                     <p className="text-xs text-gray-500">ID: {product.id}</p>
                   </div>
-                  <span className="text-sm bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full">
-                    Stock: {product.stock}
-                  </span>
                 </div>
 
                 <div className="h-40 overflow-hidden rounded-xl">
