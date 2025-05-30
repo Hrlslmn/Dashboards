@@ -7,11 +7,10 @@ import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import TodoPage from './pages/TodoPage';
 import PrivateRoute from './components/PrivateRoute';
-import { AuthProvider } from './components/AuthContext'; // ✅ Import your AuthContext
+
 
 export default function App() {
   return (
-    <AuthProvider>
       <Router>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
@@ -24,7 +23,6 @@ export default function App() {
           <Route path="/todo" element={<PrivateRoute><TodoPage /></PrivateRoute>} />
         </Routes>
       </Router>
-    </AuthProvider>
   );
 }
 
