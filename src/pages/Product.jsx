@@ -132,7 +132,7 @@ export default function ProductPage() {
 
         <main className="p-6 overflow-y-auto space-y-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-800">Product Catalog</h1>
+            <h1 className="text-3xl font-bold text-gray-800">Products</h1>
             {isAdmin && (
               <button
                 onClick={() => setShowForm(!showForm)}
