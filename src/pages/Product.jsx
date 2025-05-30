@@ -4,6 +4,7 @@ import Header from '../components/Header';
 import { supabase } from '../../supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
 import { Trash2 } from 'lucide-react';
+import useSessionCheck from '../components/useSessionCheck';
 
 export default function ProductPage() {
   const [collapsed, setCollapsed] = useState(false);
@@ -14,6 +15,7 @@ export default function ProductPage() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
+  useSessionCheck();
   useEffect(() => {
     const getSessionAndProfile = async () => {
       const {

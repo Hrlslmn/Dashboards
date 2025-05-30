@@ -5,6 +5,7 @@ import InvoiceChart from '../components/InvoiceChart';
 import SalesChart from '../components/SalesChart';
 import StatCard from '../components/StatCard';
 import RecentInvoices from '../components/RecentInvoices';
+import useSessionCheck from '../components/useSessionCheck';
 import {
   ShoppingCart,
   DollarSign,
@@ -13,6 +14,8 @@ import {
 } from 'lucide-react';
 
 export default function Dashboard() {
+
+  useSessionCheck();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
