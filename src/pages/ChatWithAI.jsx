@@ -10,7 +10,6 @@ export default function ChatWithAI() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [mode, setMode] = useState('text'); // 'text' or 'image'
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -99,63 +98,32 @@ export default function ChatWithAI() {
     }
 
     try {
-      let aiMessage;
+      const gptRes = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            { role: 'system', content: 'You are a helpful assistant.' },
+            ...updatedMessages.map((msg) => ({
+              role: msg.from === 'me' ? 'user' : 'assistant',
+              content: msg.text,
+            })),
+          ],
+        }),
+      });
 
-      if (mode === 'image') {
-        const dalleRes = await fetch('https://api.openai.com/v1/images/generations', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: 'dall-e-3',
-            prompt: input,
-            n: 1,
-            size: '512x512',
-          }),
-        });
-
-        const dalleData = await dalleRes.json();
-        if (!dalleData?.data || !dalleData.data[0]?.url) {
-          throw new Error('Image not returned from DALL·E');
-        }
-
-        const imageUrl = dalleData.data[0].url;
-        aiMessage = {
-          from: 'them',
-          text: imageUrl,
-          isImage: true,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        };
-      } else {
-        const gptRes = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: 'gpt-3.5-turbo',
-            messages: [
-              { role: 'system', content: 'You are a helpful assistant.' },
-              ...updatedMessages.map((msg) => ({
-                role: msg.from === 'me' ? 'user' : 'assistant',
-                content: msg.text,
-              })),
-            ],
-          }),
-        });
-
-        const gptData = await gptRes.json();
-        const reply = gptData.choices?.[0]?.message?.content || 'Sorry, I could not understand.';
-        aiMessage = {
-          from: 'them',
-          text: reply,
-          isImage: false,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        };
-      }
+      const gptData = await gptRes.json();
+      const reply = gptData.choices?.[0]?.message?.content || 'Sorry, I could not understand.';
+      const aiMessage = {
+        from: 'them',
+        text: reply,
+        isImage: false,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
 
       setMessages((prev) => [...prev, aiMessage]);
 
@@ -200,7 +168,7 @@ export default function ChatWithAI() {
   };
 
   return (
-    <div className="flex h-screen bg-[#F5F7FB] relative overflow-hidden">
+    <div className="flex h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white overflow-hidden">
       <div className="hidden md:block">
         <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
       </div>
@@ -215,14 +183,12 @@ export default function ChatWithAI() {
       )}
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="shrink-0">
-          <Header onMenuClick={() => setMobileOpen((prev) => !prev)} />
-        </div>
+        <Header onMenuClick={() => setMobileOpen((prev) => !prev)} />
 
-        <div className="shrink-0 px-6 py-4 border-b bg-white shadow-sm flex items-center justify-between">
+        <div className="shrink-0 px-4 md:px-6 py-4 border-b bg-white dark:bg-gray-900 shadow-sm flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold">Chat with AI</h2>
-            <p className="text-sm text-gray-500">Text & image responses supported</p>
+            <h2 className="text-lg md:text-xl font-semibold">Chat with AI</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Your AI assistant is here to help</p>
           </div>
           <button
             onClick={() => setShowConfirm(true)}
@@ -232,15 +198,15 @@ export default function ChatWithAI() {
           </button>
         </div>
 
-        <main className="flex-1 flex flex-col bg-[#FAFAFA] overflow-hidden">
-          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <main className="flex-1 flex flex-col bg-[#FAFAFA] dark:bg-gray-900 overflow-hidden">
+          <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
             {messages.map((msg, idx) => (
               <div
                 key={idx}
-                className={`max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-xl text-sm shadow relative ${
+                className={`w-fit max-w-[85%] px-4 py-2 rounded-xl text-sm shadow relative break-words ${
                   msg.from === 'me'
                     ? 'ml-auto bg-indigo-600 text-white'
-                    : 'bg-gray-200 text-gray-800'
+                    : 'bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-100'
                 }`}
               >
                 {msg.isImage ? (
@@ -252,37 +218,22 @@ export default function ChatWithAI() {
               </div>
             ))}
             {loading && (
-              <div className="max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-xl text-sm bg-gray-200 text-gray-800 shadow">
+              <div className="w-fit max-w-[85%] px-4 py-2 rounded-xl text-sm bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 shadow">
                 Typing...
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input + Toggle */}
-          <div className="bg-white p-4 border-t flex flex-col md:flex-row items-center gap-2 shadow-inner shrink-0">
-            <div className="flex items-center gap-2 text-sm mb-2 md:mb-0">
-              <span className={mode === 'text' ? 'font-semibold text-indigo-600' : 'text-gray-500'}>Text</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  checked={mode === 'image'}
-                  onChange={() => setMode(mode === 'text' ? 'image' : 'text')}
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:bg-indigo-600 transition"></div>
-                <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
-              </label>
-              <span className={mode === 'image' ? 'font-semibold text-indigo-600' : 'text-gray-500'}>Image</span>
-            </div>
-
+          {/* Input */}
+          <div className="bg-white dark:bg-gray-950 p-4 border-t dark:border-gray-800 flex items-center gap-2 shadow-inner shrink-0">
             <input
               type="text"
-              placeholder={mode === 'text' ? 'Ask something...' : 'Describe an image...'}
+              placeholder="Ask something..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              className="flex-1 border rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="flex-1 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-md px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             <button
               onClick={handleSend}
@@ -297,9 +248,9 @@ export default function ChatWithAI() {
 
       {showConfirm && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md text-center">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-md text-center">
             <h3 className="text-lg font-semibold mb-4">Clear chat history?</h3>
-            <p className="text-sm text-gray-600 mb-6">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
               This will delete all messages. Are you sure?
             </p>
             <div className="flex justify-center gap-4">
@@ -311,7 +262,7 @@ export default function ChatWithAI() {
               </button>
               <button
                 onClick={() => setShowConfirm(false)}
-                className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition"
+                className="bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-white px-4 py-2 rounded hover:bg-gray-400 dark:hover:bg-gray-600 transition"
               >
                 Cancel
               </button>
