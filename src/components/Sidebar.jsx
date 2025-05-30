@@ -1,3 +1,4 @@
+// components/Sidebar.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -7,7 +8,7 @@ import {
   Box,
   CheckSquare,
   Bot,
-  X
+  X,
 } from 'lucide-react';
 import { supabase } from '../../supabaseClient';
 
@@ -17,12 +18,9 @@ export default function Sidebar({ collapsed = false, setCollapsed, isMobile = fa
 
   useEffect(() => {
     const getUserRole = async () => {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError || !user) return;
+      const session = await supabase.auth.getSession();
+      const user = session?.data?.session?.user;
+      if (!user) return;
 
       const { data: profile, error } = await supabase
         .from('profiles')

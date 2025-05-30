@@ -21,12 +21,9 @@ export default function ProductPage() {
   }, []);
 
   const fetchUserRole = async () => {
-    const {
-      data: { user },
-      error: userError
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) return;
+    const session = await supabase.auth.getSession();
+    const user = session?.data?.session?.user;
+    if (!user) return;
 
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
@@ -40,6 +37,7 @@ export default function ProductPage() {
       console.error('Error fetching profile:', profileError.message);
     }
   };
+
 
   const fetchProducts = async () => {
     const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
