@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import {
-  Trash2, CheckCircle, Circle, Calendar, Tag, Search, XCircle
+  Trash2, CheckCircle, Circle, Calendar, Tag, Search, XCircle, Menu
 } from 'lucide-react';
 import dayjs from 'dayjs';
 import Sidebar from '../components/Sidebar';
@@ -16,6 +16,7 @@ export default function TodoPage() {
   const [userId, setUserId] = useState(null);
   const [shake, setShake] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const loadTodos = async () => {
@@ -76,13 +77,36 @@ export default function TodoPage() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-[#f9fafb]">
-      <div className="w-full md:w-64 shrink-0">
+    <div className="flex min-h-screen bg-[#f9fafb] relative">
+      {/* Sidebar */}
+      <div className="hidden md:block fixed h-full">
         <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
       </div>
 
-      <main className="flex-1 px-4 md:px-10 py-8 overflow-y-auto">
-        <div className="max-w-5xl mx-auto space-y-10">
+      {/* Mobile sidebar */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-40 flex md:hidden">
+          <div className="w-64 bg-[#1f2937]">
+            <Sidebar isMobile onClose={() => setSidebarOpen(false)} />
+          </div>
+          <div
+            className="flex-1 bg-black bg-opacity-50"
+            onClick={() => setSidebarOpen(false)}
+          />
+        </div>
+      )}
+
+      {/* Main */}
+      <div className={`flex-1 w-full transition-all duration-300 ${collapsed ? 'md:ml-20' : 'md:ml-64'}`}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 md:hidden">
+          <button onClick={() => setSidebarOpen(true)}>
+            <Menu size={24} />
+          </button>
+          <h1 className="text-xl font-semibold">My Tasks</h1>
+        </div>
+
+        <main className="px-4 md:px-10 py-6 space-y-10">
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800">📝 My Tasks</h1>
@@ -102,7 +126,7 @@ export default function TodoPage() {
             <SummaryCard label="Total Tasks" value={summary.total} color="bg-purple-100 text-purple-900" />
           </div>
 
-          {/* New Task Form */}
+          {/* New Task */}
           <div className="bg-white rounded-2xl shadow-md p-6 border border-gray-200">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <motion.input
@@ -150,7 +174,7 @@ export default function TodoPage() {
             />
           </div>
 
-          {/* Todo List */}
+          {/* Task List */}
           <AnimatePresence>
             <motion.ul layout className="space-y-4">
               {filteredTodos.map((todo) => (
@@ -200,8 +224,8 @@ export default function TodoPage() {
               ))}
             </motion.ul>
           </AnimatePresence>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
@@ -214,6 +238,10 @@ function SummaryCard({ label, value, color }) {
     </div>
   );
 }
+
+
+
+
 
 
 
