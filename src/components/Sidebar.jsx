@@ -1,4 +1,3 @@
-// Sidebar.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -6,48 +5,49 @@ import {
   ChevronRight,
   LayoutDashboard,
   Box,
-  MessageSquare,
   CheckSquare,
-  DollarSign,
   Bot,
   X
 } from 'lucide-react';
-import { useAuth } from './AuthContext'; // ✅ use Auth context
 import { supabase } from '../../supabaseClient';
 
 export default function Sidebar({ collapsed = false, setCollapsed, isMobile = false, onClose }) {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const getUserRole = async () => {
-      if (user) {
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('is_admin')
-          .eq('id', user.id)
-          .single();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
 
-        if (!error) {
-          setIsAdmin(profile?.is_admin);
-        } else {
-          console.error('Error fetching profile:', error.message);
-        }
+      if (userError || !user) return;
+
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single();
+
+      if (!error && profile?.is_admin) {
+        setIsAdmin(true);
       }
     };
 
     getUserRole();
-  }, [user]);
+  }, []);
 
-    const navItems = [
-      ...(isAdmin ? [{ label: 'Dashboard', icon: LayoutDashboard, path: '/' }] : []),
-      { label: 'Product', icon: Box, path: '/products' },
-      ...(isAdmin ? [
-        { label: 'Chat with AI', icon: Bot, path: '/chat' },
-        { label: 'To-do list', icon: CheckSquare, path: '/todo' }
-      ] : []),
-    ];
+  const navItems = [
+    ...(isAdmin ? [{ label: 'Dashboard', icon: LayoutDashboard, path: '/' }] : []),
+    { label: 'Product', icon: Box, path: '/products' },
+    ...(isAdmin
+      ? [
+          { label: 'Chat with AI', icon: Bot, path: '/chat' },
+          { label: 'To-do list', icon: CheckSquare, path: '/todo' },
+        ]
+      : []),
+  ];
 
   return (
     <aside className={`h-full ${collapsed ? 'w-20' : 'w-64'} bg-[#1f2937] text-white transition-all duration-300`}>
@@ -76,6 +76,7 @@ export default function Sidebar({ collapsed = false, setCollapsed, isMobile = fa
     </aside>
   );
 }
+
 
 
 
