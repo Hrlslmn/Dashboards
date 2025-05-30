@@ -36,7 +36,7 @@ export default function Dashboard() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header onMenuClick={() => setMobileOpen((prev) => !prev)} />
         <main className="p-6 space-y-6 overflow-y-auto">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Dashboard Overview</h2>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Dashboard's Overview</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <StatCard title="Collections" value="18" change="+120%" icon={<ShoppingCart />} />
             <StatCard title="Sales" value="$12,480" change="+80%" icon={<DollarSign />} />
