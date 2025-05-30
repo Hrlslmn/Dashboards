@@ -105,9 +105,20 @@ export default function ProductPage() {
   };
 
   const handleBuy = async (product) => {
+    const { data: userData } = await supabase.auth.getSession();
+    const accessToken = userData?.session?.access_token;
+
+    if (!accessToken) {
+      alert('You must be logged in to make a purchase.');
+      return;
+    }
+
     const res = await fetch('/api/create-checkout-session', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`, // ✅ Attach Supabase access token
+      },
       body: JSON.stringify({ name: product.name, price: product.price }),
     });
 
