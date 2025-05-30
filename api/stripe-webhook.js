@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     subject: 'Order Confirmation',
     html: `<p>Hi ${session.customer_details.name},</p>
             <p>Your payment of $${(session.amount_total / 100).toFixed(2)} was successful!</p>
-            <p>Thanks for your purchase from Fourth Division.</p>`,
+            <p>Thanks for your purchase from Fourth Division.We hope you enjoy your purchase.</p>`,
     });
 
 
