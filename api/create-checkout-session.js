@@ -6,7 +6,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
+  process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
@@ -34,9 +34,7 @@ export default async function handler(req, res) {
       {
         price_data: {
           currency: 'usd',
-          product_data: {
-            name,
-          },
+          product_data: { name },
           unit_amount: Math.round(price * 100),
         },
         quantity: 1,
@@ -52,4 +50,5 @@ export default async function handler(req, res) {
 
   res.status(200).json({ url: session.url });
 }
+
 
