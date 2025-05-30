@@ -11,7 +11,7 @@ import {
   Bot,
   X
 } from 'lucide-react';
-import { supabase } from '../../supabaseClient'; // Adjust path as needed
+import { supabase } from '../../supabaseClient'; // Adjust if path differs
 
 export default function Sidebar({ collapsed = false, setCollapsed, isMobile = false, onClose }) {
   const navigate = useNavigate();
@@ -20,16 +20,30 @@ export default function Sidebar({ collapsed = false, setCollapsed, isMobile = fa
   useEffect(() => {
     const getUserRole = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+
       if (session?.user) {
-        const { data: profile } = await supabase
+        const { data: profile, error } = await supabase
           .from('profiles')
           .select('is_admin')
           .eq('id', session.user.id)
           .single();
-        setIsAdmin(profile?.is_admin);
+
+        if (!error) {
+          setIsAdmin(profile?.is_admin);
+        } else {
+          console.error('Error fetching profile:', error.message);
+        }
       }
     };
+
     getUserRole();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) getUserRole();
+      else setIsAdmin(false);
+    });
+
+    return () => authListener?.subscription.unsubscribe();
   }, []);
 
   const navItems = [
@@ -68,6 +82,7 @@ export default function Sidebar({ collapsed = false, setCollapsed, isMobile = fa
     </aside>
   );
 }
+
 
 
 
