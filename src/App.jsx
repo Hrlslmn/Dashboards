@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import PrivateRoute from './components/PrivateRoute';
-import SuccessPage from './pages/Success';
 import CancelPage from './pages/Cancel';
 import Overview from './components/Overview';
 import ButtonsPage from './pages/ButtonsPage';
@@ -15,7 +14,6 @@ import NavigationPage from './pages/Navigation';
 import FormsPage from './pages/FormsPage';
 import GlobalLoader from "./components/GlobalLoader";
 
-// New Sidebar pages
 import ComponentsPage from './pages/ComponentsPage';
 import DesignsPage from './pages/DesignsPage';
 import ThemesPage from './pages/ThemesPage';
@@ -26,26 +24,23 @@ export default function App() {
     <Router>
       <GlobalLoader />
       <Routes>
-        {/* Public routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/success" element={<SuccessPage />} />
-        <Route path="/cancel" element={<CancelPage />} />
-        <Route path="/components/buttons" element={<ButtonsPage />} />
-        <Route path="/components/cards" element={<CardsPage />} />
-        <Route path="/components/modals" element={<ModalsPage />} />
-        <Route path="/components/tables" element={<TablesPage />} />
-        <Route path="/components/navigation" element={<NavigationPage />} />
-        <Route path="/components/forms" element={<FormsPage />} />
 
-        {/* Sidebar routes */}
+        {/*private routes */}
+        <Route path="/components/buttons" element={<PrivateRoute><ButtonsPage /></PrivateRoute>} />
+        <Route path="/components/cards" element={<PrivateRoute><CardsPage /></PrivateRoute>} />
+        <Route path="/components/modals" element={<PrivateRoute><ModalsPage /></PrivateRoute>} />
+        <Route path="/components/tables" element={<PrivateRoute><TablesPage /></PrivateRoute>} />
+        <Route path="/components/navigation" element={<PrivateRoute><NavigationPage /></PrivateRoute>} />
+        <Route path="/components/forms" element={<PrivateRoute><FormsPage /></PrivateRoute>} />
 
         <Route path="/" element={<PrivateRoute><Overview /></PrivateRoute>} />
         <Route path="/components" element={<PrivateRoute><ComponentsPage /></PrivateRoute>} />
         <Route path="/designs" element={<PrivateRoute><DesignsPage /></PrivateRoute>} />
         <Route path="/themes" element={<PrivateRoute><ThemesPage /></PrivateRoute>} />
         <Route path="/collections" element={<PrivateRoute><CollectionsPage /></PrivateRoute>} />
-        </Routes>
+      </Routes>
     </Router>
   );
 }
