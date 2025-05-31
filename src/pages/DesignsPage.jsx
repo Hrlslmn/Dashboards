@@ -16,14 +16,6 @@ export default function DesignsPage() {
       description: "Instagram posts, stories, and banners designed for visual impact.",
     },
     {
-      title: "Branding Kits",
-      description: "Complete brand kits with logos, palettes, and font suggestions.",
-    },
-    {
-      title: "Web UI Concepts",
-      description: "Figma & AI-powered UI designs ready for web development.",
-    },
-    {
       title: "Print Materials",
       description: "Posters, flyers, and business cards designed with print precision.",
     },
@@ -40,7 +32,7 @@ export default function DesignsPage() {
               A categorized collection of professional visual design work across different mediums.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
             {categories.map((item, idx) => (
               <div
                 key={idx}
