@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import HeaderGreen from "../components/HeaderGreen"; // ✅ responsive header
+import HeaderGreen from "../components/HeaderGreen";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
@@ -29,32 +29,43 @@ export default function Overview() {
           </p>
         </section>
 
-          {/* AI-Generated Banner */}
-          <div
-            className="rounded-xl overflow-hidden w-[70%] h-auto justify-self-center shadow-lg mb-12 border border-[#393E46]"
-            data-aos="zoom-in"
-          >
-            <img
-              src="/images/overview-1.jpg"
-              alt="AI Design Banner"
-              className="w-full h-40 sm:h-64 object-cover transition-transform duration-500 hover:scale-105"
-            />
-          </div>
+        {/* Hero Banner */}
+        <div
+          className="rounded-xl overflow-hidden w-full max-w-5xl mx-auto shadow-lg mb-16 border border-[#393E46]"
+          data-aos="zoom-in"
+        >
+          <img
+            src="/images/overview-1.jpg" // Replace with your AI banner image
+            alt="Empowering Design with AI"
+            className="w-full h-40 sm:h-64 object-cover transition-transform duration-500 hover:scale-105"
+          />
+        </div>
 
+        {/* Insight Cards */}
+        <section className="max-w-5xl mx-auto grid gap-8 sm:grid-cols-2" data-aos="fade-up">
+          <div className="bg-[#2E3440] p-6 rounded-xl shadow-md border border-[#393E46]">
+            <h4 className="text-[#FFD369] text-xl font-semibold mb-2">Generate Ideas Faster</h4>
+            <p className="text-[#CCCCCC]">From color palettes to layouts, AI helps break creative blocks with instant suggestions.</p>
+          </div>
+          <div className="bg-[#2E3440] p-6 rounded-xl shadow-md border border-[#393E46]">
+            <h4 className="text-[#FFD369] text-xl font-semibold mb-2">Stay Focused on Vision</h4>
+            <p className="text-[#CCCCCC]">With repetitive tasks handled by AI, designers can focus on storytelling and brand purpose.</p>
+          </div>
+        </section>
 
         {/* Article Content */}
         <article
-          className="prose prose-invert prose-lg lg:prose-xl max-w-4xl mx-auto prose-headings:text-[#FFD369] prose-blockquote:border-[#FFD369] prose-a:text-[#FFD369]"
+          className="prose prose-invert prose-lg lg:prose-xl max-w-4xl mx-auto mt-20 prose-headings:text-[#FFD369] prose-blockquote:border-[#FFD369] prose-a:text-[#FFD369]"
           data-aos="fade-up"
         >
           <h2>Design Enhanced by Intelligence</h2>
           <p>
-            Artificial Intelligence isn't replacing the creative spark — it's magnifying it. Today, designers have tools that analyze patterns, generate unique variations, and offer assistance in ways that make the creative process more efficient and meaningful.
+            Artificial Intelligence isn't replacing the creative spark — it's magnifying it. Designers now use tools that analyze patterns, generate unique variations, and simplify workflows.
           </p>
 
           <h3>Collaboration, Not Competition</h3>
           <p>
-            The rise of AI in design isn't about replacing human touch. Instead, it's about collaboration — where AI acts as a partner, offering suggestions, performing repetitive tasks, and letting designers focus on what truly matters: storytelling, vision, and emotion.
+            AI isn't here to compete with humans — it's here to support us. Let AI handle the heavy lifting while you bring the emotional and strategic vision to the table.
           </p>
 
           <blockquote>
@@ -68,27 +79,33 @@ export default function Overview() {
             <li>📊 Smarter user insights and personalization</li>
             <li>🛠️ Tools that scale with your imagination</li>
           </ul>
-
-          <p>
-            As we enter a new era of design, those who embrace AI are finding themselves empowered with tools that stretch the limits of creativity. It's no longer about choosing between tradition and innovation — it's about blending both to design experiences that matter.
-          </p>
-
-          {/* Closing Section */}
-          <div className="mt-16 text-center">
-            <h3 className="text-[#FFD369] text-2xl font-bold mb-2">
-              Ready to create with confidence?
-            </h3>
-            <p className="text-[#CCCCCC] text-lg">
-              Embrace the tools, lead with vision, and shape the future of design — one intelligent idea at a time.
-            </p>
-          </div>
-
-          <hr className="my-12 border-[#393E46]" />
-
-          <p className="text-center text-sm text-[#AAAAAA]">
-            ✨ Curated by the DevBoard Team • Powered by React + AI • © 2025
-          </p>
         </article>
+
+        {/* Image Gallery */}
+        <div className="mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto px-4" data-aos="zoom-in-up">
+          <img src="/images/overview-2.jpg" alt="Workflow AI" className="rounded-xl object-cover h-60 w-full border border-[#393E46]" />
+          <img src="/images/overview-3.jpg" alt="AI UI" className="rounded-xl object-cover h-60 w-full border border-[#393E46]" />
+          <img src="/images/overview-4.jpg" alt="Creative Desk" className="rounded-xl object-cover h-60 w-full border border-[#393E46]" />
+        </div>
+
+        {/* Stats Section */}
+        <div className="bg-[#2B313A] mt-24 py-10 px-6 rounded-2xl text-center border border-[#393E46]" data-aos="fade-up">
+          <h3 className="text-2xl sm:text-3xl font-bold text-[#FFD369] mb-3">Design Smarter, Not Harder</h3>
+          <p className="text-[#CCCCCC] text-lg">80% of designers using AI tools report faster ideation and higher output satisfaction.*</p>
+        </div>
+
+        {/* CTA Button */}
+        <div className="text-center mt-16">
+          <a href="/get-started" className="inline-block px-6 py-3 bg-[#FFD369] text-[#222831] font-semibold rounded-full hover:bg-yellow-400 transition">
+            Start Creating with AI
+          </a>
+        </div>
+
+        <hr className="my-12 border-[#393E46]" />
+
+        <p className="text-center text-sm text-[#AAAAAA]">
+          ✨ Curated by the Artifex AI Team © 2025
+        </p>
       </main>
     </div>
   );

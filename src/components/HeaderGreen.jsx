@@ -34,7 +34,7 @@ export default function HeaderGreen() {
             {open ? <X size={24} /> : <Menu size={24} />}
           </button>
           <h1 className="text-lg sm:text-2xl font-bold text-[#FFD369] tracking-tight">
-            DevBoard
+            Artifex 
           </h1>
         </div>
 

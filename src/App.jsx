@@ -7,6 +7,13 @@ import PrivateRoute from './components/PrivateRoute';
 import SuccessPage from './pages/Success';
 import CancelPage from './pages/Cancel';
 import Overview from './components/Overview';
+import ButtonsPage from './pages/ButtonsPage';
+import CardsPage from './pages/CardsPage';
+import ModalsPage from './pages/ModalsPage';
+import TablesPage from './pages/TablesPage';
+import NavigationPage from './pages/Navigation';
+import FormsPage from './pages/FormsPage';
+import GlobalLoader from "./components/GlobalLoader";
 
 // New Sidebar pages
 import ComponentsPage from './pages/ComponentsPage';
@@ -17,12 +24,19 @@ import CollectionsPage from './pages/CollectionsPage';
 export default function App() {
   return (
     <Router>
+      <GlobalLoader />
       <Routes>
         {/* Public routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/success" element={<SuccessPage />} />
         <Route path="/cancel" element={<CancelPage />} />
+        <Route path="/components/buttons" element={<ButtonsPage />} />
+        <Route path="/components/cards" element={<CardsPage />} />
+        <Route path="/components/modals" element={<ModalsPage />} />
+        <Route path="/components/tables" element={<TablesPage />} />
+        <Route path="/components/navigation" element={<NavigationPage />} />
+        <Route path="/components/forms" element={<FormsPage />} />
 
         {/* Sidebar routes */}
 
