@@ -13,9 +13,8 @@ const supabase = createClient(
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end('Method Not Allowed');
 
-  const { name, price } = req.body;
+  const { name, price, productId } = req.body; // ✅ include productId
 
-  // Authenticate user
   const authHeader = req.headers.authorization;
   const token = authHeader?.split(' ')[1];
   if (!token) return res.status(401).json({ error: 'Missing auth token' });
@@ -27,7 +26,6 @@ export default async function handler(req, res) {
 
   if (error || !user) return res.status(401).json({ error: 'Unauthorized' });
 
-  // Create Stripe Checkout Session
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     line_items: [
@@ -45,7 +43,7 @@ export default async function handler(req, res) {
     cancel_url: `${process.env.CLIENT_URL}/cancel`,
     metadata: {
       user_id: user.id,
-      product_id: productId, // 🔁 Pass this to identify what was purchased
+      product_id: productId, // ✅ now properly defined
     },
   });
 
