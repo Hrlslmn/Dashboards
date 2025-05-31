@@ -19,6 +19,9 @@ import DesignsPage from './pages/DesignsPage';
 import ThemesPage from './pages/ThemesPage';
 import CollectionsPage from './pages/CollectionsPage';
 
+import Success from './pages/Success';
+import Cancel from './pages/Cancel';
+
 export default function App() {
   return (
     <Router>
@@ -40,6 +43,9 @@ export default function App() {
         <Route path="/designs" element={<PrivateRoute><DesignsPage /></PrivateRoute>} />
         <Route path="/themes" element={<PrivateRoute><ThemesPage /></PrivateRoute>} />
         <Route path="/collections" element={<PrivateRoute><CollectionsPage /></PrivateRoute>} />
+
+        <Route path="/success" element={<PrivateRoute><Success /></PrivateRoute>} />
+        <Route path="/cancel" element={<PrivateRoute><Cancel /></PrivateRoute>} />
       </Routes>
     </Router>
   );
