@@ -1,4 +1,3 @@
-// ✅ src/pages/FormsPage.jsx
 import React, { useState, useEffect } from "react";
 import HeaderGreen from "../components/HeaderGreen";
 import Concept001 from "../components/forms/Concept001";
@@ -8,7 +7,7 @@ import Concept004 from "../components/forms/Concept004";
 import { Copy } from "lucide-react";
 import { supabase } from "../../supabaseClient";
 
-// Raw source code imports
+// Raw code imports
 import concept001Code from "../components/forms/Concept001.jsx?raw";
 import concept002Code from "../components/forms/Concept002.jsx?raw";
 import concept003Code from "../components/forms/Concept003.jsx?raw";
@@ -17,18 +16,32 @@ import concept004Code from "../components/forms/Concept004.jsx?raw";
 export default function FormsPage() {
   const [showCode, setShowCode] = useState(null);
   const [session, setSession] = useState(null);
+  const [purchased, setPurchased] = useState([]);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const init = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
-    });
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-    return () => listener.subscription.unsubscribe();
+
+      if (session?.user) {
+        const { data } = await supabase
+          .from("purchases")
+          .select("product_id")
+          .eq("user_id", session.user.id);
+        setPurchased(data.map(p => p.product_id));
+      }
+
+      const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+        setSession(session);
+      });
+
+      return () => listener?.subscription?.unsubscribe();
+    };
+
+    init();
   }, []);
 
-  const handlePay = async () => {
+  const handlePay = async (productId, name, price) => {
     const { data: { session: userSession } } = await supabase.auth.getSession();
     const accessToken = userSession?.access_token;
     if (!accessToken) return alert("Not logged in");
@@ -39,20 +52,20 @@ export default function FormsPage() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({ name: "Premium Form Concept002", price: 9.99 }),
+      body: JSON.stringify({ name, price, productId }),
     });
 
     const data = await response.json();
-    if (data.url) window.location.href = data.url;
+    if (data?.url) window.location.href = data.url;
   };
 
   const forms = [
     {
-      id: "Concept003",
-      title: "Design 003",
+      id: "Concept001",
+      title: "Design 001",
       desc: "Modern gradient split login interface.",
-      Component: Concept003,
-      code: concept003Code,
+      Component: Concept001,
+      code: concept001Code,
     },
     {
       id: "Concept002",
@@ -61,14 +74,14 @@ export default function FormsPage() {
       Component: Concept002,
       code: concept002Code,
       premium: true,
+      price: 9.99,
     },
     {
-      id: "Concept001",
-      title: "Design 001",
+      id: "Concept003",
+      title: "Design 003",
       desc: "Same form with different styling.",
-      Component: Concept001,
-      code: concept001Code,
-      premium: true,
+      Component: Concept003,
+      code: concept003Code,
     },
     {
       id: "Concept004",
@@ -93,65 +106,58 @@ export default function FormsPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
-          {forms.map(({ id, title, desc, Component, code, premium }) => (
-            <div
-              key={id}
-              className="bg-[#2B313A] rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 p-5 flex flex-col justify-between"
-            >
-              <div>
-                <h2 className="text-xl font-semibold text-[#FFD369] mb-1">
-                  {title}
-                </h2>
-                <p className="text-sm text-[#AAAAAA] mb-4">{desc}</p>
-              </div>
+          {forms.map(({ id, title, desc, Component, code, premium, price }) => {
+            const unlocked = !premium || purchased.includes(id);
+            return (
+              <div
+                key={id}
+                className="bg-[#2B313A] rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 p-5 flex flex-col justify-between"
+              >
+                <div>
+                  <h2 className="text-xl font-semibold text-[#FFD369] mb-1">{title}</h2>
+                  <p className="text-sm text-[#AAAAAA] mb-4">{desc}</p>
+                </div>
 
-          <div className="w-full relative rounded-lg shadow-inner p-4 mb-4 bg-white">
-            {premium ? (
-              <>
-                <div className="blur-sm pointer-events-none opacity-30">
+                <div className={`relative w-full bg-white rounded-lg shadow-inner p-4 mb-4 ${!unlocked ? "blur-sm pointer-events-none" : ""}`}>
                   <Component />
-                </div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <button
-                    className="bg-[#FFD369] text-[#222831] py-2 px-4 rounded-lg font-bold hover:bg-yellow-400 transition shadow-lg"
-                    onClick={handlePay}
-                  >
-                    Unlock Premium – $9.99
-                  </button>
-                </div>
-              </>
-            ) : (
-              <Component />
-            )}
-          </div>
-
-              {!premium && (
-                <div className="mt-auto">
-                  <button
-                    className="bg-[#FFD369] text-[#222831] text-sm px-4 py-1 rounded-full hover:bg-yellow-400"
-                    onClick={() => setShowCode(showCode === id ? null : id)}
-                  >
-                    {showCode === id ? "Hide Code" : "Show Code"}
-                  </button>
-                  {showCode === id && (
-                    <div className="relative bg-[#1f1f1f] text-sm text-gray-200 rounded-lg mt-4 overflow-x-auto max-h-[500px]">
+                  {!unlocked && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-60 rounded-lg">
                       <button
-                        className="absolute top-2 right-2 bg-yellow-400 text-black px-3 py-1 rounded text-xs hover:bg-yellow-300"
-                        onClick={() => {
-                          navigator.clipboard.writeText(code);
-                        }}
+                        onClick={() => handlePay(id, title, price)}
+                        className="bg-[#FFD369] text-[#222831] px-4 py-2 rounded-lg font-bold hover:bg-yellow-400"
                       >
-                        <Copy size={14} className="inline mr-1" /> Copy Code
+                        Unlock for ${price}
                       </button>
-                      <pre className="p-4 whitespace-pre-wrap break-words text-xs leading-relaxed">
-                        <code>{code}</code>
-                      </pre>
                     </div>
                   )}
                 </div>
-              )}
-            </div>
-          ))}
+
+                {unlocked && (
+                  <div className="mt-auto">
+                    <button
+                      className="bg-[#FFD369] text-[#222831] text-sm px-4 py-1 rounded-full hover:bg-yellow-400"
+                      onClick={() => setShowCode(showCode === id ? null : id)}
+                    >
+                      {showCode === id ? "Hide Code" : "Show Code"}
+                    </button>
+                    {showCode === id && (
+                      <div className="relative bg-[#1f1f1f] text-sm text-gray-200 rounded-lg mt-4 overflow-x-auto max-h-[500px]">
+                        <button
+                          className="absolute top-2 right-2 bg-yellow-400 text-black px-3 py-1 rounded text-xs hover:bg-yellow-300"
+                          onClick={() => navigator.clipboard.writeText(code)}
+                        >
+                          <Copy size={14} className="inline mr-1" /> Copy Code
+                        </button>
+                        <pre className="p-4 whitespace-pre-wrap break-words text-xs leading-relaxed">
+                          <code>{code}</code>
+                        </pre>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </main>
     </div>
