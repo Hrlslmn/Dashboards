@@ -45,6 +45,7 @@ export default async function handler(req, res) {
     cancel_url: `${process.env.CLIENT_URL}/cancel`,
     metadata: {
       user_id: user.id,
+      product_id: productId, // 🔁 Pass this to identify what was purchased
     },
   });
 
