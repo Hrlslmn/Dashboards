@@ -7,7 +7,6 @@ import Concept004 from "../components/forms/Concept004";
 import { Copy } from "lucide-react";
 import { supabase } from "../../supabaseClient";
 
-// Raw code imports
 import concept001Code from "../components/forms/Concept001.jsx?raw";
 import concept002Code from "../components/forms/Concept002.jsx?raw";
 import concept003Code from "../components/forms/Concept003.jsx?raw";
@@ -19,7 +18,7 @@ export default function FormsPage() {
   const [purchased, setPurchased] = useState([]);
 
   useEffect(() => {
-    const init = async () => {
+    const fetchSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
 
@@ -38,7 +37,7 @@ export default function FormsPage() {
       return () => listener?.subscription?.unsubscribe();
     };
 
-    init();
+    fetchSession();
   }, []);
 
   const handlePay = async (productId, name, price) => {
@@ -118,10 +117,13 @@ export default function FormsPage() {
                   <p className="text-sm text-[#AAAAAA] mb-4">{desc}</p>
                 </div>
 
-                <div className={`relative w-full bg-white rounded-lg shadow-inner p-4 mb-4 ${!unlocked ? "blur-sm pointer-events-none" : ""}`}>
-                  <Component />
+                <div className="relative w-full bg-white rounded-lg shadow-inner p-4 mb-4">
+                  <div className={`${!unlocked ? "blur-sm" : ""}`}>
+                    <Component />
+                  </div>
+
                   {!unlocked && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-60 rounded-lg">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
                       <button
                         onClick={() => handlePay(id, title, price)}
                         className="bg-[#FFD369] text-[#222831] px-4 py-2 rounded-lg font-bold hover:bg-yellow-400"
@@ -163,3 +165,4 @@ export default function FormsPage() {
     </div>
   );
 }
+
