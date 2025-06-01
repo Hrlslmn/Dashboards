@@ -3,7 +3,7 @@ import React from "react";
 
 export default function Concept002() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10 sm:py-16 bg-gradient-to-br from-indigo-100 via-white to-purple-100 font-['Inter',sans-serif]">
+    <div className="min-h-screen flex items-center justify-center font-['Inter',sans-serif]">
       <div className="w-full max-w-6xl bg-white rounded-2xl shadow-xl flex flex-col lg:flex-row overflow-hidden border border-gray-200">
         
         {/* Left Panel */}

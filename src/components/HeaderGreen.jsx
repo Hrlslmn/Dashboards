@@ -64,7 +64,7 @@ export default function HeaderGreen() {
         {/* Logo & Mobile Toggle */}
         <div className="flex items-center gap-3">
           <button
-            className="sm:hidden text-[#FFD369] focus:outline-none"
+            className="md:hidden text-[#FFD369] focus:outline-none"
             onClick={() => setOpen(!open)}
           >
             {open ? <X size={24} /> : <Menu size={24} />}
@@ -73,7 +73,7 @@ export default function HeaderGreen() {
         </div>
 
         {/* Desktop Navigation */}
-        <nav className="hidden sm:flex items-center gap-6 text-sm font-medium">
+        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           {navLinks.map(({ icon, label, path }) => (
             <Link
               key={label}
@@ -123,7 +123,7 @@ export default function HeaderGreen() {
 
       {/* Mobile Dropdown */}
       {open && (
-        <nav className="sm:hidden px-4 pb-4 bg-[#222831] border-t border-[#393E46]">
+        <nav className="md:hidden px-4 pb-4 bg-[#222831] border-t border-[#393E46]">
           {navLinks.map(({ icon, label, path }) => (
             <Link
               key={label}
@@ -166,3 +166,4 @@ export default function HeaderGreen() {
     </header>
   );
 }
+

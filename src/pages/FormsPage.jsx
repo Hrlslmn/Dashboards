@@ -73,7 +73,7 @@ export default function FormsPage() {
       Component: Concept002,
       code: concept002Code,
       premium: true,
-      price: 9.99,
+      price: 3.99,
     },
     {
       id: "Concept003",
@@ -94,8 +94,8 @@ export default function FormsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#1a1f25] to-[#222831] text-[#EEEEEE] font-['Inter',sans-serif]">
       <HeaderGreen />
-      <main className="max-w-9xl mx-auto px-4 py-16">
-        <div className="text-center mb-16">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-12">
+        <div className="text-center mb-16 px-4">
           <h1 className="text-4xl sm:text-5xl font-extrabold text-[#FFD369] mb-2">
             Input Fields & Forms
           </h1>
@@ -104,20 +104,20 @@ export default function FormsPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
           {forms.map(({ id, title, desc, Component, code, premium, price }) => {
             const unlocked = !premium || purchased.includes(id);
             return (
               <div
                 key={id}
-                className="bg-[#2B313A] rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 p-5 flex flex-col justify-between"
+                className="bg-[#2B313A] rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 p-4 sm:p-6 flex flex-col justify-between"
               >
                 <div>
                   <h2 className="text-xl font-semibold text-[#FFD369] mb-1">{title}</h2>
                   <p className="text-sm text-[#AAAAAA] mb-4">{desc}</p>
                 </div>
 
-                <div className="relative w-full bg-white rounded-lg shadow-inner p-4 mb-4">
+                <div className="relative w-full bg-white rounded-lg shadow-inner p-3 sm:p-5 mb-4 overflow-hidden">
                   <div className={`${!unlocked ? "blur-sm" : ""}`}>
                     <Component />
                   </div>
@@ -165,4 +165,6 @@ export default function FormsPage() {
     </div>
   );
 }
+
+
 

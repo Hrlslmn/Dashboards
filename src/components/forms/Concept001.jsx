@@ -2,15 +2,16 @@ import React from "react";
 
 export default function Concept001() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10 sm:py-16 bg-gradient-to-br from-indigo-100 via-white to-purple-100 font-['Inter',sans-serif]">
-      <div className="w-full max-w-5xl bg-white rounded-2xl overflow-hidden shadow-xl flex flex-col lg:flex-row">
-        
+    <div className="min-h-screen flex items-center justify-center   font-['Inter',sans-serif]">
+      <div className="w-full max-w-5xl rounded-2xl overflow-hidden shadow-xl flex flex-col lg:flex-row">
+
         {/* Left Panel */}
         <div className="w-full lg:w-1/2 bg-gradient-to-br from-[#6C63FF] to-[#5145CD] text-white px-6 sm:px-10 py-10 sm:py-16 flex flex-col items-center justify-center text-center space-y-5">
           <div className="text-sm uppercase tracking-widest text-white/70">Welcome</div>
           <h1 className="text-3xl sm:text-4xl font-bold">Hey There!</h1>
           <p className="text-white/90 text-sm leading-relaxed">
-            Welcome back. You're just one step away<br className="hidden sm:block" />
+            Welcome back. You're just one step away
+            <br className="hidden sm:block" />
             from exploring your feed.
           </p>
           <p className="text-white/60 text-sm">Don’t have an account?</p>
@@ -21,7 +22,7 @@ export default function Concept001() {
 
         {/* Right Panel */}
         <div className="w-full lg:w-1/2 px-6 sm:px-10 py-10 sm:py-16 bg-white flex items-center justify-center">
-          <form className="w-full max-w-sm space-y-6">
+          <form className="w-full max-w-sm sm:max-w-md space-y-6">
             <h2 className="text-2xl sm:text-3xl font-bold text-center text-[#6C63FF]">Sign In</h2>
 
             <div>
@@ -66,10 +67,12 @@ export default function Concept001() {
             </div>
           </form>
         </div>
+
       </div>
     </div>
   );
 }
+
 
 
 
