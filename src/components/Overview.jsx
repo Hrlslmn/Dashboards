@@ -34,11 +34,18 @@ export default function Overview() {
           className="rounded-xl overflow-hidden w-full max-w-5xl mx-auto shadow-lg mb-16 border border-[#393E46]"
           data-aos="zoom-in"
         >
-          <img
-            src="/images/overview-1.jpg" // Replace with your AI banner image
-            alt="Empowering Design with AI"
-            className="w-full h-40 sm:h-64 object-cover transition-transform duration-500 hover:scale-105"
-          />
+          <div className="relative w-full pt-[56.25%]"> {/* 16:9 Aspect Ratio */}
+            <video
+              className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+              autoPlay
+              muted
+              loop
+              playsInline
+            >
+              <source src="/images/overview-vid.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
         </div>
 
         {/* Insight Cards */}

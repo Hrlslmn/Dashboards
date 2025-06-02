@@ -4,6 +4,7 @@ import Concept001 from "../components/forms/Concept001";
 import Concept002 from "../components/forms/Concept002";
 import Concept003 from "../components/forms/Concept003";
 import Concept004 from "../components/forms/Concept004";
+import Concept005 from "../components/forms/Concept005";
 import { Copy } from "lucide-react";
 import { supabase } from "../../supabaseClient";
 
@@ -11,6 +12,7 @@ import concept001Code from "../components/forms/Concept001.jsx?raw";
 import concept002Code from "../components/forms/Concept002.jsx?raw";
 import concept003Code from "../components/forms/Concept003.jsx?raw";
 import concept004Code from "../components/forms/Concept004.jsx?raw";
+import concept005Code from "../components/forms/Concept005.jsx?raw";
 
 export default function FormsPage() {
   const [showCode, setShowCode] = useState(null);
@@ -89,6 +91,13 @@ export default function FormsPage() {
       Component: Concept004,
       code: concept004Code,
     },
+    {
+      id: "Concept005",
+      title: "Design 005",
+      desc: "Lottie animation on top / great for SaaS UI",
+      Component: Concept005,
+      code: concept005Code,
+    },
   ];
 
   return (
@@ -104,7 +113,7 @@ export default function FormsPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-8">
           {forms.map(({ id, title, desc, Component, code, premium, price }) => {
             const unlocked = !premium || purchased.includes(id);
             return (
