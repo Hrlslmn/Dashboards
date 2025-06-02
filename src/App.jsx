@@ -31,7 +31,7 @@ export default function App() {
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/dashboard" element={<Dashboard />} /> 
         <Route path="/success" element={<Success />} />
-        <Route path="/cancelled" element={<Cancel />} />
+        <Route path="/cancel" element={<Cancel />} />
         {/*private routes */}
         <Route path="/components/buttons" element={<PrivateRoute><ButtonsPage /></PrivateRoute>} />
         <Route path="/components/cards" element={<PrivateRoute><CardsPage /></PrivateRoute>} />

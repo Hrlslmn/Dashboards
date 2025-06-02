@@ -40,7 +40,7 @@ export default async function handler(req, res) {
     ],
     mode: 'payment',
     success_url: `${process.env.CLIENT_URL}/success`,
-    cancel_url: `${process.env.CLIENT_URL}/cancelled`,
+    cancel_url: `${process.env.CLIENT_URL}/cancel`,
     metadata: {
       user_id: user.id,
       product_id: productId, // ✅ now properly defined
