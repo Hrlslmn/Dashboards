@@ -29,7 +29,9 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} /> 
+        <Route path="/success" element={<Success />} />
+        <Route path="/cancelled" element={<Cancel />} />
         {/*private routes */}
         <Route path="/components/buttons" element={<PrivateRoute><ButtonsPage /></PrivateRoute>} />
         <Route path="/components/cards" element={<PrivateRoute><CardsPage /></PrivateRoute>} />
@@ -43,9 +45,6 @@ export default function App() {
         <Route path="/designs" element={<PrivateRoute><DesignsPage /></PrivateRoute>} />
         <Route path="/themes" element={<PrivateRoute><ThemesPage /></PrivateRoute>} />
         <Route path="/collections" element={<PrivateRoute><CollectionsPage /></PrivateRoute>} />
-
-        <Route path="/success" element={<PrivateRoute><Success /></PrivateRoute>} />
-        <Route path="/cancelled" element={<PrivateRoute><Cancel /></PrivateRoute>} />
       </Routes>
     </Router>
   );
