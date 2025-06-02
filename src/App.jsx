@@ -46,7 +46,7 @@ export default function App() {
         <Route path="/collections" element={<PrivateRoute><CollectionsPage /></PrivateRoute>} />
 
         <Route path="/success" element={<PrivateRoute><Success /></PrivateRoute>} />
-        <Route path="/cancel" element={<PrivateRoute><Cancel /></PrivateRoute>} />
+        <Route path="/cancelled" element={<PrivateRoute><Cancel /></PrivateRoute>} />
       </Routes>
     </Router>
   );
