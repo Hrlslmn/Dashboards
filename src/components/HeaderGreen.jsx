@@ -19,7 +19,6 @@ const navLinks = [
   { icon: <Monitor size={18} />, label: "React Components", path: "/components" },
   { icon: <Image size={18} />, label: "Graphic Designs", path: "/designs" },
   { icon: <Palette size={18} />, label: "AI Branding Board", path: "/themes" },
-  { icon: <FolderKanban size={18} />, label: "Collections", path: "/collections" },
 ];
 
 export default function HeaderGreen() {

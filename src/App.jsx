@@ -18,8 +18,6 @@ import Homepage01 from './components/Homepage01';
 import ComponentsPage from './pages/ComponentsPage';
 import DesignsPage from './pages/DesignsPage';
 import ThemesPage from './pages/ThemesPage';
-import CollectionsPage from './pages/CollectionsPage';
-
 import Success from './pages/Success';
 import Cancel from './pages/Cancel';
 
@@ -46,7 +44,6 @@ export default function App() {
         <Route path="/components" element={<PrivateRoute><ComponentsPage /></PrivateRoute>} />
         <Route path="/designs" element={<PrivateRoute><DesignsPage /></PrivateRoute>} />
         <Route path="/themes" element={<PrivateRoute><ThemesPage /></PrivateRoute>} />
-        <Route path="/collections" element={<PrivateRoute><CollectionsPage /></PrivateRoute>} />
       </Routes>
     </Router>
   );
