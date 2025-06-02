@@ -13,6 +13,7 @@ import NavigationPage from './pages/Navigation';
 import FormsPage from './pages/FormsPage';
 import GlobalLoader from "./components/GlobalLoader";
 import Dashboard from './components/Dashboard3';
+import Homepage01 from './components/Homepage01';
 
 import ComponentsPage from './pages/ComponentsPage';
 import DesignsPage from './pages/DesignsPage';
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} /> 
         <Route path="/success" element={<Success />} />
         <Route path="/cancel" element={<Cancel />} />
+        <Route path="/homepage1" element={<Homepage01 />} />
         {/*private routes */}
         <Route path="/components/buttons" element={<PrivateRoute><ButtonsPage /></PrivateRoute>} />
         <Route path="/components/cards" element={<PrivateRoute><CardsPage /></PrivateRoute>} />
