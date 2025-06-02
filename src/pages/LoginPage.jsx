@@ -1,98 +1,137 @@
-import React, { useState } from 'react';
-import { supabase } from '../../supabaseClient';
-import { useNavigate } from 'react-router-dom';
-import { Toaster, toast } from 'react-hot-toast';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../supabaseClient'; //
+import { useNavigate, Link } from 'react-router-dom'; // Added Link
+import { Toaster, toast } from 'react-hot-toast'; //
+import { Mail, Lock, LogIn as LogInIcon, Eye, EyeOff } from 'lucide-react'; // Added icons
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
-  const navigate = useNavigate();
+  const [email, setEmail] = useState(''); //
+  const [password, setPassword] = useState(''); //
+  const [rememberMe, setRememberMe] = useState(false); //
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate(); //
 
-const handleLogin = async (e) => {
-  e.preventDefault();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  useEffect(() => {
+    AOS.init({ duration: 800, once: true, delay: 100 });
+  }, []);
 
-  if (error) {
-    toast.error(error.message);
-  } else {
-    toast.success('Login successful');
-    setTimeout(() => navigate('/'), 1500); // This goes to Overview
-  }
-};
+  const handleLogin = async (e) => {
+    e.preventDefault(); //
+    const { error } = await supabase.auth.signInWithPassword({ email, password }); //
 
+    if (error) {
+      toast.error(error.message); //
+    } else {
+      toast.success('Login successful! Redirecting...'); //
+      setTimeout(() => navigate('/'), 1500); // Redirect to Overview page (or dashboard)
+    }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#222831] px-4 font-sans">
-      <Toaster position="top-center" reverseOrder={false} />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 px-4 py-8 font-sans overflow-hidden">
+      <Toaster position="top-center" reverseOrder={false} toastOptions={{
+          className: '!bg-slate-700 !text-white shadow-lg',
+          success: { iconTheme: { primary: '#34D399', secondary: 'white' } },
+          error: { iconTheme: { primary: '#F87171', secondary: 'white' } },
+      }} />
 
-      <div className="flex w-full max-w-5xl bg-[#393E46] shadow-2xl rounded-3xl overflow-hidden border border-[#393E46] text-[#EEEEEE]">
-        
-        {/* Side Graphic Panel */}
-        <div className="hidden md:flex flex-col justify-center items-center bg-gradient-to-br from-[#FFD369] to-[#f5c84c] w-1/2 p-10">
-          <h2 className="text-4xl font-bold mb-3 text-[#222831]">Welcome Back 👋</h2>
-          <img
-            src="/images/login-img.gif"
-            alt="Login Graphic"
-            className="mt-6 w-[250px] h-auto drop-shadow-lg"
-          />
-        </div>
-
-        {/* Login Form */}
-        <form
-          onSubmit={handleLogin}
-          className="w-full md:w-1/2 p-10 flex flex-col justify-center"
-        >
-          <h2 className="text-3xl font-bold text-center mb-6 text-[#FFD369]">
-            Login to Codecanverse
-          </h2>
-
-          <input
-            type="email"
-            placeholder="Email"
-            className="w-full p-3 border border-[#555] bg-[#2c3038] text-[#EEEEEE] rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-[#FFD369] placeholder:text-gray-400"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full p-3 border border-[#555] bg-[#2c3038] text-[#EEEEEE] rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-[#FFD369] placeholder:text-gray-400"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-
-          <div className="flex items-center justify-between mb-6 text-sm">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="mr-2 accent-[#FFD369]"
-              />
-              Remember me
-            </label>
-            <a href="#" className="text-[#FFD369] hover:underline">Forgot password?</a>
+      {/* Ambient Glow Effects */}
+      <div className="absolute inset-0 z-0 opacity-40">
+        <div className="absolute -top-1/2 -left-1/3 w-[150%] h-[150%] bg-gradient-radial from-amber-700/15 via-amber-700/0 to-transparent blur-3xl rounded-full animate-pulse-slower pointer-events-none" />
+        <div className="absolute -bottom-1/2 -right-1/3 w-[150%] h-[150%] bg-gradient-radial from-sky-700/15 via-sky-700/0 to-transparent blur-3xl rounded-full animate-pulse-slower animation-delay-3000 pointer-events-none" />
+      </div>
+      
+      <div 
+        data-aos="zoom-in-up" 
+        className="relative z-10 w-full max-w-md sm:max-w-lg bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 rounded-3xl shadow-2xl overflow-hidden"
+      >
+        <div className="p-8 sm:p-10 md:p-12">
+          <div className="text-center mb-8">
+            <img
+              src="images/login-img.gif" // Ensure this path is correct
+              alt="Login Theme Graphic"
+              className="mx-auto w-32 h-auto mb-6 rounded-lg opacity-80 group-hover:opacity-100 transition-opacity"
+            />
+            <h2 className="text-3xl sm:text-4xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 !leading-tight tracking-tight">
+              Login to Codecanverse
+            </h2>
           </div>
 
-          <button
-            type="submit"
-            className="w-full bg-[#FFD369] hover:bg-[#f0c85b] text-[#222831] py-3 rounded-xl font-semibold transition duration-300"
-          >
-            Sign In
-          </button>
+          <form onSubmit={handleLogin} className="space-y-6">
+            {/* Email Input */}
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
+              <input
+                type="email"
+                placeholder="Email Address"
+                className="w-full p-3.5 pl-12 border border-slate-600/70 bg-slate-700/40 text-neutral-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500/0 placeholder-neutral-400 transition-all duration-200 shadow-sm"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)} //
+                required //
+              />
+            </div>
 
-          <p className="text-sm text-center mt-6 text-[#CCCCCC]">
-            Don’t have an account?{' '}
-            <a href="/signup" className="text-[#FFD369] hover:underline font-medium">
-              Sign Up
-            </a>
-          </p>
-        </form>
+            {/* Password Input */}
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                className="w-full p-3.5 pl-12 pr-12 border border-slate-600/70 bg-slate-700/40 text-neutral-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500/0 placeholder-neutral-400 transition-all duration-200 shadow-sm"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)} //
+                required //
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-amber-400 transition-colors"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+              <label className="flex items-center text-neutral-300 hover:text-white transition-colors cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={rememberMe} //
+                  onChange={(e) => setRememberMe(e.target.checked)} //
+                  className="mr-2.5 h-4 w-4 rounded border-slate-500 text-amber-500 focus:ring-amber-500/70 accent-amber-500" //
+                />
+                Remember me
+              </label>
+              <Link to="/forgot-password" className="text-amber-400 hover:text-amber-300 hover:underline transition-colors">
+                Forgot password?
+              </Link>
+            </div>
+
+            <button
+              type="submit" //
+              className="w-full inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-900 py-3.5 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-amber-500/40 transform hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-slate-800"
+            >
+              <LogInIcon size={22} />
+              Sign In
+            </button>
+
+            <p className="text-sm text-center mt-8 text-neutral-400">
+              Don’t have an account?{' '}
+              <Link to="/signup" className="text-amber-400 hover:text-amber-300 hover:underline font-semibold transition-colors">
+                Sign Up Free
+              </Link>
+            </p>
+          </form>
+        </div>
       </div>
+      <style jsx global>{`
+        @keyframes pulse-slower { 0%, 100% { opacity: 0.03; transform: scale(0.9); } 50% { opacity: 0.1; transform: scale(1); } }
+        .animate-pulse-slower { animation: pulse-slower 12s infinite ease-in-out; }
+        .animation-delay-3000 { animation-delay: 3s; }
+        .bg-gradient-radial { background-image: radial-gradient(circle, var(--tw-gradient-from) 0%, var(--tw-gradient-via) 30%, var(--tw-gradient-to) 70%); }
+      `}</style>
     </div>
   );
 }
