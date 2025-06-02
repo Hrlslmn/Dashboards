@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import PrivateRoute from './components/PrivateRoute';
-import CancelPage from './pages/Cancel';
+import Cancel from './pages/Cancel';
 import Overview from './components/Overview';
 import ButtonsPage from './pages/ButtonsPage';
 import CardsPage from './pages/CardsPage';
