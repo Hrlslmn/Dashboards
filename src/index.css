@@ -1,3 +1,52 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html {
+  height: 100%;
+  overflow-x: hidden; /* Prevent horizontal scroll on html */
+}
+
+body {
+  min-height: 100%; /* Ensure body takes at least full viewport height */
+  background-color: #0d1117; /* Match your app's darkest background */
+  color: #E0E0E0;
+  margin: 0;
+  padding: 0;
+  display: flex; /* Use flex to make #root expand */
+  flex-direction: column;
+  overflow-x: hidden; /* Prevent horizontal scroll on body */
+  /* Remove overflow-y: hidden; from body unless you are 100% sure only a child will scroll */
+}
+
+#root {
+  flex-grow: 1; /* Allow #root to grow and fill body */
+  display: flex;
+  flex-direction: column;
+  width: 100%; /* Ensure #root takes full width */
+}
+
+/* --- Optional: Modern Custom Scrollbar Styling --- */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #161b22;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #393E46;
+  border-radius: 10px;
+  border: 2px solid #161b22;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #FFD369;
+}
+::-webkit-scrollbar-corner {
+  background: #0d1117;
+}
+html { /* For Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #393E46 #161b22;
+}

@@ -10,82 +10,122 @@ import {
   User,
   Menu,
   X,
+  ShieldCheck // Example for a potential new icon or admin icon
 } from "lucide-react";
-import { supabase } from "../../supabaseClient";
+import { supabase } from "../../supabaseClient"; //
 
 const navLinks = [
-  { icon: <LayoutDashboard size={18} />, label: "Home", path: "/" },
-  { icon: <Monitor size={18} />, label: "React Components", path: "/components" },
-  { icon: <Image size={18} />, label: "Graphic Designs", path: "/designs" },
-  { icon: <Palette size={18} />, label: "AI Branding Board", path: "/themes" },
+  { icon: <LayoutDashboard size={20} />, label: "Home", path: "/" }, //
+  { icon: <Monitor size={20} />, label: "React Components", path: "/components" }, //
+  { icon: <Image size={20} />, label: "Graphic Designs", path: "/designs" }, //
+  { icon: <Palette size={20} />, label: "AI Branding Board", path: "/themes" }, //
 ];
 
 export default function HeaderGreen() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-  const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState({ full_name: "", is_admin: false });
+  const location = useLocation(); //
+  const navigate = useNavigate(); //
+  const [open, setOpen] = useState(false); //
+  const [user, setUser] = useState(null); //
+  const [profile, setProfile] = useState({ full_name: "", is_admin: false }); //
 
   useEffect(() => {
     const fetchUser = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error || !user) return;
+      const { data: { user: authUser }, error } = await supabase.auth.getUser(); //
+      if (error || !authUser) {
+        setUser(null); // Ensure user is null if fetch fails or no user
+        setProfile({ full_name: "", is_admin: false });
+        return;
+      }
 
-      setUser(user);
+      setUser(authUser); //
 
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("full_name, is_admin")
-        .eq("id", user.id)
-        .single();
+        .eq("id", authUser.id)
+        .single(); //
 
       if (!profileError && profileData) {
-        setProfile(profileData);
+        setProfile(profileData); //
+      } else {
+         setProfile({ full_name: "User", is_admin: false }); // Default if profile fetch fails
       }
     };
 
     fetchUser();
+
+    // Listen for auth state changes
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        const currentUser = session?.user || null;
+        setUser(currentUser);
+        if (currentUser) {
+          const { data: profileData, error: profileError } = await supabase
+            .from("profiles")
+            .select("full_name, is_admin")
+            .eq("id", currentUser.id)
+            .single();
+          if (!profileError && profileData) {
+            setProfile(profileData);
+          } else {
+            setProfile({ full_name: "User", is_admin: false });
+          }
+        } else {
+          setProfile({ full_name: "", is_admin: false });
+        }
+      }
+    );
+    
+    return () => {
+        authListener?.subscription?.unsubscribe();
+      };
+
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "auto";
-  }, [open]);
+    document.body.style.overflow = open ? "hidden" : "auto"; //
+  }, [open]); //
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setProfile({ full_name: "", is_admin: false });
-    navigate("/login");
+    await supabase.auth.signOut(); //
+    // State updates will be handled by onAuthStateChange
+    navigate("/login"); //
   };
 
   return (
-    <header className="bg-[#222831] text-[#EEEEEE] sticky top-0 z-50 shadow-sm border-b border-[#393E46]">
+    <header className="bg-slate-900/80 backdrop-blur-lg text-neutral-200 sticky top-0 z-50 shadow-xl border-b border-slate-700/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
         {/* Logo & Mobile Toggle */}
         <div className="flex items-center gap-3">
           <button
-            className="md:hidden text-[#FFD369] focus:outline-none"
+            className="md:hidden text-amber-400 hover:text-amber-300 focus:outline-none transition-colors"
             onClick={() => setOpen(!open)}
           >
-            {open ? <X size={24} /> : <Menu size={24} />}
+            {open ? <X size={26} /> : <Menu size={26} />}
           </button>
-          <h1 className="text-xl font-bold text-[#FFD369] tracking-tight">Codecanverse</h1>
+          <Link to="/" className="flex items-center gap-2 group">
+            {/* You can replace this with an SVG logo */}
+            <Palette size={28} className="text-amber-400 group-hover:text-amber-300 transition-colors duration-300 transform group-hover:rotate-[-12deg]"/>
+            <h1 className="text-xl font-bold text-amber-400 group-hover:text-amber-300 tracking-tight transition-colors duration-300">
+              Codecanverse
+            </h1>
+          </Link>
         </div>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+        <nav className="hidden md:flex items-center gap-2">
           {navLinks.map(({ icon, label, path }) => (
             <Link
               key={label}
               to={path}
-              className={`flex items-center gap-2 px-3 py-2 rounded-md transition ${
-                location.pathname === path
-                  ? "bg-[#FFD369] text-[#222831]"
-                  : "hover:bg-[#393E46] text-[#EEEEEE]"
-              }`}
+              className={`flex items-center gap-2.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out group
+                ${
+                  location.pathname === path
+                    ? "bg-amber-400/10 text-amber-300 shadow-inner"
+                    : "text-neutral-300 hover:bg-slate-700/50 hover:text-amber-400"
+                }`}
             >
-              {icon}
+              <span className={`transition-transform duration-200 ${location.pathname === path ? "" : "group-hover:scale-110"}`}>{icon}</span>
               {label}
             </Link>
           ))}
@@ -94,28 +134,27 @@ export default function HeaderGreen() {
         {/* User Info / Auth */}
         <div className="flex items-center gap-3">
           {user ? (
-            <div className="flex items-center gap-2">
-              <User size={18} />
-              <span className="text-sm font-medium">{profile.full_name}</span>
+            <div className="flex items-center gap-3">
               {profile.is_admin && (
-                <span className="ml-2 px-2 py-0.5 text-xs bg-[#FFD369] text-[#222831] rounded-full">
+                <span className="hidden sm:flex items-center gap-1.5 text-xs bg-sky-500/20 text-sky-400 px-3 py-1 rounded-full font-medium border border-sky-500/30">
+                  <ShieldCheck size={14} />
                   Admin
                 </span>
               )}
-              <button
+               <button
                 onClick={handleLogout}
-                className="flex items-center gap-1 text-sm bg-[#FFD369] text-[#222831] px-3 py-1 rounded-md hover:bg-yellow-400 transition"
+                className="flex items-center gap-2 text-sm bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 shadow hover:shadow-md"
               >
-                <LogOut size={16} />
-                Logout
+                <LogOut size={18} />
+                <span className="hidden sm:inline">Logout</span>
               </button>
             </div>
           ) : (
             <Link
               to="/login"
-              className="flex items-center gap-1 text-sm bg-[#FFD369] text-[#222831] px-3 py-1 rounded-md hover:bg-yellow-400 transition"
+              className="flex items-center gap-2 text-sm bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 shadow hover:shadow-md"
             >
-              <LogIn size={16} />
+              <LogIn size={18} />
               Login
             </Link>
           )}
@@ -127,47 +166,67 @@ export default function HeaderGreen() {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
             onClick={() => setOpen(false)}
           />
 
           {/* Drawer Panel */}
-          <div className="fixed top-0 left-0 h-full w-64 bg-[#222831] shadow-xl z-50 animate-slideIn">
-            <div className="p-5 space-y-4">
-              <h2 className="text-lg font-semibold text-[#FFD369]">Menu</h2>
+          <div className={`fixed top-0 left-0 h-full w-72 bg-slate-900/95 backdrop-blur-xl shadow-2xl z-50 animate-slideIn border-r border-slate-700/50 md:hidden`}>
+            <div className="p-6 space-y-2">
+              <div className="flex justify-between items-center mb-6">
+                <Link to="/" onClick={() => setOpen(false)} className="flex items-center gap-2 group">
+                    <Palette size={26} className="text-amber-400 group-hover:text-amber-300 transition-colors duration-300 transform group-hover:rotate-[-12deg]"/>
+                    <h2 className="text-lg font-bold text-amber-400 group-hover:text-amber-300 transition-colors">Codecanverse</h2>
+                </Link>
+                <button onClick={() => setOpen(false)} className="text-neutral-400 hover:text-amber-400">
+                    <X size={24}/>
+                </button>
+              </div>
 
               {navLinks.map(({ icon, label, path }) => (
                 <Link
                   key={label}
                   to={path}
                   onClick={() => setOpen(false)}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium ${
-                    location.pathname === path
-                      ? "bg-[#FFD369] text-[#222831]"
-                      : "text-[#EEEEEE] hover:bg-[#393E46]"
-                  }`}
+                  className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ease-in-out group
+                    ${
+                      location.pathname === path
+                        ? "bg-amber-400/10 text-amber-300 shadow-inner"
+                        : "text-neutral-200 hover:bg-slate-700/70 hover:text-amber-400"
+                    }`}
                 >
                   {icon}
                   {label}
                 </Link>
               ))}
 
-              <div className="pt-4 border-t border-[#393E46]">
+              <div className="pt-6 border-t border-slate-700/50">
                 {user ? (
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm bg-[#FFD369] text-[#222831] rounded-md hover:bg-yellow-400"
-                  >
-                    <LogOut size={18} />
-                    Logout
-                  </button>
+                  <>
+                    <div className="flex items-center gap-3 px-3 py-2 mb-3 text-neutral-300">
+                        <User size={20} />
+                        <span className="font-medium">{profile.full_name || "User"}</span>
+                        {profile.is_admin && (
+                            <span className="ml-auto text-xs bg-sky-500/20 text-sky-400 px-2.5 py-1 rounded-full font-medium border border-sky-500/30">
+                            Admin
+                            </span>
+                        )}
+                    </div>
+                    <button
+                        onClick={() => {handleLogout(); setOpen(false);}}
+                        className="w-full flex items-center justify-center gap-2.5 px-4 py-3 text-base bg-amber-500 hover:bg-amber-600 text-slate-900 rounded-lg font-semibold transition-colors"
+                    >
+                        <LogOut size={20} />
+                        Logout
+                    </button>
+                  </>
                 ) : (
                   <Link
                     to="/login"
                     onClick={() => setOpen(false)}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm bg-[#FFD369] text-[#222831] rounded-md hover:bg-yellow-400"
+                    className="w-full flex items-center justify-center gap-2.5 px-4 py-3 text-base bg-amber-500 hover:bg-amber-600 text-slate-900 rounded-lg font-semibold transition-colors"
                   >
-                    <LogIn size={18} />
+                    <LogIn size={20} />
                     Login
                   </Link>
                 )}
