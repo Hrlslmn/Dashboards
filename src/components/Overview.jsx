@@ -22,7 +22,7 @@ export default function Overview() {
           </span>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-[#EEEEEE] mt-3 drop-shadow-sm">
             Empowering Creativity with{" "}
-            <span className="text-[#FFD369]">Intelligence</span>
+            <span className="text-[#FFD369]">Intelligences</span>
           </h1>
           <p className="mt-4 text-base sm:text-lg text-[#CCCCCC] max-w-2xl mx-auto">
             Discover how the fusion of human creativity and artificial intelligence is unlocking new frontiers in design, enabling creators to do more, faster — and with purpose.

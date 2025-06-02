@@ -44,7 +44,7 @@ const handleLogin = async (e) => {
           className="w-full md:w-1/2 p-10 flex flex-col justify-center"
         >
           <h2 className="text-3xl font-bold text-center mb-6 text-[#FFD369]">
-            Login to Artifex
+            Login to Code Canvas
           </h2>
 
           <input
