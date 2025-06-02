@@ -5,12 +5,11 @@ import {
   Monitor,
   Image,
   Palette,
-  FolderKanban,
-  Menu,
-  X,
   LogIn,
   LogOut,
   User,
+  Menu,
+  X,
 } from "lucide-react";
 import { supabase } from "../../supabaseClient";
 
@@ -49,6 +48,10 @@ export default function HeaderGreen() {
     fetchUser();
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "auto";
+  }, [open]);
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -59,7 +62,6 @@ export default function HeaderGreen() {
   return (
     <header className="bg-[#222831] text-[#EEEEEE] sticky top-0 z-50 shadow-sm border-b border-[#393E46]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
-
         {/* Logo & Mobile Toggle */}
         <div className="flex items-center gap-3">
           <button
@@ -120,49 +122,60 @@ export default function HeaderGreen() {
         </div>
       </div>
 
-      {/* Mobile Dropdown */}
+      {/* Mobile Side Drawer */}
       {open && (
-        <nav className="md:hidden px-4 pb-4 bg-[#222831] border-t border-[#393E46]">
-          {navLinks.map(({ icon, label, path }) => (
-            <Link
-              key={label}
-              to={path}
-              onClick={() => setOpen(false)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-md transition text-sm ${
-                location.pathname === path
-                  ? "bg-[#FFD369] text-[#222831]"
-                  : "text-[#EEEEEE] hover:bg-[#393E46]"
-              }`}
-            >
-              {icon}
-              {label}
-            </Link>
-          ))}
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            onClick={() => setOpen(false)}
+          />
 
-          {/* Auth Mobile */}
-          <div className="mt-3 border-t border-[#393E46] pt-3">
-            {user ? (
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm bg-[#FFD369] text-[#222831] rounded-md hover:bg-yellow-400"
-              >
-                <LogOut size={16} />
-                Logout
-              </button>
-            ) : (
-              <Link
-                to="/login"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2 px-3 py-2 text-sm bg-[#FFD369] text-[#222831] rounded-md hover:bg-yellow-400"
-              >
-                <LogIn size={16} />
-                Login
-              </Link>
-            )}
+          {/* Drawer Panel */}
+          <div className="fixed top-0 left-0 h-full w-64 bg-[#222831] shadow-xl z-50 animate-slideIn">
+            <div className="p-5 space-y-4">
+              <h2 className="text-lg font-semibold text-[#FFD369]">Menu</h2>
+
+              {navLinks.map(({ icon, label, path }) => (
+                <Link
+                  key={label}
+                  to={path}
+                  onClick={() => setOpen(false)}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium ${
+                    location.pathname === path
+                      ? "bg-[#FFD369] text-[#222831]"
+                      : "text-[#EEEEEE] hover:bg-[#393E46]"
+                  }`}
+                >
+                  {icon}
+                  {label}
+                </Link>
+              ))}
+
+              <div className="pt-4 border-t border-[#393E46]">
+                {user ? (
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm bg-[#FFD369] text-[#222831] rounded-md hover:bg-yellow-400"
+                  >
+                    <LogOut size={18} />
+                    Logout
+                  </button>
+                ) : (
+                  <Link
+                    to="/login"
+                    onClick={() => setOpen(false)}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm bg-[#FFD369] text-[#222831] rounded-md hover:bg-yellow-400"
+                  >
+                    <LogIn size={18} />
+                    Login
+                  </Link>
+                )}
+              </div>
+            </div>
           </div>
-        </nav>
+        </>
       )}
     </header>
   );
 }
-
