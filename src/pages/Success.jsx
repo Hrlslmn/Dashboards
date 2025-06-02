@@ -1,25 +1,48 @@
-import React from "react";
-import { CheckCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { supabase } from '../../supabaseClient';
 
 export default function Success() {
+  const [searchParams] = useSearchParams();
+  const [sessionData, setSessionData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const sessionId = searchParams.get('session_id'); // 🔍 Stripe passes this on success_url
+
+  useEffect(() => {
+    const fetchCheckoutSession = async () => {
+      if (!sessionId) return;
+
+      const { data, error } = await supabase
+        .from('checkout_sessions')
+        .select('*')
+        .eq('session_id', sessionId) // ✅ use session_id from query param
+        .eq('status', 'completed');
+
+      if (error) {
+        console.error('Error fetching session:', error);
+      } else {
+        setSessionData(data?.[0]);
+      }
+
+      setLoading(false);
+    };
+
+    fetchCheckoutSession();
+  }, [sessionId]);
+
+  if (loading) return <p>Loading...</p>;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center px-4">
-      <div className="bg-white border border-green-300 rounded-xl shadow-lg p-8 max-w-md text-center animate-fade-in">
-        <div className="flex justify-center mb-4">
-          <CheckCircle className="w-12 h-12 text-green-500" />
-        </div>
-        <h1 className="text-2xl font-bold text-green-700 mb-2">Payment Successful</h1>
-        <p className="text-gray-700 mb-6">
-          Thank you! Your payment has been received and access is now granted.
-        </p>
-        <Link
-          to="/components/forms"
-          className="inline-block px-6 py-2 bg-green-500 text-white font-medium rounded-lg shadow hover:bg-green-600 transition"
-        >
-          Go to Forms
-        </Link>
-      </div>
+    <div className="min-h-screen flex flex-col items-center justify-center text-center">
+      <h1 className="text-3xl font-bold">✅ Payment Successful</h1>
+      {sessionData ? (
+        <p className="mt-4 text-lg">Thank you! Your product ID: <strong>{sessionData.product_id}</strong></p>
+      ) : (
+        <p className="mt-4 text-red-500">Session not found or not completed.</p>
+      )}
     </div>
   );
 }
+
+

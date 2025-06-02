@@ -39,13 +39,22 @@ export default async function handler(req, res) {
       },
     ],
     mode: 'payment',
-    success_url: `${process.env.CLIENT_URL}/success`,
+    success_url: `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.CLIENT_URL}/cancel`,
     metadata: {
       user_id: user.id,
       product_id: productId, // ✅ now properly defined
     },
   });
+
+  await supabase.from('checkout_sessions').insert([
+  {
+    user_id: user.id,
+    session_id: session.id,
+    status: 'pending',
+    product_id: productId,
+  }
+]);
 
   res.status(200).json({ url: session.url });
 }

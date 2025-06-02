@@ -32,11 +32,22 @@ export default async function handler(req, res) {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-
     const userId = session.metadata.user_id;
     const productId = session.metadata.product_id;
 
-    await supabase.from('purchases').insert([{ user_id: userId, product_id: productId }]);
+    // Insert into purchases
+    await supabase.from('purchases').insert([
+      {
+        user_id: userId,
+        product_id: productId,
+      },
+    ]);
+
+    // Update checkout_sessions to mark as completed
+    await supabase
+      .from('checkout_sessions')
+      .update({ status: 'completed' })
+      .eq('session_id', session.id);
   }
 
   res.status(200).end();
