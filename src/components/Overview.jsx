@@ -18,7 +18,7 @@ export default function Overview() {
           <div data-aos="fade-right">
             <h1 className="text-4xl sm:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-200 mb-6">
               Empowering Creativity
-              <br /> with <span className="underline decoration-yellow-400">Intelligences</span>
+              <br /> with <span className="underline decoration-yellow-400">Intelligence</span>
             </h1>
             <p className="text-lg text-[#CCCCCC] mb-8">
               Discover how the fusion of human creativity and artificial intelligence is unlocking new frontiers in design.
