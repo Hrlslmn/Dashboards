@@ -2,23 +2,3 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
-  background-color: #0d1117; /* Match your app's darkest background */
-  color: #E0E0E0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden; /* Apply this globally */
-}
-
-#root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  /* You might also add overflow: hidden; here if #root is the direct parent of your overflowing content
-     but usually html, body is sufficient for page-level scrollbars. */
-}
-
-/* Optional: Custom Scrollbar Styling (from previous response) */
-/* ... scrollbar styles ... */
