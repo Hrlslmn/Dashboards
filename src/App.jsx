@@ -29,8 +29,8 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/dashboard" element={<Dashboard />} /> 
-        <Route path="/success" element={<Success />} />
-        <Route path="/cancel" element={<Cancel />} />
+        <Route path="/success" element={<PrivateRoute><Success /></PrivateRoute>} />
+        <Route path="/cancel" element={<PrivateRoute><Cancel /></PrivateRoute>} />
         <Route path="/homepage1" element={<Homepage01 />} />
         {/*private routes */}
         <Route path="/components/buttons" element={<PrivateRoute><ButtonsPage /></PrivateRoute>} />
