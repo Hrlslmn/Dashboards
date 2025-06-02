@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.8",
+    "@vercel/speed-insights": "^1.2.0",
     "aos": "^2.3.4",
     "chart.js": "^4.4.9",
     "dayjs": "^1.11.13",
