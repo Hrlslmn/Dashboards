@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
@@ -32,32 +32,36 @@ export default function App() {
       <GlobalLoader />
       <SpeedInsights />
       <Analytics />
-      <Routes>
-        {/* Public Pages */}
-        <Route path="/" element={<Overview />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/homepage1" element={<Homepage01 />} />
 
-        {/* Authenticated Pages */}
-        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-        <Route path="/success" element={<PrivateRoute><Success /></PrivateRoute>} />
-        <Route path="/cancel" element={<PrivateRoute><Cancel /></PrivateRoute>} />
+      <Suspense fallback={<div className="text-center text-gray-400 mt-10">Loading...</div>}>
+        <Routes>
+          {/* Public Pages */}
+          <Route path="/" element={<Overview />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/homepage1" element={<Homepage01 />} />
 
-        {/* Component Pages (Private) */}
-        <Route path="/components" element={<PrivateRoute><ComponentsPage /></PrivateRoute>} />
-        <Route path="/components/buttons" element={<PrivateRoute><ButtonsPage /></PrivateRoute>} />
-        <Route path="/components/cards" element={<PrivateRoute><CardsPage /></PrivateRoute>} />
-        <Route path="/components/modals" element={<PrivateRoute><ModalsPage /></PrivateRoute>} />
-        <Route path="/components/tables" element={<PrivateRoute><TablesPage /></PrivateRoute>} />
-        <Route path="/components/navigation" element={<PrivateRoute><NavigationPage /></PrivateRoute>} />
-        <Route path="/components/forms" element={<PrivateRoute><FormsPage /></PrivateRoute>} />
+          {/* Authenticated Pages */}
+          <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="/success" element={<PrivateRoute><Success /></PrivateRoute>} />
+          <Route path="/cancel" element={<PrivateRoute><Cancel /></PrivateRoute>} />
 
-        {/* Design & Branding Pages (Private) */}
-        <Route path="/designs" element={<PrivateRoute><DesignsPage /></PrivateRoute>} />
-        <Route path="/themes" element={<PrivateRoute><ThemesPage /></PrivateRoute>} />
-      </Routes>
+          {/* Component Pages */}
+          <Route path="/components" element={<PrivateRoute><ComponentsPage /></PrivateRoute>} />
+          <Route path="/components/buttons" element={<PrivateRoute><ButtonsPage /></PrivateRoute>} />
+          <Route path="/components/cards" element={<PrivateRoute><CardsPage /></PrivateRoute>} />
+          <Route path="/components/modals" element={<PrivateRoute><ModalsPage /></PrivateRoute>} />
+          <Route path="/components/tables" element={<PrivateRoute><TablesPage /></PrivateRoute>} />
+          <Route path="/components/navigation" element={<PrivateRoute><NavigationPage /></PrivateRoute>} />
+          <Route path="/components/forms" element={<PrivateRoute><FormsPage /></PrivateRoute>} />
+
+          {/* Design & Branding */}
+          <Route path="/designs" element={<PrivateRoute><DesignsPage /></PrivateRoute>} />
+          <Route path="/themes" element={<PrivateRoute><ThemesPage /></PrivateRoute>} />
+        </Routes>
+      </Suspense>
     </Router>
   );
 }
+
 
