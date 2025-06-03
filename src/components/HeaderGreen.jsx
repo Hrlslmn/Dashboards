@@ -121,7 +121,7 @@ const handleLogout = async () => {
             <Link to="/" className="flex items-center gap-2 group">
               <Palette size={28} className="text-amber-400 group-hover:text-amber-300 transition-colors transform group-hover:rotate-[-12deg]" />
               <h1 className="text-xl font-bold text-amber-400 group-hover:text-amber-300 transition-colors">
-                Codecanverse
+                Code Canverse
               </h1>
             </Link>
           </div>
