@@ -16,15 +16,14 @@ export default function ThemesPage() {
     AOS.init({ duration: 800, once: true, delay: 100 });
   }, []);
 
-  const brandingBoards = [
-    { title: "Maryan Herbal", image: "images/board-1.png", id: "board1" },
-    { title: "Keyla", image: "images/board-2.png", id: "board2" },
-    { title: "Surf Mania", image: "images/board-3.png", id: "board3" },
-    { title: "Tropicana Treasure", image: "images/board-4.png", id: "board4" },
-    { title: "Miyagi Sushi", image: "images/board-5.png", id: "board5" },
-    { title: "Ethereal Glow", image: "images/board-6.png", id: "board6" }
-  ];
-
+    const brandingBoards = [
+      { title: "Maryan Herbal", image: "/images/board-1.png", id: "board1" },
+      { title: "Keyla", image: "/images/board-2.png", id: "board2" },
+      { title: "Surf Mania", image: "/images/board-3.png", id: "board3" },
+      { title: "Tropicana Treasure", image: "/images/board-4.png", id: "board4" },
+      { title: "Miyagi Sushi", image: "/images/board-5.png", id: "board5" },
+      { title: "Ethereal Glow", image: "/images/board-6.png", id: "board6" }
+    ];
   const whyBrandingPoints = [
     { text: "Visually differentiate in a crowded digital landscape.", aosDelay: "100" },
     { text: "Build emotional connections and lasting recognition through consistency.", aosDelay: "200" },
