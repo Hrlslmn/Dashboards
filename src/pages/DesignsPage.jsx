@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
-import HeaderGreen from '../components/HeaderGreen'; // Assuming this is your styled header
+import HeaderGreen from '../components/HeaderGreen';
 import {
   Shirt,
   Package,
   Instagram,
   FileText,
-  Sparkles, // Icon for AI sections
+  Sparkles,
   ArrowRight
 } from 'lucide-react';
 import AOS from 'aos';
@@ -76,23 +76,21 @@ export default function DesignsPage() {
       },
       bgColor: "from-slate-800/70 to-neutral-800/80",
       borderColor: "hover:border-teal-500/70"
-    },
+    }
   ];
 
   return (
-    // Added `position: relative` here to contain absolute children
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#0d1117] via-[#161b22] to-[#0a0c10] text-[#E0E0E0] font-sans overflow-x-hidden relative">
-      {/* Background Glow Effects */}
-      {/* These will now be positioned relative to the above div */}
-      <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-gradient-radial from-amber-600/15 via-amber-600/5 to-transparent blur-3xl rounded-full animate-pulse-slow pointer-events-none" />
-      <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-gradient-radial from-sky-600/15 via-sky-600/5 to-transparent blur-3xl rounded-full animate-pulse-slow animation-delay-2000 pointer-events-none" />
-      
-      <div className="flex-1 w-full relative z-10"> {/* This inner relative positioning is fine for its content */}
+      {/* Responsive Background Glow Effects */}
+      <div className="hidden sm:block absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-gradient-radial from-amber-600/15 via-amber-600/5 to-transparent blur-3xl rounded-full animate-pulse-slow pointer-events-none" />
+      <div className="hidden sm:block absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-gradient-radial from-sky-600/15 via-sky-600/5 to-transparent blur-3xl rounded-full animate-pulse-slow animation-delay-2000 pointer-events-none" />
+
+      <div className="flex-1 w-full relative z-10">
         <HeaderGreen />
-        <main className="px-4 sm:px-6 lg:px-8 pt-24 md:pt-28 pb-16 md:pb-24 max-w-7xl mx-auto">
+        <main className="px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-16 sm:pb-24 max-w-7xl mx-auto">
           {/* Header Section */}
-          <div className="text-center mb-16 md:mb-20" data-aos="fade-down">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 text-transparent bg-clip-text mb-5 !leading-tight tracking-tight">
+          <div className="text-center mb-14 sm:mb-20" data-aos="fade-down">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 text-transparent bg-clip-text mb-5 tracking-tight">
               Graphic Design Library
             </h1>
             <p className="text-neutral-400 text-base sm:text-lg max-w-3xl mx-auto leading-relaxed">
@@ -100,32 +98,36 @@ export default function DesignsPage() {
             </p>
           </div>
 
-          {/* Category "Blog" Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10">
+          {/* Responsive Category Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 md:gap-10">
             {categories.map((item, idx) => (
               <div
                 key={idx}
                 data-aos="fade-up"
                 data-aos-delay={`${idx * 100}`}
-                className={`bg-gradient-to-br ${item.bgColor} backdrop-blur-lg border border-neutral-700/60 rounded-2xl p-6 md:p-8 shadow-2xl hover:shadow-amber-500/15 ${item.borderColor} transition-all duration-300 ease-in-out group flex flex-col`}
+                className={`bg-gradient-to-br ${item.bgColor} backdrop-blur-lg border border-neutral-700/60 rounded-2xl p-6 sm:p-7 md:p-8 shadow-2xl ${item.borderColor} transition-all duration-300 ease-in-out group flex flex-col`}
               >
-                {/* Top section with icon and original description */}
+                {/* Top section */}
                 <div className="flex items-start gap-5 mb-5">
                   <div className="mt-1 bg-amber-400/10 p-3.5 rounded-xl group-hover:bg-amber-400/20 group-hover:scale-110 group-hover:rotate-[-6deg] transition-all duration-300 flex-shrink-0">
                     {item.icon}
                   </div>
                   <div>
-                    <h3 className="text-xl md:text-2xl font-semibold text-amber-300 group-hover:text-amber-200 transition-colors mb-1.5">{item.title}</h3>
-                    <p className="text-neutral-400 text-sm leading-relaxed">{item.description}</p>
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-amber-300 group-hover:text-amber-200 transition-colors mb-1.5">
+                      {item.title}
+                    </h3>
+                    <p className="text-sm sm:text-base text-neutral-400 leading-relaxed">
+                      {item.description}
+                    </p>
                   </div>
                 </div>
 
                 {/* Divider */}
-                <hr className="border-neutral-700/50 my-5 md:my-6 group-hover:border-amber-500/30 transition-colors duration-300" />
+                <hr className="border-neutral-700/50 my-4 sm:my-5 md:my-6 group-hover:border-amber-500/30 transition-colors duration-300" />
 
-                {/* AI Assistance Section */}
+                {/* AI Assistance */}
                 <div className="flex-grow">
-                  <h4 className="flex items-center text-md md:text-lg font-semibold text-sky-400 group-hover:text-sky-300 transition-colors mb-3">
+                  <h4 className="flex items-center text-base sm:text-lg font-semibold text-sky-400 group-hover:text-sky-300 transition-colors mb-3">
                     <Sparkles className="w-5 h-5 mr-2.5 text-sky-500" />
                     {item.aiAssistance.heading}
                   </h4>
@@ -143,6 +145,7 @@ export default function DesignsPage() {
           </div>
         </main>
       </div>
+
       <style jsx global>{`
         @keyframes pulse-slow {
           0%, 100% { opacity: 0.05; transform: scale(0.9); }
@@ -152,7 +155,7 @@ export default function DesignsPage() {
           animation: pulse-slow 10s infinite ease-in-out;
         }
         .animation-delay-2000 {
-          animation-delay: 2.5s; 
+          animation-delay: 2.5s;
         }
         .bg-gradient-radial {
           background-image: radial-gradient(circle, var(--tw-gradient-from) 0%, var(--tw-gradient-via) 30%, var(--tw-gradient-to) 70%);
@@ -161,6 +164,7 @@ export default function DesignsPage() {
     </div>
   );
 }
+
 
 
 
