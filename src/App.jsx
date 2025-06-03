@@ -18,6 +18,8 @@ import ModalsPage from './pages/ModalsPage';
 import TablesPage from './pages/TablesPage';
 import NavigationPage from './pages/Navigation';
 import FormsPage from './pages/FormsPage';
+import UploadComponent from './components/UploadComponent';
+import LandingPage from './components/LandingPage-001'; 
 
 import DesignsPage from './pages/DesignsPage';
 import ThemesPage from './pages/ThemesPage';
@@ -39,11 +41,13 @@ export default function App() {
           <Route path="/" element={<Overview />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
-          <Route path="/homepage1" element={<Homepage01 />} />
+          <Route path="/upload" element={<UploadComponent />} />
+          <Route path="/preview" element={<LandingPage />} />
 
           {/* Authenticated Pages */}
           <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/success" element={<PrivateRoute><Success /></PrivateRoute>} />
+          <Route path="/cancel" element={<PrivateRoute><Cancel /></PrivateRoute>} />
           <Route path="/cancel" element={<PrivateRoute><Cancel /></PrivateRoute>} />
 
           {/* Component Pages */}
@@ -53,7 +57,7 @@ export default function App() {
           <Route path="/components/modals" element={<PrivateRoute><ModalsPage /></PrivateRoute>} />
           <Route path="/components/tables" element={<PrivateRoute><TablesPage /></PrivateRoute>} />
           <Route path="/components/navigation" element={<PrivateRoute><NavigationPage /></PrivateRoute>} />
-          <Route path="/components/forms" element={<PrivateRoute><FormsPage /></PrivateRoute>} />
+          <Route path="/components/landing-pages" element={<PrivateRoute><FormsPage /></PrivateRoute>} />
 
           {/* Design & Branding */}
           <Route path="/designs" element={<PrivateRoute><DesignsPage /></PrivateRoute>} />

@@ -43,10 +43,10 @@ export default function ComponentsPage() {
       link: "/components/modals"
     },
     {
-      title: "Input Fields & Forms",
+      title: "Landing Pages",
       desc: "Validated inputs with modern design.",
       icon: <Cpu className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
-      link: "/components/forms"
+      link: "/components/landing-pages"
     },
     {
       title: "Tables & Lists",
