@@ -53,6 +53,29 @@ export default function FormsPage() {
     }
   };
 
+  // Image zoom follow effect
+  useEffect(() => {
+    const zoomContainer = document.querySelector(".zoom-container");
+
+    const handleMouseMove = (e) => {
+      if (!zoomContainer || !modalImage) return;
+      const { left, top, width, height } = zoomContainer.getBoundingClientRect();
+      const x = ((e.clientX - left) / width) * 100;
+      const y = ((e.clientY - top) / height) * 100;
+      zoomContainer.style.backgroundPosition = `${x}% ${y}%`;
+    };
+
+    if (zoomContainer && modalImage) {
+      zoomContainer.addEventListener("mousemove", handleMouseMove);
+    }
+
+    return () => {
+      if (zoomContainer) {
+        zoomContainer.removeEventListener("mousemove", handleMouseMove);
+      }
+    };
+  }, [modalImage]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#111827] via-[#161b22] to-[#0a0c10] text-[#EEEEEE] font-['Inter',sans-serif]">
       <HeaderGreen />
@@ -149,16 +172,17 @@ export default function FormsPage() {
         )}
       </main>
 
-      {/* Full Image Modal */}
+      {/* Zoom Modal */}
       {modalImage && (
         <div
           className="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center p-4"
           onClick={() => setModalImage(null)}
         >
-          <img
-            src={modalImage}
-            alt="Full preview"
-            className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
+          <div
+            className="zoom-container rounded-lg shadow-xl"
+            style={{
+              backgroundImage: `url(${modalImage})`,
+            }}
           />
         </div>
       )}
@@ -184,11 +208,15 @@ export default function FormsPage() {
           scrollbar-width: thin;
           scrollbar-color: #4a5568 rgba(22, 26, 32, 0.5);
         }
-        img {
-          transition: transform 0.2s ease;
-        }
-        img:hover {
-          transform: scale(1.02);
+
+        .zoom-container {
+          width: 100%;
+          height: 90vh;
+          max-width: 90vw;
+          background-repeat: no-repeat;
+          background-size: 45%;
+          background-position: center;
+          cursor: zoom-out;
         }
       `}</style>
     </div>
