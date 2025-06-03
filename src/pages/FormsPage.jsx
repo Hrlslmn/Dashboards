@@ -75,7 +75,7 @@ export default function FormsPage() {
       Component: Concept002,
       code: concept002Code,
       premium: true,
-      price: 3.99,
+      price: 1.00,
     },
     {
       id: "Concept003",
