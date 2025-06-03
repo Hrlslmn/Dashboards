@@ -12,7 +12,7 @@ import {
   X,
   ShieldCheck
 } from "lucide-react";
-import { supabase } from "../../supabaseClient"; // Ensure this path is correct
+import { supabase } from "../../supabaseClient"; // Adjust path if needed
 
 const navLinks = [
   { icon: <LayoutDashboard size={22} />, label: "Home", path: "/" },
@@ -37,29 +37,28 @@ export default function HeaderGreen() {
         return;
       }
       setUser(authUser);
-      const { data: profileData, error: profileError } = await supabase
+      const { data: profileData } = await supabase
         .from("profiles")
         .select("full_name, is_admin")
         .eq("id", authUser.id)
         .single();
-      if (!profileError && profileData) {
+      if (profileData) {
         setProfile(profileData);
-      } else {
-        setProfile({ full_name: "User", is_admin: false });
       }
     };
     fetchUser();
+
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         const currentUser = session?.user || null;
         setUser(currentUser);
         if (currentUser) {
-          const { data: profileData, error: profileError } = await supabase
+          const { data: profileData } = await supabase
             .from("profiles")
             .select("full_name, is_admin")
             .eq("id", currentUser.id)
             .single();
-          if (!profileError && profileData) {
+          if (profileData) {
             setProfile(profileData);
           } else {
             setProfile({ full_name: "User", is_admin: false });
@@ -69,6 +68,7 @@ export default function HeaderGreen() {
         }
       }
     );
+
     return () => {
       authListener?.subscription?.unsubscribe();
     };
@@ -77,20 +77,33 @@ export default function HeaderGreen() {
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "auto";
     if (open) {
-      document.body.classList.add('mobile-menu-open');
+      document.body.classList.add("mobile-menu-open");
     } else {
-      document.body.classList.remove('mobile-menu-open');
+      document.body.classList.remove("mobile-menu-open");
     }
+    return () => {
+      document.body.style.overflow = "auto";
+      document.body.classList.remove("mobile-menu-open");
+    };
   }, [open]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setOpen(false); 
-    navigate("/login");
-  };
+const handleLogout = async () => {
+  try {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+
+    setUser(null);
+    setProfile({ full_name: "", is_admin: false });
+    setOpen(false);
+    navigate("/login"); // ✅ Redirect to /login
+  } catch (err) {
+    console.error("Logout failed:", err.message);
+  }
+};
+
 
   const handleLinkClick = () => {
-    setOpen(false); 
+    setOpen(false);
   };
 
   return (
@@ -106,8 +119,8 @@ export default function HeaderGreen() {
               {open ? <X size={26} /> : <Menu size={26} />}
             </button>
             <Link to="/" className="flex items-center gap-2 group">
-              <Palette size={28} className="text-amber-400 group-hover:text-amber-300 transition-colors duration-300 transform group-hover:rotate-[-12deg]"/>
-              <h1 className="text-xl font-bold text-amber-400 group-hover:text-amber-300 tracking-tight transition-colors duration-300">
+              <Palette size={28} className="text-amber-400 group-hover:text-amber-300 transition-colors transform group-hover:rotate-[-12deg]" />
+              <h1 className="text-xl font-bold text-amber-400 group-hover:text-amber-300 transition-colors">
                 Codecanverse
               </h1>
             </Link>
@@ -125,7 +138,9 @@ export default function HeaderGreen() {
                       : "text-neutral-300 hover:bg-slate-700/50 hover:text-amber-400"
                   }`}
               >
-                <span className={`transition-transform duration-200 ${location.pathname === path ? "" : "group-hover:scale-110"}`}>{icon}</span>
+                <span className={`${location.pathname === path ? "" : "group-hover:scale-110"} transition-transform`}>
+                  {icon}
+                </span>
                 {label}
               </Link>
             ))}
@@ -161,44 +176,33 @@ export default function HeaderGreen() {
         </div>
       </header>
 
-      {/* --- Full-Screen Mobile Menu Overlay --- */}
+      {/* Mobile Menu */}
       <div
-        className={`
-          fixed inset-0 z-50 
-          bg-gray-900/95 backdrop-blur-md 
-          p-6 flex flex-col
-          transition-opacity duration-300 ease-in-out 
-          md:hidden 
-          ${open ? 'opacity-100 visible' : 'opacity-0 invisible'}
-        `}
+        className={`fixed inset-0 z-50 bg-gray-900/95 backdrop-blur-md p-6 flex flex-col transition-opacity duration-300 ease-in-out md:hidden ${
+          open ? "opacity-100 visible" : "opacity-0 invisible"
+        }`}
       >
-        {/* Top Section: Logo and Close Button */}
-        <div className="flex justify-between items-center mb-10 flex-shrink-0">
+        <div className="flex justify-between items-center mb-10">
           <Link to="/" onClick={handleLinkClick} className="flex items-center gap-2 group">
-            <Palette size={30} className="text-amber-400 group-hover:text-amber-300 transition-colors duration-300 transform group-hover:rotate-[-12deg]"/>
+            <Palette size={30} className="text-amber-400 group-hover:text-amber-300 transition-colors transform group-hover:rotate-[-12deg]" />
             <h2 className="text-2xl font-bold text-amber-400 group-hover:text-amber-300 transition-colors">Codecanverse</h2>
           </Link>
           <button onClick={() => setOpen(false)} aria-label="Close mobile menu" className="text-neutral-300 hover:text-amber-400 p-2">
-            <X size={28}/>
+            <X size={28} />
           </button>
         </div>
 
-        {/* Navigation Links - Centered and takes up available space */}
-        <nav className="flex flex-col items-center justify-center gap-y-6 my-auto text-center overflow-y-auto">
+        <nav className="flex flex-col items-center justify-center gap-y-6 my-auto text-center">
           {navLinks.map(({ icon, label, path }) => (
             <Link
               key={label}
               to={path}
               onClick={handleLinkClick}
-              className={`
-                w-full max-w-xs flex items-center justify-center gap-3.5 px-6 py-4 rounded-lg 
-                text-xl font-medium transition-colors duration-200 ease-in-out group
-                ${
-                  location.pathname === path
-                    ? "bg-amber-400/15 text-amber-300"
-                    : "text-neutral-100 hover:bg-gray-700/70 hover:text-amber-300"
-                }
-              `}
+              className={`w-full max-w-xs flex items-center justify-center gap-3.5 px-6 py-4 rounded-lg text-xl font-medium transition-colors duration-200 group ${
+                location.pathname === path
+                  ? "bg-amber-400/15 text-amber-300"
+                  : "text-neutral-100 hover:bg-gray-700/70 hover:text-amber-300"
+              }`}
             >
               {icon}
               <span>{label}</span>
@@ -206,22 +210,21 @@ export default function HeaderGreen() {
           ))}
         </nav>
 
-        {/* Auth Section - At the bottom */}
-        <div className="pt-8 mt-auto border-t border-gray-700/50 flex-shrink-0">
+        <div className="pt-8 mt-auto border-t border-gray-700/50">
           {user ? (
             <>
-              <div className="flex items-center justify-center gap-3 px-3 text-neutral-200">
+              <div className="flex items-center justify-center gap-3 text-neutral-200 mb-3 px-3">
                 <User size={22} />
                 <span className="font-medium text-lg truncate">{profile.full_name || "User"}</span>
                 {profile.is_admin && (
-                  <span className="ml-2 text-xs bg-sky-500/20 text-sky-400 px-2.5 py-1 rounded-full font-medium border border-sky-500/30 flex-shrink-0">
+                  <span className="ml-2 text-xs bg-sky-500/20 text-sky-400 px-2.5 py-1 rounded-full font-medium border border-sky-500/30">
                     Admin
                   </span>
                 )}
               </div>
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center justify-center gap-2.5 px-4 py-3 text-lg bg-amber-500 hover:bg-amber-600 text-slate-900 rounded-lg font-semibold transition-colors mt-4" // Added mt-4 for spacing
+                className="w-full flex items-center justify-center gap-2.5 px-4 py-3 text-lg bg-amber-500 hover:bg-amber-600 text-slate-900 rounded-lg font-semibold transition-colors"
               >
                 <LogOut size={20} />
                 Logout
