@@ -5,11 +5,10 @@ import {
   Cpu,
   Layers,
   AlertCircle,
-  Sliders,
   Table2,
   Menu as MenuIcon,
   ArrowRight,
-  LayoutDashboard // ✅ New icon
+  LayoutDashboard
 } from 'lucide-react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -18,57 +17,61 @@ export default function ComponentsPage() {
   useEffect(() => {
     AOS.init({
       duration: 800,
-      once: true,
       delay: 100,
-      // disable: 'phone' // Uncomment this if animations cause mobile issues
+      once: false,
+      mirror: true
     });
+
+    // Hard refresh to recalculate all element positions
+    setTimeout(() => {
+      AOS.refreshHard();
+    }, 600);
   }, []);
 
-const components = [
-  {
-    title: "Cards & Layouts",
-    desc: "Versatile containers for clear content structure.",
-    icon: <Layers className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
-    link: "/components/cards"
-  },
-  {
-    title: "Modals & Alerts",
-    desc: "Smooth transitions and notification elements.",
-    icon: <AlertCircle className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
-    link: "/components/modals"
-  },
-  {
-    title: "Landing Pages",
-    desc: "Validated inputs with modern design.",
-    icon: <Cpu className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
-    link: "/components/landing-pages"
-  },
-  {
-    title: "Tables & Lists",
-    desc: "Dynamic components to present structured data.",
-    icon: <Table2 className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
-    link: "/components/tables"
-  },
-  {
-    title: "Navigation Elements",
-    desc: "Navbars, tabs, and side menus.",
-    icon: <MenuIcon className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
-    link: "/components/navigation"
-  },
-  {
-    title: "Dashboards",
-    desc: "Admin panels and analytics layouts to power decision-making.",
-    icon: <LayoutDashboard className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
-    link: "/dashboards"
-  }
-];
-
+  const components = [
+    {
+      title: "Cards & Layouts",
+      desc: "Versatile containers for clear content structure.",
+      icon: <Layers className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
+      link: "/components/cards"
+    },
+    {
+      title: "Modals & Alerts",
+      desc: "Smooth transitions and notification elements.",
+      icon: <AlertCircle className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
+      link: "/components/modals"
+    },
+    {
+      title: "Landing Pages",
+      desc: "Validated inputs with modern design.",
+      icon: <Cpu className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
+      link: "/components/landing-pages"
+    },
+    {
+      title: "Tables & Lists",
+      desc: "Dynamic components to present structured data.",
+      icon: <Table2 className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
+      link: "/components/tables"
+    },
+    {
+      title: "Navigation Elements",
+      desc: "Navbars, tabs, and side menus.",
+      icon: <MenuIcon className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
+      link: "/components/navigation"
+    },
+    {
+      title: "Dashboards",
+      desc: "Admin panels and analytics layouts to power decision-making.",
+      icon: <LayoutDashboard className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
+      link: "/dashboards"
+    }
+  ];
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-[#0d1117] via-[#161b22] to-[#0d1117] text-[#E0E0E0] font-['Inter',sans-serif] overflow-x-hidden">
       <HeaderGreen />
 
-      {/* Background Glow Effects - hidden on mobile */}
+      {/* Background Glow Effects */}
       <div className="hidden sm:block absolute -top-60 -left-60 w-[500px] h-[500px] bg-gradient-radial from-amber-500/20 via-amber-500/5 to-transparent blur-3xl rounded-full animate-pulse-slow" />
       <div className="hidden sm:block absolute -bottom-80 -right-40 w-[600px] h-[600px] bg-gradient-radial from-sky-500/15 via-sky-500/5 to-transparent blur-3xl rounded-full animate-pulse-slow animation-delay-2000" />
 
@@ -101,7 +104,7 @@ const components = [
 
           {/* Component Cards */}
           <div
-            className="w-full lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8"
+            className="w-full lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-6 md:gap-8"
             data-aos="fade-left"
             data-aos-duration="1000"
             data-aos-delay="200"
@@ -112,7 +115,7 @@ const components = [
                 key={i}
                 data-aos="zoom-in-up"
                 data-aos-delay={i * 100}
-                className="group bg-neutral-800/50 backdrop-blur-2xl border border-neutral-700/80 rounded-2xl p-6 shadow-xl hover:shadow-amber-500/20 hover:border-amber-500/50 transition-all duration-300 ease-in-out transform hover:-translate-y-2 hover:scale-[1.03] relative overflow-hidden"
+                className="group bg-neutral-800/50 backdrop-blur-2xl border border-neutral-700/80 rounded-2xl p-6 shadow-xl hover:shadow-amber-500/20 hover:border-amber-500/50 transition-all duration-300 ease-in-out transform hover:-translate-y-2 hover:scale-[1.03] relative overflow-hidden opacity-0 translate-y-4 aos-animate:opacity-100 aos-animate:translate-y-0"
               >
                 <div className="absolute -inset-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-amber-500/20 to-transparent rounded-2xl blur-md" />
                 <div className="relative z-10">
@@ -124,7 +127,9 @@ const components = [
                       {item.title}
                     </h3>
                   </div>
-                  <p className="text-sm text-neutral-400 group-hover:text-neutral-300 transition-colors leading-relaxed">{item.desc}</p>
+                  <p className="text-sm text-neutral-400 group-hover:text-neutral-300 transition-colors leading-relaxed">
+                    {item.desc}
+                  </p>
                 </div>
               </Link>
             ))}
@@ -150,3 +155,4 @@ const components = [
     </div>
   );
 }
+

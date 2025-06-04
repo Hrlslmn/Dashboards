@@ -87,7 +87,7 @@ export default function DesignsPage() {
         <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-10 max-w-7xl mx-auto overflow-hidden">
           <div className="text-center mb-14 sm:mb-20" data-aos="fade-down">
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 text-transparent bg-clip-text mb-5 tracking-tight">
-              Graphic Design Library
+              Graphic Design Ideas
             </h1>
             <p className="text-neutral-400 text-base sm:text-lg max-w-3xl mx-auto leading-relaxed">
               Explore professional visual design work, enhanced by AI insights.
