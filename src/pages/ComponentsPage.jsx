@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react'; // Removed useEffect as it's no longer needed for AOS
 import { Link } from 'react-router-dom';
-import HeaderGreen from '../components/HeaderGreen';
+import HeaderGreen from '../components/HeaderGreen'; // Assuming this path is correct
 import {
   Cpu,
   Layers,
@@ -10,124 +10,112 @@ import {
   ArrowRight,
   LayoutDashboard
 } from 'lucide-react';
-import AOS from 'aos';
-import 'aos/dist/aos.css';
+// Removed: import AOS from 'aos';
+// Removed: import 'aos/dist/aos.css';
 
 export default function ComponentsPage() {
-  useEffect(() => {
-    AOS.init({
-      duration: 800,
-      delay: 100,
-      once: false,
-      mirror: true
-    });
-
-    // Hard refresh to recalculate all element positions
-    setTimeout(() => {
-      AOS.refreshHard();
-    }, 600);
-  }, []);
+  // Removed useEffect hook for AOS initialization
 
   const components = [
     {
       title: "Cards & Layouts",
-      desc: "Versatile containers for clear content structure.",
-      icon: <Layers className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
+      desc: "Versatile containers for clear content structure and flow.",
+      icon: <Layers className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors duration-300" />,
       link: "/components/cards"
     },
     {
       title: "Modals & Alerts",
-      desc: "Smooth transitions and notification elements.",
-      icon: <AlertCircle className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
+      desc: "Engaging pop-ups and notifications with smooth transitions.",
+      icon: <AlertCircle className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors duration-300" />,
       link: "/components/modals"
     },
     {
       title: "Landing Pages",
-      desc: "Validated inputs with modern design.",
-      icon: <Cpu className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
+      desc: "Beautifully designed sections for impactful first impressions.",
+      icon: <Cpu className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors duration-300" />,
       link: "/components/landing-pages"
     },
     {
       title: "Tables & Lists",
-      desc: "Dynamic components to present structured data.",
-      icon: <Table2 className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
+      desc: "Dynamic components to present structured data effectively.",
+      icon: <Table2 className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors duration-300" />,
       link: "/components/tables"
     },
     {
       title: "Navigation Elements",
-      desc: "Navbars, tabs, and side menus.",
-      icon: <MenuIcon className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
+      desc: "Intuitive navbars, tabs, and side menus for seamless UX.",
+      icon: <MenuIcon className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors duration-300" />,
       link: "/components/navigation"
     },
     {
       title: "Dashboards",
       desc: "Admin panels and analytics layouts to power decision-making.",
-      icon: <LayoutDashboard className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
+      icon: <LayoutDashboard className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors duration-300" />,
       link: "/dashboards"
     }
   ];
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-[#0d1117] via-[#161b22] to-[#0d1117] text-[#E0E0E0] font-['Inter',sans-serif] overflow-x-hidden">
+    <div className="relative min-h-screen bg-gradient-to-br from-[#080a0e] via-[#10141a] to-[#07090d] text-[#E6E6E6] font-['Inter',sans-serif] overflow-x-hidden">
       <HeaderGreen />
 
-      {/* Background Glow Effects */}
-      <div className="hidden sm:block absolute -top-60 -left-60 w-[500px] h-[500px] bg-gradient-radial from-amber-500/20 via-amber-500/5 to-transparent blur-3xl rounded-full animate-pulse-slow" />
-      <div className="hidden sm:block absolute -bottom-80 -right-40 w-[600px] h-[600px] bg-gradient-radial from-sky-500/15 via-sky-500/5 to-transparent blur-3xl rounded-full animate-pulse-slow animation-delay-2000" />
+      {/* Background Glow Effects (Unaffected by AOS removal) */}
+      <div className="hidden sm:block absolute -top-72 -left-72 w-[600px] h-[600px] bg-gradient-radial from-amber-500/20 via-amber-500/5 to-transparent blur-[120px] rounded-full animate-pulse-slow" />
+      <div className="hidden sm:block absolute -bottom-96 -right-60 w-[700px] h-[700px] bg-gradient-radial from-sky-500/15 via-sky-500/5 to-transparent blur-[120px] rounded-full animate-pulse-slow animation-delay-2000" />
 
-      <main className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 md:py-32">
+      <main className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 md:py-36">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-          {/* Left Panel */}
+          {/* Left Panel - AOS attributes removed */}
           <div
-            className="w-full lg:col-span-5 bg-gradient-to-br from-[#1A1D24]/70 to-[#222831]/80 backdrop-blur-xl rounded-3xl p-6 sm:p-8 md:p-12 shadow-2xl border border-neutral-700/70"
-            data-aos="fade-right"
-            data-aos-duration="1000"
+            className="w-full lg:col-span-5 bg-gradient-to-br from-[#181C22]/80 to-[#20262E]/90 backdrop-blur-lg rounded-3xl p-8 sm:p-10 md:p-12 shadow-2xl border border-neutral-700/60"
+            // Removed: data-aos="fade-right"
+            // Removed: data-aos-duration="1000"
           >
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 text-transparent bg-clip-text mb-6 leading-tight tracking-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 text-transparent bg-clip-text mb-8 leading-tight tracking-tighter">
               Component Showcase
             </h1>
-            <p className="text-[#B0B0B0] text-base sm:text-lg leading-relaxed mb-8">
+            <p className="text-[#B8B8B8] text-lg sm:text-xl leading-relaxed mb-10">
               Explore a curated library of modern, accessible, and beautifully crafted React components designed for speed and reusability.
             </p>
-            <div className="mt-6 border-l-4 border-amber-500 pl-4 sm:pl-6">
-              <p className="text-sm sm:text-md text-amber-300/90 italic">
+            <div className="mt-8 border-l-4 border-amber-400 pl-5 sm:pl-6">
+              <p className="text-md sm:text-lg text-amber-300/90 italic">
                 For developers who love clean UI and productive, inspiring workflows.
               </p>
             </div>
             <Link
               to="/themes"
-              className="mt-10 inline-flex items-center gap-2.5 text-amber-400 font-semibold group hover:text-amber-300 transition-colors"
+              className="mt-12 inline-flex items-center gap-3 text-amber-400 font-semibold group hover:text-amber-200 transition-colors duration-300 text-lg hover:bg-amber-500/10 px-3 py-2 rounded-lg -ml-3"
             >
-              Explore AI Branding Boards <ArrowRight size={20} className="transform group-hover:translate-x-1 transition-transform" />
+              Explore AI Branding Boards <ArrowRight size={22} className="transform group-hover:translate-x-1.5 transition-transform duration-300" />
             </Link>
           </div>
 
-          {/* Component Cards */}
+          {/* Component Cards Container - AOS attributes removed */}
           <div
-            className="w-full lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-6 md:gap-8"
-            data-aos="fade-left"
-            data-aos-duration="1000"
-            data-aos-delay="200"
+            className="w-full lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-8 md:gap-x-8 md:gap-y-10"
+            // Removed: data-aos="fade-left"
+            // Removed: data-aos-duration="1000"
+            // Removed: data-aos-delay="250"
           >
             {components.map((item, i) => (
               <Link
                 to={item.link}
                 key={i}
-                data-aos="zoom-in-up"
-                data-aos-delay={i * 100}
-                className="group bg-neutral-800/50 backdrop-blur-2xl border border-neutral-700/80 rounded-2xl p-6 shadow-xl hover:shadow-amber-500/20 hover:border-amber-500/50 transition-all duration-300 ease-in-out transform hover:-translate-y-2 hover:scale-[1.03] relative overflow-hidden opacity-0 translate-y-4 aos-animate:opacity-100 aos-animate:translate-y-0"
+                // Removed: data-aos="zoom-in-up"
+                // Removed: data-aos-delay={i * 150 + 400}
+                className="group bg-[#1F242C]/70 backdrop-blur-lg border border-neutral-700/50 rounded-2xl p-6 shadow-xl hover:shadow-amber-400/25 hover:border-amber-400/80 transition-all duration-300 ease-in-out transform hover:-translate-y-2.5 hover:scale-[1.04] relative overflow-hidden"
               >
-                <div className="absolute -inset-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-amber-500/20 to-transparent rounded-2xl blur-md" />
+                <div className="absolute -inset-3 opacity-0 group-hover:opacity-100 transition-opacity duration-400 bg-gradient-to-br from-amber-400/20 via-amber-400/10 to-transparent rounded-2xl blur-lg" />
                 <div className="relative z-10">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="bg-amber-400/10 p-3.5 rounded-xl group-hover:bg-amber-400/20 group-hover:scale-110 group-hover:rotate-[-8deg] transition-all duration-300">
+                  <div className="flex items-start gap-x-4 mb-5">
+                    <div className="bg-amber-500/15 p-3.5 rounded-xl group-hover:bg-amber-500/25 group-hover:scale-110 group-hover:rotate-[-10deg] transition-all duration-300 ease-out">
                       {item.icon}
                     </div>
-                    <h3 className="text-base sm:text-lg font-semibold text-amber-300 group-hover:text-amber-200 transition-colors pt-1">
+                    <h3 className="text-lg sm:text-xl font-semibold text-amber-300 group-hover:text-amber-200 transition-colors duration-300 pt-1.5">
                       {item.title}
                     </h3>
                   </div>
-                  <p className="text-sm text-neutral-400 group-hover:text-neutral-300 transition-colors leading-relaxed">
+                  <p className="text-sm sm:text-base text-neutral-400 group-hover:text-neutral-300 transition-colors duration-300 leading-relaxed">
                     {item.desc}
                   </p>
                 </div>
@@ -139,20 +127,22 @@ export default function ComponentsPage() {
 
       <style jsx global>{`
         @keyframes pulse-slow {
-          0%, 100% { opacity: 0.1; transform: scale(0.95); }
-          50% { opacity: 0.25; transform: scale(1.05); }
+          0%, 100% { opacity: 0.15; transform: scale(0.97); }
+          50% { opacity: 0.3; transform: scale(1.03); }
         }
         .animate-pulse-slow {
-          animation: pulse-slow 8s infinite ease-in-out;
+          animation: pulse-slow 9s infinite ease-in-out;
         }
         .animation-delay-2000 {
-          animation-delay: 2s;
+          animation-delay: 2.5s;
         }
         .bg-gradient-radial {
-          background-image: radial-gradient(circle, var(--tw-gradient-from) 0%, var(--tw-gradient-via) 30%, var(--tw-gradient-to) 70%);
+          background-image: radial-gradient(circle, var(--tw-gradient-from) 0%, var(--tw-gradient-via) 35%, var(--tw-gradient-to) 75%);
+        }
+        body {
+          font-family: 'Inter', sans-serif;
         }
       `}</style>
     </div>
   );
 }
-
