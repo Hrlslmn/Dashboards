@@ -8,7 +8,8 @@ import {
   Sliders,
   Table2,
   Menu as MenuIcon,
-  ArrowRight
+  ArrowRight,
+  LayoutDashboard // ✅ New icon
 } from 'lucide-react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -23,44 +24,45 @@ export default function ComponentsPage() {
     });
   }, []);
 
-  const components = [
-    {
-      title: "Buttons & UI Controls",
-      desc: "Accessible buttons and toggles for seamless UX.",
-      icon: <Sliders className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
-      link: "/components/buttons"
-    },
-    {
-      title: "Cards & Layouts",
-      desc: "Versatile containers for clear content structure.",
-      icon: <Layers className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
-      link: "/components/cards"
-    },
-    {
-      title: "Modals & Alerts",
-      desc: "Smooth transitions and notification elements.",
-      icon: <AlertCircle className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
-      link: "/components/modals"
-    },
-    {
-      title: "Landing Pages",
-      desc: "Validated inputs with modern design.",
-      icon: <Cpu className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
-      link: "/components/landing-pages"
-    },
-    {
-      title: "Tables & Lists",
-      desc: "Dynamic components to present structured data.",
-      icon: <Table2 className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
-      link: "/components/tables"
-    },
-    {
-      title: "Navigation Elements",
-      desc: "Navbars, tabs, and side menus.",
-      icon: <MenuIcon className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
-      link: "/components/navigation"
-    }
-  ];
+const components = [
+  {
+    title: "Cards & Layouts",
+    desc: "Versatile containers for clear content structure.",
+    icon: <Layers className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
+    link: "/components/cards"
+  },
+  {
+    title: "Modals & Alerts",
+    desc: "Smooth transitions and notification elements.",
+    icon: <AlertCircle className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
+    link: "/components/modals"
+  },
+  {
+    title: "Landing Pages",
+    desc: "Validated inputs with modern design.",
+    icon: <Cpu className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
+    link: "/components/landing-pages"
+  },
+  {
+    title: "Tables & Lists",
+    desc: "Dynamic components to present structured data.",
+    icon: <Table2 className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
+    link: "/components/tables"
+  },
+  {
+    title: "Navigation Elements",
+    desc: "Navbars, tabs, and side menus.",
+    icon: <MenuIcon className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
+    link: "/components/navigation"
+  },
+  {
+    title: "Dashboards",
+    desc: "Admin panels and analytics layouts to power decision-making.",
+    icon: <LayoutDashboard className="w-7 h-7 text-amber-400 group-hover:text-amber-300 transition-colors" />,
+    link: "/dashboards"
+  }
+];
+
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-[#0d1117] via-[#161b22] to-[#0d1117] text-[#E0E0E0] font-['Inter',sans-serif] overflow-x-hidden">

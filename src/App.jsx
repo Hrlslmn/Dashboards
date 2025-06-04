@@ -7,10 +7,8 @@ import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import PrivateRoute from './components/PrivateRoute';
 
-import Overview from './components/Overview';
-import Homepage01 from './components/Homepage01';
-
-import Dashboard from './components/Dashboard3';
+import Home from './pages/HomePage'
+import Dashboard from './pages/DashboardComponent';
 import ComponentsPage from './pages/ComponentsPage';
 import ButtonsPage from './pages/ButtonsPage';
 import CardsPage from './pages/CardsPage';
@@ -19,7 +17,7 @@ import TablesPage from './pages/TablesPage';
 import NavigationPage from './pages/Navigation';
 import FormsPage from './pages/FormsPage';
 import UploadComponent from './components/UploadComponent';
-import LandingPage from './components/LandingPage-001'; 
+import LandingPage from './components/LandingPagePreview'; 
 
 import DesignsPage from './pages/DesignsPage';
 import ThemesPage from './pages/ThemesPage';
@@ -38,14 +36,14 @@ export default function App() {
       <Suspense fallback={<div className="text-center text-gray-400 mt-10">Loading...</div>}>
         <Routes>
           {/* Public Pages */}
-          <Route path="/" element={<Overview />} />
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/upload" element={<UploadComponent />} />
           <Route path="/preview" element={<LandingPage />} />
 
           {/* Authenticated Pages */}
-          <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="/dashboards" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/success" element={<PrivateRoute><Success /></PrivateRoute>} />
           <Route path="/cancel" element={<PrivateRoute><Cancel /></PrivateRoute>} />
           <Route path="/cancel" element={<PrivateRoute><Cancel /></PrivateRoute>} />
