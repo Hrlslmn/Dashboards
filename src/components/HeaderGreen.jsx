@@ -16,7 +16,7 @@ import { supabase } from "../../supabaseClient"; // Adjust path if needed
 
 const navLinks = [
   { icon: <LayoutDashboard size={22} />, label: "Home", path: "/" },
-  { icon: <Monitor size={22} />, label: "React Components", path: "/components" },
+  { icon: <Monitor size={22} />, label: "Tailwind UI Components", path: "/components" },
   { icon: <Image size={22} />, label: "Graphic Designs", path: "/designs" },
   { icon: <Palette size={22} />, label: "AI Branding Board", path: "/themes" },
 ];

@@ -143,6 +143,214 @@ export default function TablesPage() {
         </table>
       ),
     },
+    {
+  id: "responsive-mobile",
+  title: "Responsive Mobile Table",
+  desc: "Flex-based layout for mobile-friendly rows with stacking behavior.",
+  code: `<div className="space-y-4 sm:hidden">
+  {[["Lucas", "Writer", "Active"], ["Mira", "Editor", "Pending"]].map((user, i) => (
+    <div key={i} className="p-4 rounded-lg bg-[#2E3440] shadow">
+      <div className="font-semibold text-[#FFD369]">{user[0]}</div>
+      <div className="text-sm text-[#AAAAAA]">{user[1]}</div>
+      <div className="text-sm text-green-400">{user[2]}</div>
+    </div>
+  ))}
+</div>`,
+  jsx: (
+    <div className="space-y-4 sm:hidden">
+      {[["Lucas", "Writer", "Active"], ["Mira", "Editor", "Pending"]].map((user, i) => (
+        <div key={i} className="p-4 rounded-lg bg-[#2E3440] shadow">
+          <div className="font-semibold text-[#FFD369]">{user[0]}</div>
+          <div className="text-sm text-[#AAAAAA]">{user[1]}</div>
+          <div className="text-sm text-green-400">{user[2]}</div>
+        </div>
+      ))}
+    </div>
+  ),
+},
+{
+  id: "grouped-table",
+  title: "Grouped Table",
+  desc: "Visually separates sections with heading rows.",
+  code: `<table className="w-full text-left border-collapse border border-[#393E46]">
+  <thead>
+    <tr className="bg-[#2E3440]">
+      <th className="p-3">Name</th>
+      <th className="p-3">Role</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr className="bg-[#222831]">
+      <td colSpan="2" className="p-3 text-[#FFD369] font-semibold">Team A</td>
+    </tr>
+    <tr><td className="p-3">Liam</td><td className="p-3">Lead</td></tr>
+    <tr><td className="p-3">Sara</td><td className="p-3">Support</td></tr>
+    <tr className="bg-[#222831]">
+      <td colSpan="2" className="p-3 text-[#FFD369] font-semibold">Team B</td>
+    </tr>
+    <tr><td className="p-3">Nico</td><td className="p-3">Analyst</td></tr>
+  </tbody>
+</table>`,
+  jsx: (
+    <table className="w-full text-left border-collapse border border-[#393E46]">
+      <thead>
+        <tr className="bg-[#2E3440]">
+          <th className="p-3">Name</th>
+          <th className="p-3">Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr className="bg-[#222831]">
+          <td colSpan="2" className="p-3 text-[#FFD369] font-semibold">Team A</td>
+        </tr>
+        <tr><td className="p-3">Liam</td><td className="p-3">Lead</td></tr>
+        <tr><td className="p-3">Sara</td><td className="p-3">Support</td></tr>
+        <tr className="bg-[#222831]">
+          <td colSpan="2" className="p-3 text-[#FFD369] font-semibold">Team B</td>
+        </tr>
+        <tr><td className="p-3">Nico</td><td className="p-3">Analyst</td></tr>
+      </tbody>
+    </table>
+  ),
+},
+{
+  id: "avatar-table",
+  title: "Avatar Table",
+  desc: "Combine image + text for a more visual row layout.",
+  code: `<table className="w-full border border-[#393E46]">
+  <thead className="bg-[#2E3440]">
+    <tr>
+      <th className="p-3">User</th>
+      <th className="p-3">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {[
+      { name: "Emily", avatar: "/avatar1.jpg", status: "Online" },
+      { name: "Jake", avatar: "/avatar2.jpg", status: "Offline" },
+    ].map((u, i) => (
+      <tr key={i} className="hover:bg-[#2B313A]">
+        <td className="p-3 flex items-center gap-3">
+          <img src={u.avatar} alt="" className="w-8 h-8 rounded-full" />
+          {u.name}
+        </td>
+        <td className="p-3 text-green-400">{u.status}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>`,
+  jsx: (
+    <table className="w-full border border-[#393E46]">
+      <thead className="bg-[#2E3440]">
+        <tr>
+          <th className="p-3">User</th>
+          <th className="p-3">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {[
+          { name: "Emily", avatar: "/avatar1.jpg", status: "Online" },
+          { name: "Jake", avatar: "/avatar2.jpg", status: "Offline" },
+        ].map((u, i) => (
+          <tr key={i} className="hover:bg-[#2B313A]">
+            <td className="p-3 flex items-center gap-3">
+              <img src={u.avatar} alt="" className="w-8 h-8 rounded-full" />
+              {u.name}
+            </td>
+            <td className="p-3 text-green-400">{u.status}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ),
+},
+{
+  id: "sticky-header",
+  title: "Sticky Header",
+  desc: "Keeps table headers visible while scrolling.",
+  code: `<div className="overflow-y-auto max-h-64 border border-[#393E46] rounded">
+  <table className="w-full border-collapse">
+    <thead className="sticky top-0 bg-[#2E3440] text-[#FFD369]">
+      <tr>
+        <th className="p-3">Task</th>
+        <th className="p-3">Due</th>
+      </tr>
+    </thead>
+    <tbody>
+      {Array.from({ length: 10 }).map((_, i) => (
+        <tr key={i} className="hover:bg-[#2B313A]">
+          <td className="p-3">Task {i + 1}</td>
+          <td className="p-3">Tomorrow</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>`,
+  jsx: (
+    <div className="overflow-y-auto max-h-64 border border-[#393E46] rounded">
+      <table className="w-full border-collapse">
+        <thead className="sticky top-0 bg-[#2E3440] text-[#FFD369]">
+          <tr>
+            <th className="p-3">Task</th>
+            <th className="p-3">Due</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Array.from({ length: 10 }).map((_, i) => (
+            <tr key={i} className="hover:bg-[#2B313A]">
+              <td className="p-3">Task {i + 1}</td>
+              <td className="p-3">Tomorrow</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  ),
+},
+{
+  id: "badge-table",
+  title: "Compact Badge Table",
+  desc: "Small-sized rows with pill badges for status.",
+  code: `<table className="w-full text-sm border border-[#393E46]">
+  <thead className="bg-[#2E3440]">
+    <tr>
+      <th className="p-2">Service</th>
+      <th className="p-2">State</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td className="p-2">Authentication</td>
+      <td className="p-2"><span className="bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">Running</span></td>
+    </tr>
+    <tr>
+      <td className="p-2">Billing</td>
+      <td className="p-2"><span className="bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full">Error</span></td>
+    </tr>
+  </tbody>
+</table>`,
+  jsx: (
+    <table className="w-full text-sm border border-[#393E46]">
+      <thead className="bg-[#2E3440]">
+        <tr>
+          <th className="p-2">Service</th>
+          <th className="p-2">State</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td className="p-2">Authentication</td>
+          <td className="p-2"><span className="bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">Running</span></td>
+        </tr>
+        <tr>
+          <td className="p-2">Billing</td>
+          <td className="p-2"><span className="bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full">Error</span></td>
+        </tr>
+      </tbody>
+    </table>
+  ),
+}
+
   ];
 
   return (

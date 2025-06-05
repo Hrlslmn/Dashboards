@@ -117,7 +117,209 @@ export default function NavigationPage() {
         </div>
       ),
     },
-  ];
+    {
+  id: "avatar-nav",
+  title: "Top Nav with Avatar",
+  desc: "Navigation with profile avatar and dropdown placeholder.",
+  code: `<header className="bg-[#393E46] p-4 rounded-md flex justify-between items-center">
+  <h1 className="text-[#FFD369] text-lg font-bold">Brand</h1>
+  <div className="flex items-center gap-3">
+    <nav className="hidden sm:flex gap-4">
+      <a href="#" className="text-[#EEEEEE] hover:underline">Docs</a>
+      <a href="#" className="text-[#EEEEEE] hover:underline">Blog</a>
+    </nav>
+    <img src="/avatar.jpg" alt="avatar" className="w-8 h-8 rounded-full border border-[#FFD369]" />
+  </div>
+</header>`,
+  jsx: (
+    <header className="bg-[#393E46] p-4 rounded-md flex justify-between items-center">
+      <h1 className="text-[#FFD369] text-lg font-bold">Brand</h1>
+      <div className="flex items-center gap-3">
+        <nav className="hidden sm:flex gap-4">
+          <a href="#" className="text-[#EEEEEE] hover:underline">Docs</a>
+          <a href="#" className="text-[#EEEEEE] hover:underline">Blog</a>
+        </nav>
+        <img src="/avatar.jpg" alt="avatar" className="w-8 h-8 rounded-full border border-[#FFD369]" />
+      </div>
+    </header>
+  ),
+},
+{
+  id: "underline-nav",
+  title: "Minimal Underline Nav",
+  desc: "Simple text links with animated underline on hover.",
+  code: `<nav className="flex gap-6 text-[#EEEEEE]">
+  {["Features", "Pricing", "Login"].map((item, i) => (
+    <a key={i} href="#" className="relative group">
+      {item}
+      <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-[#FFD369] group-hover:w-full transition-all duration-300"></span>
+    </a>
+  ))}
+</nav>`,
+  jsx: (
+    <nav className="flex gap-6 text-[#EEEEEE]">
+      {["Features", "Pricing", "Login"].map((item, i) => (
+        <a key={i} href="#" className="relative group">
+          {item}
+          <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-[#FFD369] group-hover:w-full transition-all duration-300"></span>
+        </a>
+      ))}
+    </nav>
+  ),
+},
+{
+  id: "sticky-blur",
+  title: "Sticky Blur Nav",
+  desc: "Sticks to top and uses backdrop blur for a modern effect.",
+  code: `<header className="sticky top-0 z-50 backdrop-blur bg-[#222831]/80 px-6 py-4 rounded-b-md shadow-md">
+  <nav className="flex justify-between items-center text-[#EEEEEE]">
+    <h1 className="text-[#FFD369] font-bold text-lg">AppName</h1>
+    <div className="space-x-4">
+      <a href="#" className="hover:underline">Home</a>
+      <a href="#" className="hover:underline">Docs</a>
+      <a href="#" className="hover:underline">Support</a>
+    </div>
+  </nav>
+</header>`,
+  jsx: (
+    <header className="sticky top-0 z-50 backdrop-blur bg-[#222831]/80 px-6 py-4 rounded-b-md shadow-md">
+      <nav className="flex justify-between items-center text-[#EEEEEE]">
+        <h1 className="text-[#FFD369] font-bold text-lg">AppName</h1>
+        <div className="space-x-4">
+          <a href="#" className="hover:underline">Home</a>
+          <a href="#" className="hover:underline">Docs</a>
+          <a href="#" className="hover:underline">Support</a>
+        </div>
+      </nav>
+    </header>
+  ),
+},
+{
+  id: "pill-nav",
+  title: "Pill-Style Nav",
+  desc: "Navigation buttons styled as pills with hover states.",
+  code: `<div className="flex gap-2 bg-[#2E3440] p-2 rounded-full w-max mx-auto">
+  {["All", "UI", "Code", "Assets"].map((cat, i) => (
+    <button key={i} className="px-4 py-1 text-sm rounded-full text-[#EEEEEE] hover:bg-[#FFD369] hover:text-[#222831] transition">
+      {cat}
+    </button>
+  ))}
+</div>`,
+  jsx: (
+    <div className="flex gap-2 bg-[#2E3440] p-2 rounded-full w-max mx-auto">
+      {["All", "UI", "Code", "Assets"].map((cat, i) => (
+        <button key={i} className="px-4 py-1 text-sm rounded-full text-[#EEEEEE] hover:bg-[#FFD369] hover:text-[#222831] transition">
+          {cat}
+        </button>
+      ))}
+    </div>
+  ),
+},
+{
+  id: "neon-bottom-nav",
+  title: "Neon Bottom Nav",
+  desc: "Mobile-first bottom nav with glowing icons, ideal for dark UIs.",
+  code: `<nav className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-[#0f0f0f] border border-[#FFD36966] rounded-full px-6 py-3 flex gap-6 items-center shadow-lg">
+  {["🏠", "🔍", "➕", "🔔", "👤"].map((icon, i) => (
+    <button key={i} className="text-[#FFD369] text-xl hover:scale-110 transition">{icon}</button>
+  ))}
+</nav>`,
+  jsx: (
+    <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-[#0f0f0f] border border-[#FFD36966] rounded-full px-6 py-3 flex gap-6 items-center shadow-lg">
+      {["🏠", "🔍", "➕", "🔔", "👤"].map((icon, i) => (
+        <button key={i} className="text-[#FFD369] text-xl hover:scale-110 transition">{icon}</button>
+      ))}
+    </nav>
+  ),
+},
+{
+  id: "boxed-tab-nav",
+  title: "Boxed Tab Nav",
+  desc: "Themed as boxed UI cards for compact mobile navigation.",
+  code: `<div className="flex justify-around bg-[#2E3440] p-2 rounded-lg text-sm">
+  {["Overview", "Tasks", "Stats"].map((item, i) => (
+    <button key={i} className="bg-[#393E46] text-[#FFD369] px-4 py-2 rounded-md w-full mx-1">
+      {item}
+    </button>
+  ))}
+</div>`,
+  jsx: (
+    <div className="flex justify-around bg-[#2E3440] p-2 rounded-lg text-sm">
+      {["Overview", "Tasks", "Stats"].map((item, i) => (
+        <button key={i} className="bg-[#393E46] text-[#FFD369] px-4 py-2 rounded-md w-full mx-1">
+          {item}
+        </button>
+      ))}
+    </div>
+  ),
+},
+{
+  id: "compass-nav",
+  title: "Compass Nav",
+  desc: "Circular icon-based nav with an explorer feel.",
+  code: `<div className="flex justify-between items-center bg-[#1A1F25] text-[#EEEEEE] p-4 rounded-xl max-w-sm mx-auto">
+  {["🌍", "🧭", "🗺️", "⚓", "🎒"].map((icon, i) => (
+    <button key={i} className="text-xl hover:text-[#FFD369] transition">{icon}</button>
+  ))}
+</div>`,
+  jsx: (
+    <div className="flex justify-between items-center bg-[#1A1F25] text-[#EEEEEE] p-4 rounded-xl max-w-sm mx-auto">
+      {["🌍", "🧭", "🗺️", "⚓", "🎒"].map((icon, i) => (
+        <button key={i} className="text-xl hover:text-[#FFD369] transition">{icon}</button>
+      ))}
+    </div>
+  ),
+},
+{
+  id: "frosted-top-nav",
+  title: "Frosted Top Nav",
+  desc: "Mobile-focused with backdrop blur for a soft, clean look.",
+  code: `<header className="backdrop-blur-md bg-white/10 p-4 rounded-lg border border-white/10 flex justify-between items-center text-[#EEEEEE]">
+  <h1 className="font-semibold">App</h1>
+  <nav className="space-x-4 text-sm">
+    <a href="#">Feed</a>
+    <a href="#">Menu</a>
+  </nav>
+</header>`,
+  jsx: (
+    <header className="backdrop-blur-md bg-white/10 p-4 rounded-lg border border-white/10 flex justify-between items-center text-[#EEEEEE]">
+      <h1 className="font-semibold">App</h1>
+      <nav className="space-x-4 text-sm">
+        <a href="#">Feed</a>
+        <a href="#">Menu</a>
+      </nav>
+    </header>
+  ),
+},
+{
+  id: "segmented-nav",
+  title: "Segmented Control",
+  desc: "Mobile segmented toggle UI with active highlight.",
+  code: `<div className="bg-[#393E46] p-1 rounded-full inline-flex text-sm">
+  {["All", "Popular", "New"].map((label, i) => (
+    <button
+      key={i}
+      className="px-4 py-1 rounded-full text-[#EEEEEE] hover:bg-[#FFD369] hover:text-[#222831] transition"
+    >
+      {label}
+    </button>
+  ))}
+</div>`,
+  jsx: (
+    <div className="bg-[#393E46] p-1 rounded-full inline-flex text-sm">
+      {["All", "Popular", "New"].map((label, i) => (
+        <button
+          key={i}
+          className="px-4 py-1 rounded-full text-[#EEEEEE] hover:bg-[#FFD369] hover:text-[#222831] transition"
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  ),
+},
+
+];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#1a1f25] to-[#222831] text-[#EEEEEE] font-['Inter',sans-serif]">

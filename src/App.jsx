@@ -17,7 +17,7 @@ import TablesPage from './pages/TablesPage';
 import NavigationPage from './pages/Navigation';
 import FormsPage from './pages/FormsPage';
 import UploadComponent from './components/UploadComponent';
-import LandingPage from './components/LandingPagePreview'; 
+import PagePreview from './components/PagePreview'; 
 
 import DesignsPage from './pages/DesignsPage';
 import ThemesPage from './pages/ThemesPage';
@@ -40,7 +40,7 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/upload" element={<UploadComponent />} />
-          <Route path="/preview" element={<LandingPage />} />
+          <Route path="/preview" element={<PagePreview />} />
 
           {/* Authenticated Pages */}
           <Route path="/dashboards" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
