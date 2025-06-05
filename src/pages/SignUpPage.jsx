@@ -6,12 +6,18 @@ export default function SignUpPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState(''); // 🔑 new state
   const [errorMsg, setErrorMsg] = useState('');
   const navigate = useNavigate();
 
   const handleSignUp = async (e) => {
     e.preventDefault();
     setErrorMsg('');
+
+    if (password !== confirmPassword) {
+      setErrorMsg('Passwords do not match');
+      return;
+    }
 
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -36,7 +42,7 @@ export default function SignUpPage() {
       }
     }
 
-    navigate('/'); // Or redirect to /login if email verification is required
+    navigate('/');
   };
 
   return (
@@ -45,9 +51,9 @@ export default function SignUpPage() {
         
         {/* Left Side Graphic */}
         <div className="hidden md:flex flex-col justify-center items-center bg-gradient-to-br from-indigo-600 to-purple-700 text-white w-1/2 p-10">
-          <h2 className="text-4xl font-bold mb-3">Join Artifex 🧠</h2>
+          <h2 className="text-4xl font-bold mb-3">Join Code Canverse 🧠</h2>
           <p className="text-base text-center leading-relaxed opacity-90">
-            Sign up to build, create, and collaborate<br /> inside your dashboard.
+            Sign up to learn and discover more<br />
           </p>
         </div>
 
@@ -85,9 +91,18 @@ export default function SignUpPage() {
           <input
             type="password"
             placeholder="Password"
-            className="w-full p-3 border border-gray-300 rounded-xl mb-6 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full p-3 border border-gray-300 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            className="w-full p-3 border border-gray-300 rounded-xl mb-6 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
 
@@ -109,5 +124,3 @@ export default function SignUpPage() {
     </div>
   );
 }
-
-
