@@ -48,7 +48,7 @@ export default function DashboardComponent() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: product.title,
-        price: product.price || 10,
+        price: product.price || 2.99,
         productId: product.id,
         productType: 'dashboard',
         token,

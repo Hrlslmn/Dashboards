@@ -56,7 +56,7 @@ export default async function handler(req, res) {
       },
     ]);
 
-    res.status(200).json({ url: session.url });
+    res.status(200).json({ sessionId: session.id, url: session.url });
   } catch (err) {
     console.error('Checkout error:', err);
     res.status(500).json({ error: 'Internal Server Error' });
