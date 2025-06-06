@@ -11,18 +11,40 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
+// ✅ Helper: Get user from Supabase using REST API + token
+const getUserFromToken = async (token) => {
+  const res = await fetch(`${process.env.SUPABASE_URL}/auth/v1/user`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error('Unauthorized');
+  }
+
+  return res.json();
+};
+
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  }
 
   try {
     const { name, price, productId, productType, token } = req.body;
 
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser(token);
+    if (!token) {
+      return res.status(401).json({ error: 'Missing token' });
+    }
 
-    if (error || !user) return res.status(401).json({ error: 'Unauthorized' });
+    let user;
+    try {
+      user = await getUserFromToken(token);
+    } catch {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -56,9 +78,10 @@ export default async function handler(req, res) {
       },
     ]);
 
-    res.status(200).json({ sessionId: session.id, url: session.url });
+    return res.status(200).json({ sessionId: session.id, url: session.url });
   } catch (err) {
     console.error('Checkout error:', err);
-    res.status(500).json({ error: 'Internal Server Error' });
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+
