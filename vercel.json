@@ -1,14 +1,11 @@
 {
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
-  ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; connect-src 'self' https://ikzywhwazohkoxhjcjmu.supabase.co https://js.stripe.com; script-src 'self' https://js.stripe.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' https://source.unsplash.com data:; frame-src https://js.stripe.com;"
+          "value": "default-src 'self'; connect-src 'self' https://ikzywhwazohkoxhjcjmu.supabase.co https://js.stripe.com; script-src 'self' https://js.stripe.com; frame-src https://js.stripe.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' https://ikzywhwazohkoxhjcjmu.supabase.co https://source.unsplash.com data:; font-src 'self' https://unpkg.com;"
         }
       ]
     }
