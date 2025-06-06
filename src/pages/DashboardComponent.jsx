@@ -40,11 +40,21 @@ export default function DashboardComponent() {
   }, []);
 
 const handleBuy = async (productId, title) => {
-  const { data: { session } } = await supabase.auth.getSession();
-  const token = session?.access_token;
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+
+  if (sessionError || !session?.access_token) {
+    console.error("No user session or token found");
+    alert("You must be logged in to make a purchase.");
+    return;
+  }
+
+  const token = session.access_token;
 
   try {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/create-checkout-session`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -55,6 +65,7 @@ const handleBuy = async (productId, title) => {
         price: 2.99,
         productId,
         productType: "component",
+        token, // also send inside body
       }),
     });
 
@@ -78,6 +89,7 @@ const handleBuy = async (productId, title) => {
     console.error("Checkout request error:", err);
   }
 };
+
 
 
   const handleDownload = async (filePath, id) => {
