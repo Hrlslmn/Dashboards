@@ -1,7 +1,11 @@
 import { defineConfig } from "vite";
 
 export default defineConfig({
-    server:{
-        host: true,
-    }
+  plugins: [react()],
+  build: {
+    outDir: 'dist'
+  },
+  server: {
+    historyApiFallback: true
+  }
 });
