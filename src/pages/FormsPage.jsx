@@ -4,6 +4,8 @@ import { supabase } from "../../supabaseClient";
 import { Copy, Download, Check } from "lucide-react";
 
 export default function FormsPage() {
+  const [purchasedIds, setPurchasedIds] = useState([]);
+
   const [components, setComponents] = useState([]);
   const [showCode, setShowCode] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
@@ -11,6 +13,23 @@ export default function FormsPage() {
   const [downloadingId, setDownloadingId] = useState(null);
 
   useEffect(() => {
+  const fetchPurchases = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return;
+
+    const { data: purchases, error } = await supabase
+      .from("purchases")
+      .select("product_id, product_type")
+      .eq("user_id", session.user.id);
+
+    if (!error && purchases) {
+      const purchasedIds = purchases
+        .filter(p => p.product_type === "component")
+        .map(p => p.product_id);
+      setPurchasedIds(purchasedIds);
+    }
+  };
+  fetchPurchases();
     const fetchComponents = async () => {
       const { data, error } = await supabase
         .from("components")
@@ -32,7 +51,34 @@ export default function FormsPage() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleDownload = async (filePath, id) => {
+  
+const handleBuy = async (productId, title) => {
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
+
+  const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      name: title,
+      price: 2.99,
+      productId,
+      productType: "component"
+    }),
+  });
+
+  const result = await res.json();
+  if (result?.url) {
+    window.location.href = result.url;
+  } else {
+    console.error("Checkout error:", result.error);
+  }
+};
+
+const handleDownload = async (filePath, id) => {
     setDownloadingId(id);
     const { data, error } = await supabase
       .storage
@@ -55,6 +101,23 @@ export default function FormsPage() {
 
   // Image zoom follow effect
   useEffect(() => {
+  const fetchPurchases = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return;
+
+    const { data: purchases, error } = await supabase
+      .from("purchases")
+      .select("product_id, product_type")
+      .eq("user_id", session.user.id);
+
+    if (!error && purchases) {
+      const purchasedIds = purchases
+        .filter(p => p.product_type === "component")
+        .map(p => p.product_id);
+      setPurchasedIds(purchasedIds);
+    }
+  };
+  fetchPurchases();
     const zoomContainer = document.querySelector(".zoom-container");
 
     const handleMouseMove = (e) => {
@@ -121,6 +184,7 @@ export default function FormsPage() {
 
                   <div className="mt-auto flex flex-wrap gap-3 items-center">
                     {file_path ? (
+                      purchasedIds.includes(id) ? (
                       <button
                         onClick={() => handleDownload(file_path, id)}
                         className="inline-flex items-center gap-2 bg-amber-400 text-slate-900 text-sm px-5 py-2.5 rounded-lg font-semibold hover:bg-amber-300 transition-colors duration-200 shadow-md hover:shadow-amber-400/40"
@@ -128,6 +192,14 @@ export default function FormsPage() {
                         <Download size={16} />
                         {downloadingId === id ? "Preparing..." : "Download"}
                       </button>
+                    ) : (
+                      <button
+                        onClick={() => handleBuy(id, title)}
+                        className="inline-flex items-center gap-2 bg-pink-500 text-white text-sm px-5 py-2.5 rounded-lg font-semibold hover:bg-pink-400 transition-colors duration-200 shadow-md"
+                      >
+                        Unlock for $2.99
+                      </button>
+                    )
                     ) : (
                       <button
                         className="inline-flex items-center gap-2 bg-amber-400 text-slate-900 text-sm px-5 py-2.5 rounded-lg font-semibold hover:bg-amber-300 transition-colors duration-200 shadow-md hover:shadow-amber-400/40"

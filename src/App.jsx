@@ -18,6 +18,7 @@ import NavigationPage from './pages/Navigation';
 import FormsPage from './pages/FormsPage';
 import UploadComponent from './components/UploadComponent';
 import PagePreview from './components/PagePreview'; 
+import PurchaseHistory from './pages/PurchaseHistory';
 
 import DesignsPage from './pages/DesignsPage';
 import ThemesPage from './pages/ThemesPage';
@@ -41,6 +42,8 @@ export default function App() {
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/upload" element={<UploadComponent />} />
           <Route path="/preview" element={<PagePreview />} />
+          <Route path="/success" element={<Success />} />
+          <Route path="/purchase-history" element={<PurchaseHistory />} />
 
           {/* Authenticated Pages */}
           <Route path="/dashboards" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
