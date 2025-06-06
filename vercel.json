@@ -8,7 +8,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' https://js.stripe.com; style-src 'self' 'unsafe-inline';"
+          "value": "default-src 'self'; connect-src 'self' https://ikzywhwazohkoxhjcjmu.supabase.co https://js.stripe.com; script-src 'self' https://js.stripe.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' https://source.unsplash.com data:; frame-src https://js.stripe.com;"
         }
       ]
     }
