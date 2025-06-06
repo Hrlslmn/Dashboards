@@ -1,3 +1,4 @@
+// api/create-checkout-session.js
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
@@ -11,52 +12,53 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end('Method Not Allowed');
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  const { name, price, productId } = req.body; // ✅ include productId
+  try {
+    const { name, price, productId, productType, token } = req.body;
 
-  const authHeader = req.headers.authorization;
-  const token = authHeader?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'Missing auth token' });
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(token);
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser(token);
+    if (error || !user) return res.status(401).json({ error: 'Unauthorized' });
 
-  if (error || !user) return res.status(401).json({ error: 'Unauthorized' });
-
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ['card'],
-    line_items: [
-      {
-        price_data: {
-          currency: 'usd',
-          product_data: { name },
-          unit_amount: Math.round(price * 100),
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: { name },
+            unit_amount: Math.round(price * 100),
+          },
+          quantity: 1,
         },
-        quantity: 1,
+      ],
+      mode: 'payment',
+      success_url: `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.CLIENT_URL}/cancel`,
+      metadata: {
+        user_id: user.id,
+        product_id: productId,
+        product_type: productType,
       },
-    ],
-    mode: 'payment',
-    success_url: `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.CLIENT_URL}/cancel`,
-    metadata: {
-      user_id: user.id,
-      product_id: productId, // ✅ now properly defined
-    },
-  });
+    });
 
-  await supabase.from('checkout_sessions').insert([
-  {
-    user_id: user.id,
-    session_id: session.id,
-    status: 'pending',
-    product_id: productId,
+    await supabase.from('checkout_sessions').insert([
+      {
+        user_id: user.id,
+        session_id: session.id,
+        status: 'pending',
+        product_id: productId,
+        product_type: productType,
+      },
+    ]);
+
+    res.status(200).json({ url: session.url });
+  } catch (err) {
+    console.error('Checkout error:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-]);
-
-  res.status(200).json({ url: session.url });
 }
-
-
