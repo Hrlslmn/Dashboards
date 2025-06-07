@@ -155,7 +155,7 @@ export default function DashboardComponent() {
                   >
                     {checkoutLoadingId === dash.id
                       ? "Redirecting to checkout..."
-                      : `Pay to Unlock – $${dash.price || 2.99}`}
+                      : `Unlock for just – $${dash.price || 2.99}`}
                   </button>
                 )}
               </div>
