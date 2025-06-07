@@ -43,6 +43,19 @@ export default function FormsPage() {
   };
 
   const handleBuy = async (productId, title) => {
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
+
+    if (sessionError || !session?.user?.id) {
+      console.error("No user session or ID found");
+      alert("You must be logged in to make a purchase.");
+      return;
+    }
+
+    const userId = session.user.id;
+
     try {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
         method: "POST",
@@ -54,6 +67,7 @@ export default function FormsPage() {
           price: 2.99,
           productId,
           productType: "component",
+          user_id: userId, // ✅ send user_id here
         }),
       });
 
@@ -77,6 +91,7 @@ export default function FormsPage() {
       console.error("Checkout request error:", err);
     }
   };
+
 
   const handleDownload = async (filePath, id) => {
     setDownloadingId(id);
