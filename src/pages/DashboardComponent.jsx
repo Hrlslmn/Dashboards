@@ -43,14 +43,18 @@ export default function DashboardComponent() {
   }, [location]);
 
   const handleBuy = async (productId, title) => {
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-    const userId = sessionData?.session?.user?.id;
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
 
-    if (sessionError || !userId) {
+    if (sessionError || !session?.user?.id) {
       console.error("No user session or ID found");
       alert("You must be logged in to make a purchase.");
       return;
     }
+
+    const userId = session.user.id;
 
     try {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
