@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import HeaderGreen from "../components/HeaderGreen";
 import { supabase } from "../../supabaseClient";
 import { Copy, Download, Check, X } from "lucide-react";
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe } from "@stripe/stripe-js";
 
 export default function FormsPage() {
   const [purchasedIds, setPurchasedIds] = useState([]);
@@ -12,11 +12,14 @@ export default function FormsPage() {
   const [copiedId, setCopiedId] = useState(null);
   const [modalImage, setModalImage] = useState(null);
   const [downloadingId, setDownloadingId] = useState(null);
-  const location = useLocation(); // 👈 track route changes
+  const location = useLocation(); // 👈 detects back/forward navigation
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       if (session?.user) {
         const { data: purchases } = await supabase
           .from("purchases")
@@ -24,7 +27,7 @@ export default function FormsPage() {
           .eq("user_id", session.user.id)
           .eq("product_type", "component");
 
-        setPurchasedIds(purchases?.map(p => p.product_id) || []);
+        setPurchasedIds(purchases?.map((p) => p.product_id) || []);
       }
 
       const { data, error } = await supabase
@@ -36,7 +39,7 @@ export default function FormsPage() {
     };
 
     fetchData();
-  }, [location]); // 👈 re-run every time route changes (e.g., after back button)
+  }, [location]);
 
   const handleCopyCode = (code, id) => {
     navigator.clipboard.writeText(code);
@@ -46,17 +49,15 @@ export default function FormsPage() {
 
   const handleBuy = async (productId, title) => {
     const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession();
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
-    if (sessionError || !session?.user?.id) {
-      console.error("No user session or ID found");
+    if (userError || !user?.id) {
+      console.error("No user ID found");
       alert("You must be logged in to make a purchase.");
       return;
     }
-
-    const userId = session.user.id;
 
     try {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
@@ -69,7 +70,7 @@ export default function FormsPage() {
           price: 2.99,
           productId,
           productType: "component",
-          user_id: userId,
+          user_id: user.id,
         }),
       });
 
@@ -96,8 +97,7 @@ export default function FormsPage() {
 
   const handleDownload = async (filePath, id) => {
     setDownloadingId(id);
-    const { data, error } = await supabase
-      .storage
+    const { data, error } = await supabase.storage
       .from("component-file")
       .createSignedUrl(filePath, 60, { download: true });
 
@@ -141,23 +141,36 @@ export default function FormsPage() {
                 <div className="flex gap-4 flex-wrap">
                   {file_path ? (
                     purchasedIds.includes(id) ? (
-                      <button onClick={() => handleDownload(file_path, id)} className="bg-amber-400 text-black px-4 py-2 rounded">
+                      <button
+                        onClick={() => handleDownload(file_path, id)}
+                        className="bg-amber-400 text-black px-4 py-2 rounded"
+                      >
                         <Download size={16} />
                         {downloadingId === id ? "Preparing..." : "Download"}
                       </button>
                     ) : (
-                      <button onClick={() => handleBuy(id, title)} className="bg-pink-500 text-white px-4 py-2 rounded">
+                      <button
+                        onClick={() => handleBuy(id, title)}
+                        className="bg-pink-500 text-white px-4 py-2 rounded"
+                      >
                         Unlock for $2.99
                       </button>
                     )
                   ) : (
-                    <button onClick={() => setShowCode(showCode === id ? null : id)} className="bg-slate-600 px-4 py-2 rounded">
+                    <button
+                      onClick={() => setShowCode(showCode === id ? null : id)}
+                      className="bg-slate-600 px-4 py-2 rounded"
+                    >
                       {showCode === id ? "Hide Code" : "Show Code"}
                     </button>
                   )}
                   {code && !file_path && (
-                    <button onClick={() => handleCopyCode(code, id)} className="bg-gray-700 px-4 py-2 rounded text-amber-300">
-                      {copiedId === id ? <Check size={16} /> : <Copy size={16} />} {copiedId === id ? "Copied" : "Copy"}
+                    <button
+                      onClick={() => handleCopyCode(code, id)}
+                      className="bg-gray-700 px-4 py-2 rounded text-amber-300"
+                    >
+                      {copiedId === id ? <Check size={16} /> : <Copy size={16} />}{" "}
+                      {copiedId === id ? "Copied" : "Copy"}
                     </button>
                   )}
                 </div>

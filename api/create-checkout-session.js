@@ -1,4 +1,5 @@
-// api/create-checkout-session.js
+// pages/api/create-checkout-session.js
+
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
@@ -16,13 +17,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { name, price, productId, productType, user_id } = req.body;
-
-  if (!user_id) {
-    return res.status(400).json({ error: 'Missing user ID' });
-  }
-
   try {
+    const { name, price, productId, productType, user_id } = req.body;
+
+    if (!user_id) {
+      return res.status(400).json({ error: 'Missing user ID' });
+    }
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -45,20 +46,19 @@ export default async function handler(req, res) {
       },
     });
 
-    await supabase.from('checkout_sessions').insert([{
-      user_id,
-      session_id: session.id,
-      status: 'pending',
-      product_id: productId,
-      product_type: productType,
-    }]);
+    await supabase.from('checkout_sessions').insert([
+      {
+        user_id,
+        session_id: session.id,
+        status: 'pending',
+        product_id: productId,
+        product_type: productType,
+      },
+    ]);
 
     return res.status(200).json({ sessionId: session.id, url: session.url });
-
   } catch (err) {
     console.error('Checkout error:', err);
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
-
-

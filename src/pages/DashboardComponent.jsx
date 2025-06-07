@@ -1,3 +1,4 @@
+// ✅ DashboardComponent.jsx - FULL WORKING CODE
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import HeaderGreen from '../components/HeaderGreen';
@@ -15,8 +16,8 @@ export default function DashboardComponent() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      const user = session?.user;
+      const { data: sessionData } = await supabase.auth.getSession();
+      const user = sessionData?.session?.user;
 
       if (user) {
         const { data: purchases } = await supabase
@@ -33,9 +34,7 @@ export default function DashboardComponent() {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) console.error('Error fetching dashboards:', error);
-      else setDashboards(data);
-
+      if (!error) setDashboards(data);
       setLoading(false);
     };
 
@@ -43,25 +42,20 @@ export default function DashboardComponent() {
   }, [location]);
 
   const handleBuy = async (productId, title) => {
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession();
+    const { data: userData, error: userError } = await supabase.auth.getUser();
 
-    if (sessionError || !session?.user?.id) {
-      console.error("No user session or ID found");
+    if (userError || !userData?.user?.id) {
+      console.error("No user session or ID found", userError);
       alert("You must be logged in to make a purchase.");
       return;
     }
 
-    const userId = session.user.id;
+    const userId = userData.user.id;
 
     try {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: title,
           price: 2.99,
@@ -78,15 +72,9 @@ export default function DashboardComponent() {
       }
 
       const result = await res.json();
-
-      if (result?.sessionId) {
-        const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
-        await stripe.redirectToCheckout({ sessionId: result.sessionId });
-      } else if (result?.url) {
-        window.location.href = result.url;
-      } else {
-        console.error("Missing session URL");
-      }
+      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+      if (result?.sessionId) await stripe.redirectToCheckout({ sessionId: result.sessionId });
+      else if (result?.url) window.location.href = result.url;
     } catch (err) {
       console.error("Checkout request error:", err);
     }
@@ -94,20 +82,13 @@ export default function DashboardComponent() {
 
   const handleDownload = async (filePath, id) => {
     setDownloadingId(id);
-
-    const { data, error } = await supabase
-      .storage
-      .from('dashboard-file')
-      .createSignedUrl(filePath, 60, { download: true });
-
+    const { data, error } = await supabase.storage.from('dashboard-file').createSignedUrl(filePath, 60, { download: true });
     setDownloadingId(null);
-
     if (!data?.signedUrl || error) {
       console.error("Download error:", error?.message || error);
       alert("Download failed.");
       return;
     }
-
     const link = document.createElement('a');
     link.href = data.signedUrl;
     link.download = filePath.split('/').pop();
@@ -121,7 +102,6 @@ export default function DashboardComponent() {
       <HeaderGreen />
       <div className="max-w-6xl mx-auto mt-8">
         <h1 className="text-4xl font-bold text-center mb-10 drop-shadow">📊 Dashboard Designs</h1>
-
         {loading ? (
           <p className="text-center text-slate-300">Loading dashboards...</p>
         ) : dashboards.length === 0 ? (
@@ -129,10 +109,7 @@ export default function DashboardComponent() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8">
             {dashboards.map((dash) => (
-              <div
-                key={dash.id}
-                className="bg-[#1f2937] border border-slate-600 rounded-xl p-5 shadow-lg hover:shadow-xl transition duration-300"
-              >
+              <div key={dash.id} className="bg-[#1f2937] border border-slate-600 rounded-xl p-5 shadow-lg hover:shadow-xl transition duration-300">
                 {dash.image_path && (
                   <img
                     src={dash.image_path}
@@ -142,10 +119,7 @@ export default function DashboardComponent() {
                   />
                 )}
                 <h2 className="text-xl font-semibold mb-1 text-[#38bdf8]">{dash.title}</h2>
-                <p className="text-sm text-slate-300 mb-4">
-                  {dash.description || 'No description available'}
-                </p>
-
+                <p className="text-sm text-slate-300 mb-4">{dash.description || 'No description available'}</p>
                 {purchasedIds.includes(dash.id) ? (
                   <button
                     onClick={() => handleDownload(dash.file_path, dash.id)}
