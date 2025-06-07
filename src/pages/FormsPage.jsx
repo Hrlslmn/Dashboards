@@ -1,4 +1,3 @@
-// ✅ Fixed FormsPage.jsx
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import HeaderGreen from "../components/HeaderGreen";
@@ -13,6 +12,7 @@ export default function FormsPage() {
   const [copiedId, setCopiedId] = useState(null);
   const [modalImage, setModalImage] = useState(null);
   const [downloadingId, setDownloadingId] = useState(null);
+  const [buyingId, setBuyingId] = useState(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -48,6 +48,8 @@ export default function FormsPage() {
     }
 
     try {
+      setBuyingId(productId);
+
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -61,6 +63,7 @@ export default function FormsPage() {
       });
 
       const result = await res.json();
+      setBuyingId(null);
 
       if (result?.sessionId) {
         const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -70,6 +73,7 @@ export default function FormsPage() {
       }
     } catch (err) {
       console.error("Checkout error:", err);
+      setBuyingId(null);
     }
   };
 
@@ -112,28 +116,46 @@ export default function FormsPage() {
             return (
               <div key={id} className="bg-slate-800 rounded-xl p-6 shadow hover:shadow-lg transition">
                 {imgSrc && (
-                  <img src={imgSrc} alt={title} className="w-full h-64 object-cover rounded-md mb-4 cursor-pointer hover:opacity-90" onClick={() => setModalImage(imgSrc)} />
+                  <img
+                    src={imgSrc}
+                    alt={title}
+                    className="w-full h-64 object-cover rounded-md mb-4 cursor-pointer hover:opacity-90"
+                    onClick={() => setModalImage(imgSrc)}
+                  />
                 )}
                 <h2 className="text-xl font-semibold text-amber-400 mb-2">{title}</h2>
                 <p className="text-gray-400 text-sm mb-4">{description}</p>
                 <div className="flex gap-4 flex-wrap">
                   {file_path ? (
                     purchasedIds.includes(id) ? (
-                      <button onClick={() => handleDownload(file_path, id)} className="bg-amber-400 text-black px-4 py-2 rounded">
+                      <button
+                        onClick={() => handleDownload(file_path, id)}
+                        className="bg-amber-400 text-black px-4 py-2 rounded"
+                      >
                         <Download size={16} /> {downloadingId === id ? "Preparing..." : "Download"}
                       </button>
                     ) : (
-                      <button onClick={() => handleBuy(id, title)} className="bg-pink-500 text-white px-4 py-2 rounded">
-                        Unlock for $2.99
+                      <button
+                        onClick={() => handleBuy(id, title)}
+                        className="bg-pink-500 text-white px-4 py-2 rounded"
+                        disabled={buyingId === id}
+                      >
+                        {buyingId === id ? "Redirecting..." : "Unlock for $2.99"}
                       </button>
                     )
                   ) : (
-                    <button onClick={() => setShowCode(showCode === id ? null : id)} className="bg-slate-600 px-4 py-2 rounded">
+                    <button
+                      onClick={() => setShowCode(showCode === id ? null : id)}
+                      className="bg-slate-600 px-4 py-2 rounded"
+                    >
                       {showCode === id ? "Hide Code" : "Show Code"}
                     </button>
                   )}
                   {code && !file_path && (
-                    <button onClick={() => handleCopyCode(code, id)} className="bg-gray-700 px-4 py-2 rounded text-amber-300">
+                    <button
+                      onClick={() => handleCopyCode(code, id)}
+                      className="bg-gray-700 px-4 py-2 rounded text-amber-300"
+                    >
                       {copiedId === id ? <Check size={16} /> : <Copy size={16} />} {copiedId === id ? "Copied" : "Copy"}
                     </button>
                   )}
@@ -151,10 +173,17 @@ export default function FormsPage() {
 
       {modalImage && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center">
-          <button className="absolute top-6 right-6 text-white bg-red-600 hover:bg-red-500 p-2 rounded-full z-50" onClick={() => setModalImage(null)}>
+          <button
+            className="absolute top-6 right-6 text-white bg-red-600 hover:bg-red-500 p-2 rounded-full z-50"
+            onClick={() => setModalImage(null)}
+          >
             <X size={20} />
           </button>
-          <img src={modalImage} alt="Preview" className="max-w-[90vw] max-h-[90vh] object-contain rounded-md shadow-lg border border-white/10" />
+          <img
+            src={modalImage}
+            alt="Preview"
+            className="max-w-[90vw] max-h-[90vh] object-contain rounded-md shadow-lg border border-white/10"
+          />
         </div>
       )}
     </div>
