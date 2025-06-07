@@ -11,39 +11,16 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// ✅ Helper: Get user from Supabase using REST API + token
-const getUserFromToken = async (token) => {
-  const res = await fetch(`${process.env.SUPABASE_URL}/auth/v1/user`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-    },
-  });
-
-  if (!res.ok) {
-    throw new Error('Unauthorized');
-  }
-
-  return res.json();
-};
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
   try {
-    const { name, price, productId, productType, token } = req.body;
+    const { name, price, productId, productType, user_id } = req.body;
 
-    if (!token) {
-      return res.status(401).json({ error: 'Missing token' });
-    }
-
-    let user;
-    try {
-      user = await getUserFromToken(token);
-    } catch {
-      return res.status(401).json({ error: 'Unauthorized' });
+    if (!user_id) {
+      return res.status(400).json({ error: 'Missing user ID' });
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -62,7 +39,7 @@ export default async function handler(req, res) {
       success_url: `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.CLIENT_URL}/cancel`,
       metadata: {
-        user_id: user.id,
+        user_id,
         product_id: productId,
         product_type: productType,
       },
@@ -70,7 +47,7 @@ export default async function handler(req, res) {
 
     await supabase.from('checkout_sessions').insert([
       {
-        user_id: user.id,
+        user_id,
         session_id: session.id,
         status: 'pending',
         product_id: productId,
