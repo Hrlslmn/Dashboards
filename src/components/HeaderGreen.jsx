@@ -28,51 +28,57 @@ export default function HeaderGreen() {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState({ full_name: "", is_admin: false });
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const { data: { user: authUser }, error } = await supabase.auth.getUser();
-      if (error || !authUser) {
-        setUser(null);
-        setProfile({ full_name: "", is_admin: false });
-        return;
-      }
-      setUser(authUser);
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("full_name, is_admin")
-        .eq("id", authUser.id)
-        .single();
-      if (profileData) {
-        setProfile(profileData);
-      }
-    };
-    fetchUser();
+useEffect(() => {
+  const fetchUser = async () => {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    const authUser = session?.user || null;
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        const currentUser = session?.user || null;
-        setUser(currentUser);
-        if (currentUser) {
-          const { data: profileData } = await supabase
-            .from("profiles")
-            .select("full_name, is_admin")
-            .eq("id", currentUser.id)
-            .single();
-          if (profileData) {
-            setProfile(profileData);
-          } else {
-            setProfile({ full_name: "User", is_admin: false });
-          }
+    if (error || !authUser) {
+      setUser(null);
+      setProfile({ full_name: "", is_admin: false });
+      return;
+    }
+
+    setUser(authUser);
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("full_name, is_admin")
+      .eq("id", authUser.id)
+      .single();
+
+    if (profileData) {
+      setProfile(profileData);
+    }
+  };
+
+  fetchUser();
+
+  const { data: authListener } = supabase.auth.onAuthStateChange(
+    async (_event, session) => {
+      const currentUser = session?.user || null;
+      setUser(currentUser);
+
+      if (currentUser) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("full_name, is_admin")
+          .eq("id", currentUser.id)
+          .single();
+        if (profileData) {
+          setProfile(profileData);
         } else {
-          setProfile({ full_name: "", is_admin: false });
+          setProfile({ full_name: "User", is_admin: false });
         }
+      } else {
+        setProfile({ full_name: "", is_admin: false });
       }
-    );
+    }
+  );
 
-    return () => {
-      authListener?.subscription?.unsubscribe();
-    };
-  }, []);
+  return () => {
+    authListener?.subscription?.unsubscribe();
+  };
+}, []);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "auto";
