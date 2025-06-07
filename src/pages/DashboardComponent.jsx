@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import HeaderGreen from '../components/HeaderGreen';
 import { supabase } from '../../supabaseClient';
 import { Download, X } from 'lucide-react';
+import { loadStripe } from '@stripe/stripe-js';
 
 export default function DashboardComponent() {
   const [dashboards, setDashboards] = useState([]);
@@ -39,58 +40,56 @@ export default function DashboardComponent() {
     fetchData();
   }, []);
 
-const handleBuy = async (productId, title) => {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
+  const handleBuy = async (productId, title) => {
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
 
-  if (sessionError || !session?.access_token) {
-    console.error("No user session or token found");
-    alert("You must be logged in to make a purchase.");
-    return;
-  }
-
-  const token = session.access_token;
-
-  try {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        name: title,
-        price: 2.99,
-        productId,
-        productType: "component",
-        token, // also send inside body
-      }),
-    });
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error("Checkout API failed:", res.status, errorText);
+    if (sessionError || !session?.access_token) {
+      console.error("No user session or token found");
+      alert("You must be logged in to make a purchase.");
       return;
     }
 
-    const result = await res.json();
+    const token = session.access_token;
 
-    if (result?.sessionId) {
-      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
-      await stripe.redirectToCheckout({ sessionId: result.sessionId });
-    } else if (result?.url) {
-      window.location.href = result.url;
-    } else {
-      console.error("Missing session URL");
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: title,
+          price: 2.99,
+          productId,
+          productType: "dashboard", // Fixed here
+          token,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Checkout API failed:", res.status, errorText);
+        return;
+      }
+
+      const result = await res.json();
+
+      if (result?.sessionId) {
+        const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+        await stripe.redirectToCheckout({ sessionId: result.sessionId });
+      } else if (result?.url) {
+        window.location.href = result.url;
+      } else {
+        console.error("Missing session URL");
+      }
+    } catch (err) {
+      console.error("Checkout request error:", err);
     }
-  } catch (err) {
-    console.error("Checkout request error:", err);
-  }
-};
-
-
+  };
 
   const handleDownload = async (filePath, id) => {
     setDownloadingId(id);
@@ -118,7 +117,7 @@ const handleBuy = async (productId, title) => {
 
   return (
     <div className="min-h-screen bg-[#111827] text-white px-4 relative">
-      <HeaderGreen/>
+      <HeaderGreen />
       <div className="max-w-6xl mx-auto mt-8">
         <h1 className="text-4xl font-bold text-center mb-10 drop-shadow">📊 Dashboard Designs</h1>
 
@@ -156,10 +155,10 @@ const handleBuy = async (productId, title) => {
                   </button>
                 ) : (
                   <button
-                    onClick={() => handleBuy(dash)}
+                    onClick={() => handleBuy(dash.id, dash.title)}
                     className="bg-[#38bdf8] hover:bg-[#0ea5e9] text-black font-semibold py-2 px-4 rounded-md transition"
                   >
-                    Pay to Unlock – ${dash.price || 10}
+                    Pay to Unlock – ${dash.price || 2.99}
                   </button>
                 )}
               </div>
@@ -187,4 +186,5 @@ const handleBuy = async (productId, title) => {
     </div>
   );
 }
+
 
