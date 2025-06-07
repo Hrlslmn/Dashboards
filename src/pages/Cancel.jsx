@@ -14,7 +14,7 @@ export default function Cancel() {
           Your payment was cancelled. You can try again anytime.
         </p>
         <Link
-          to="/components/forms"
+          to="/components/landing-pages"
           className="inline-block px-6 py-2 bg-red-500 text-white font-medium rounded-lg shadow hover:bg-red-600 transition"
         >
           Return to Forms
