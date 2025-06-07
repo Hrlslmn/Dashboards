@@ -12,7 +12,7 @@ import {
   X,
   ShieldCheck
 } from "lucide-react";
-import { supabase } from "../../supabaseClient"; // Adjust path if needed
+import { supabase } from "../../supabaseClient";
 
 const navLinks = [
   { icon: <LayoutDashboard size={22} />, label: "Home", path: "/" },
@@ -27,55 +27,58 @@ export default function HeaderGreen() {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState({ full_name: "", is_admin: false });
+  const [loading, setLoading] = useState(true); // ✅ loading state
 
-useEffect(() => {
-  const fetchUser = async () => {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    const authUser = session?.user || null;
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      const authUser = session?.user || null;
 
-    if (error || !authUser) {
-      setUser(null);
-      setProfile({ full_name: "", is_admin: false });
-    } else {
-      setUser(authUser);
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("full_name, is_admin")
-        .eq("id", authUser.id)
-        .single();
-
-      setProfile(profileData || { full_name: "User", is_admin: false });
-    }
-  };
-
-  fetchUser();
-
-  // 👇 Correctly placed onAuthStateChange listener
-  const { data: authListener } = supabase.auth.onAuthStateChange(
-    async (_event, session) => {
-      const currentUser = session?.user || null;
-
-      if (currentUser) {
-        setUser(currentUser);
+      if (error || !authUser) {
+        setUser(null);
+        setProfile({ full_name: "", is_admin: false });
+      } else {
+        setUser(authUser);
         const { data: profileData } = await supabase
           .from("profiles")
           .select("full_name, is_admin")
-          .eq("id", currentUser.id)
+          .eq("id", authUser.id)
           .single();
 
         setProfile(profileData || { full_name: "User", is_admin: false });
-      } else {
-        setUser(null);
-        setProfile({ full_name: "", is_admin: false });
       }
-    }
-  );
 
-  // Clean up listener on unmount
-  return () => {
-    authListener?.subscription?.unsubscribe();
-  };
-}, []);
+      setLoading(false); // ✅ stop loading after initial check
+    };
+
+    fetchUser();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        const currentUser = session?.user || null;
+
+        if (currentUser) {
+          setUser(currentUser);
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("full_name, is_admin")
+            .eq("id", currentUser.id)
+            .single();
+
+          setProfile(profileData || { full_name: "User", is_admin: false });
+        } else {
+          setUser(null);
+          setProfile({ full_name: "", is_admin: false });
+        }
+
+        setLoading(false); // ✅ stop loading after auth change
+      }
+    );
+
+    return () => {
+      authListener?.subscription?.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "auto";
@@ -90,20 +93,19 @@ useEffect(() => {
     };
   }, [open]);
 
-const handleLogout = async () => {
-  try {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
 
-    setUser(null);
-    setProfile({ full_name: "", is_admin: false });
-    setOpen(false);
-    navigate("/login"); // ✅ Redirect to /login
-  } catch (err) {
-    console.error("Logout failed:", err.message);
-  }
-};
-
+      setUser(null);
+      setProfile({ full_name: "", is_admin: false });
+      setOpen(false);
+      navigate("/login");
+    } catch (err) {
+      console.error("Logout failed:", err.message);
+    }
+  };
 
   const handleLinkClick = () => {
     setOpen(false);
@@ -150,7 +152,7 @@ const handleLogout = async () => {
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
-            {user ? (
+            {!loading && user ? (
               <div className="flex items-center gap-3">
                 {profile.is_admin && (
                   <span className="flex items-center gap-1.5 text-xs bg-sky-500/20 text-sky-400 px-3 py-1 rounded-full font-medium border border-sky-500/30">
@@ -167,13 +169,15 @@ const handleLogout = async () => {
                 </button>
               </div>
             ) : (
-              <Link
-                to="/login"
-                className="flex items-center gap-2 text-sm bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 shadow hover:shadow-md"
-              >
-                <LogIn size={18} />
-                Login
-              </Link>
+              !loading && (
+                <Link
+                  to="/login"
+                  className="flex items-center gap-2 text-sm bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-4 py-1.5 rounded-lg transition-colors duration-200 shadow hover:shadow-md"
+                >
+                  <LogIn size={18} />
+                  Login
+                </Link>
+              )
             )}
           </div>
         </div>
@@ -214,7 +218,7 @@ const handleLogout = async () => {
         </nav>
 
         <div className="pt-8 mt-auto border-t border-gray-700/50">
-          {user ? (
+          {!loading && user ? (
             <>
               <div className="flex items-center justify-center gap-3 text-neutral-200 mb-3 px-3">
                 <User size={22} />
@@ -234,14 +238,16 @@ const handleLogout = async () => {
               </button>
             </>
           ) : (
-            <Link
-              to="/login"
-              onClick={handleLinkClick}
-              className="w-full flex items-center justify-center gap-2.5 px-4 py-3 text-lg bg-amber-500 hover:bg-amber-600 text-slate-900 rounded-lg font-semibold transition-colors"
-            >
-              <LogIn size={20} />
-              Login
-            </Link>
+            !loading && (
+              <Link
+                to="/login"
+                onClick={handleLinkClick}
+                className="w-full flex items-center justify-center gap-2.5 px-4 py-3 text-lg bg-amber-500 hover:bg-amber-600 text-slate-900 rounded-lg font-semibold transition-colors"
+              >
+                <LogIn size={20} />
+                Login
+              </Link>
+            )
           )}
         </div>
       </div>
