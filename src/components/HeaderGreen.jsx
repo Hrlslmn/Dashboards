@@ -36,45 +36,42 @@ useEffect(() => {
     if (error || !authUser) {
       setUser(null);
       setProfile({ full_name: "", is_admin: false });
-      return;
-    }
+    } else {
+      setUser(authUser);
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("full_name, is_admin")
+        .eq("id", authUser.id)
+        .single();
 
-    setUser(authUser);
-    const { data: profileData } = await supabase
-      .from("profiles")
-      .select("full_name, is_admin")
-      .eq("id", authUser.id)
-      .single();
-
-    if (profileData) {
-      setProfile(profileData);
+      setProfile(profileData || { full_name: "User", is_admin: false });
     }
   };
 
   fetchUser();
 
+  // 👇 Correctly placed onAuthStateChange listener
   const { data: authListener } = supabase.auth.onAuthStateChange(
     async (_event, session) => {
       const currentUser = session?.user || null;
-      setUser(currentUser);
 
       if (currentUser) {
+        setUser(currentUser);
         const { data: profileData } = await supabase
           .from("profiles")
           .select("full_name, is_admin")
           .eq("id", currentUser.id)
           .single();
-        if (profileData) {
-          setProfile(profileData);
-        } else {
-          setProfile({ full_name: "User", is_admin: false });
-        }
+
+        setProfile(profileData || { full_name: "User", is_admin: false });
       } else {
+        setUser(null);
         setProfile({ full_name: "", is_admin: false });
       }
     }
   );
 
+  // Clean up listener on unmount
   return () => {
     authListener?.subscription?.unsubscribe();
   };
