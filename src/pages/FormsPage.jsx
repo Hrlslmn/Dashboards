@@ -1,45 +1,49 @@
-import React, { useEffect, useState } from "react";
+// ✅ Fixed FormsPage.jsx
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import HeaderGreen from "../components/HeaderGreen";
-import { Copy, Download, Check, ShoppingCart } from "lucide-react";
 import { supabase } from "../../supabaseClient";
+import { Copy, Download, Check, X } from "lucide-react";
+import { loadStripe } from '@stripe/stripe-js';
 
 export default function FormsPage() {
+  const [purchasedIds, setPurchasedIds] = useState([]);
   const [components, setComponents] = useState([]);
-  const [copiedId, setCopiedId] = useState(null);
   const [showCode, setShowCode] = useState(null);
-  const [session, setSession] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
+  const [modalImage, setModalImage] = useState(null);
+  const [downloadingId, setDownloadingId] = useState(null);
+  const location = useLocation();
 
   useEffect(() => {
-    // Always fetch fresh session on mount
-    const fetchSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-    };
-    fetchSession();
-  }, []);
+    const fetchData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: purchases } = await supabase
+          .from("purchases")
+          .select("product_id, product_type")
+          .eq("user_id", user.id)
+          .eq("product_type", "component");
 
-  useEffect(() => {
-    const fetchComponents = async () => {
+        setPurchasedIds(purchases?.map(p => p.product_id) || []);
+      }
+
       const { data, error } = await supabase
         .from("components")
         .select("*")
-        .eq("category", "Input Fields & Forms")
         .order("created_at", { ascending: false });
 
       if (!error) setComponents(data);
     };
-    fetchComponents();
-  }, []);
 
-  const handleCopyCode = (code, id) => {
-    navigator.clipboard.writeText(code);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
+    fetchData();
+  }, [location]);
 
-  const handleBuy = async (component) => {
-    if (!session?.user?.id) {
-      alert("Please log in to purchase.");
+  const handleBuy = async (productId, title) => {
+    const { data: { user }, error } = await supabase.auth.getUser();
+
+    if (error || !user?.id) {
+      alert("You must be logged in to make a purchase.");
       return;
     }
 
@@ -48,74 +52,111 @@ export default function FormsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: component.title,
-          price: component.price || 1,
-          productId: component.id,
+          name: title,
+          price: 2.99,
+          productId,
           productType: "component",
-          userId: session.user.id
+          user_id: user.id,
         }),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Checkout failed");
+      const result = await res.json();
 
-      window.location.href = data.url;
+      if (result?.sessionId) {
+        const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+        await stripe.redirectToCheckout({ sessionId: result.sessionId });
+      } else if (result?.url) {
+        window.location.href = result.url;
+      }
     } catch (err) {
-      console.error("Checkout API failed:", err);
-      alert("Failed to initiate checkout.");
+      console.error("Checkout error:", err);
     }
   };
 
+  const handleDownload = async (filePath, id) => {
+    setDownloadingId(id);
+    const { data, error } = await supabase
+      .storage
+      .from("component-file")
+      .createSignedUrl(filePath, 60, { download: true });
+    setDownloadingId(null);
+
+    if (!data?.signedUrl || error) {
+      alert("Download failed.");
+      return;
+    }
+
+    const link = document.createElement("a");
+    link.href = data.signedUrl;
+    link.download = filePath.split("/").pop();
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleCopyCode = (code, id) => {
+    navigator.clipboard.writeText(code);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
   return (
-    <div className="min-h-screen bg-[#222831] text-white font-inter">
+    <div className="min-h-screen bg-gray-900 text-white relative">
       <HeaderGreen />
-      <main className="max-w-6xl mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-6">Input Fields & Forms</h1>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {components.map((comp) => (
-            <div key={comp.id} className="bg-[#393E46] p-4 rounded-xl shadow-lg border border-[#FFD369]/10">
-              <h2 className="text-xl font-semibold mb-3">{comp.title}</h2>
-              <div dangerouslySetInnerHTML={{ __html: comp.preview_html }} />
-              <div className="mt-4 flex justify-between items-center gap-2">
-                <button
-                  onClick={() => setShowCode(showCode === comp.id ? null : comp.id)}
-                  className="text-sm px-3 py-1 bg-amber-500 hover:bg-amber-600 rounded-md font-medium text-slate-900"
-                >
-                  {showCode === comp.id ? "Hide Code" : "View Code"}
-                </button>
-                <button
-                  onClick={() => handleBuy(comp)}
-                  className="flex items-center gap-1 text-sm px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-md"
-                >
-                  <ShoppingCart size={16} />
-                  Buy
-                </button>
-              </div>
-              {showCode === comp.id && (
-                <div className="mt-3 relative">
-                  <pre className="bg-black/80 p-3 rounded text-xs overflow-x-auto">
-                    {comp.jsx_code}
-                  </pre>
-                  <button
-                    onClick={() => handleCopyCode(comp.jsx_code, comp.id)}
-                    className="absolute top-2 right-2 bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
-                  >
-                    {copiedId === comp.id ? (
-                      <>
-                        <Check size={14} /> Copied
-                      </>
+      <main className="max-w-7xl mx-auto p-8">
+        <h1 className="text-4xl font-bold text-center mb-10">Component Marketplace</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+          {components.map(({ id, title, description, file_path, image_path, image_url, code }) => {
+            const imgSrc = image_url || image_path;
+
+            return (
+              <div key={id} className="bg-slate-800 rounded-xl p-6 shadow hover:shadow-lg transition">
+                {imgSrc && (
+                  <img src={imgSrc} alt={title} className="w-full h-64 object-cover rounded-md mb-4 cursor-pointer hover:opacity-90" onClick={() => setModalImage(imgSrc)} />
+                )}
+                <h2 className="text-xl font-semibold text-amber-400 mb-2">{title}</h2>
+                <p className="text-gray-400 text-sm mb-4">{description}</p>
+                <div className="flex gap-4 flex-wrap">
+                  {file_path ? (
+                    purchasedIds.includes(id) ? (
+                      <button onClick={() => handleDownload(file_path, id)} className="bg-amber-400 text-black px-4 py-2 rounded">
+                        <Download size={16} /> {downloadingId === id ? "Preparing..." : "Download"}
+                      </button>
                     ) : (
-                      <>
-                        <Copy size={14} /> Copy
-                      </>
-                    )}
-                  </button>
+                      <button onClick={() => handleBuy(id, title)} className="bg-pink-500 text-white px-4 py-2 rounded">
+                        Unlock for $2.99
+                      </button>
+                    )
+                  ) : (
+                    <button onClick={() => setShowCode(showCode === id ? null : id)} className="bg-slate-600 px-4 py-2 rounded">
+                      {showCode === id ? "Hide Code" : "Show Code"}
+                    </button>
+                  )}
+                  {code && !file_path && (
+                    <button onClick={() => handleCopyCode(code, id)} className="bg-gray-700 px-4 py-2 rounded text-amber-300">
+                      {copiedId === id ? <Check size={16} /> : <Copy size={16} />} {copiedId === id ? "Copied" : "Copy"}
+                    </button>
+                  )}
                 </div>
-              )}
-            </div>
-          ))}
+                {showCode === id && (
+                  <pre className="mt-4 text-sm bg-gray-800 p-4 rounded overflow-x-auto">
+                    <code>{code}</code>
+                  </pre>
+                )}
+              </div>
+            );
+          })}
         </div>
       </main>
+
+      {modalImage && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center">
+          <button className="absolute top-6 right-6 text-white bg-red-600 hover:bg-red-500 p-2 rounded-full z-50" onClick={() => setModalImage(null)}>
+            <X size={20} />
+          </button>
+          <img src={modalImage} alt="Preview" className="max-w-[90vw] max-h-[90vh] object-contain rounded-md shadow-lg border border-white/10" />
+        </div>
+      )}
     </div>
   );
 }
