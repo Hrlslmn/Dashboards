@@ -11,7 +11,7 @@ export default function DashboardComponent() {
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
-  const location = useLocation(); // 👈 watch for route changes
+  const location = useLocation();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -40,21 +40,17 @@ export default function DashboardComponent() {
     };
 
     fetchData();
-  }, [location]); // 👈 re-run when route changes
+  }, [location]);
 
   const handleBuy = async (productId, title) => {
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession();
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    const userId = sessionData?.session?.user?.id;
 
-    if (sessionError || !session?.user?.id) {
+    if (sessionError || !userId) {
       console.error("No user session or ID found");
       alert("You must be logged in to make a purchase.");
       return;
     }
-
-    const userId = session.user.id;
 
     try {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
