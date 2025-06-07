@@ -23,40 +23,57 @@ const supabase = createClient(
 
 export default async function handler(req, res) {
   const sig = req.headers['stripe-signature'];
-
   let event;
+
   try {
     const buf = await buffer(req);
     event = stripe.webhooks.constructEvent(buf, sig, endpointSecret);
   } catch (err) {
-    console.error('Webhook error:', err.message);
+    console.error('❌ Stripe webhook signature error:', err);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // ✅ Handle successful payment
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
+    const { user_id, product_id, product_type } = session.metadata || {};
 
-    const userId = session.metadata.user_id;
-    const productId = session.metadata.product_id;
-    const productType = session.metadata.product_type;
+    if (!user_id || !product_id || !product_type) {
+      console.warn("⚠️ Missing metadata in session:", session.id);
+      return res.status(400).json({ error: "Missing metadata" });
+    }
 
     try {
-      await supabase.from('checkout_sessions')
+      // Update session status
+      await supabase
+        .from('checkout_sessions')
         .update({ status: 'completed' })
         .eq('session_id', session.id);
 
-      await supabase.from('purchases').insert([
-        {
-          user_id: userId,
-          product_id: productId,
-          product_type: productType,
-        },
-      ]);
+      // Check if purchase already exists (prevent duplicates)
+      const { data: existingPurchase } = await supabase
+        .from('purchases')
+        .select('id')
+        .eq('user_id', user_id)
+        .eq('product_id', product_id)
+        .eq('product_type', product_type)
+        .maybeSingle();
+
+      if (!existingPurchase) {
+        await supabase.from('purchases').insert([
+          {
+            user_id,
+            product_id,
+            product_type,
+          },
+        ]);
+        console.log(`✅ Purchase recorded for user ${user_id} - product ${product_id}`);
+      } else {
+        console.log(`ℹ️ Purchase already exists for user ${user_id} - product ${product_id}`);
+      }
 
       return res.status(200).json({ received: true });
     } catch (err) {
-      console.error('Supabase insert error:', err.message);
+      console.error('❌ Supabase error during insert/update:', err);
       return res.status(500).json({ error: 'Database insert failed' });
     }
   }

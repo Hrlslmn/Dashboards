@@ -21,7 +21,7 @@ export default function FormsPage() {
       if (user) {
         const { data: purchases } = await supabase
           .from("purchases")
-          .select("product_id, product_type")
+          .select("product_id")
           .eq("user_id", user.id)
           .eq("product_type", "component");
 
@@ -37,11 +37,17 @@ export default function FormsPage() {
     };
 
     fetchData();
+
+    // Re-check purchases when returning from Stripe success page
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") fetchData();
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [location]);
 
   const handleBuy = async (productId, title) => {
     const { data: { user }, error } = await supabase.auth.getUser();
-
     if (error || !user?.id) {
       alert("You must be logged in to make a purchase.");
       return;
@@ -83,6 +89,7 @@ export default function FormsPage() {
       .storage
       .from("component-file")
       .createSignedUrl(filePath, 60, { download: true });
+
     setDownloadingId(null);
 
     if (!data?.signedUrl || error) {
@@ -112,6 +119,7 @@ export default function FormsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
           {components.map(({ id, title, description, file_path, image_path, image_url, code }) => {
             const imgSrc = image_url || image_path;
+            const isPurchased = purchasedIds.includes(id);
 
             return (
               <div key={id} className="bg-slate-800 rounded-xl p-6 shadow hover:shadow-lg transition">
@@ -127,20 +135,21 @@ export default function FormsPage() {
                 <p className="text-gray-400 text-sm mb-4">{description}</p>
                 <div className="flex gap-4 flex-wrap">
                   {file_path ? (
-                    purchasedIds.includes(id) ? (
+                    isPurchased ? (
                       <button
                         onClick={() => handleDownload(file_path, id)}
-                        className="bg-amber-400 text-black px-4 py-2 rounded"
+                        className="bg-amber-400 text-black px-4 py-2 rounded flex items-center gap-2"
                       >
-                        <Download size={16} /> {downloadingId === id ? "Preparing..." : "Download"}
+                        <Download size={16} />
+                        {downloadingId === id ? "Preparing..." : "Download"}
                       </button>
                     ) : (
                       <button
                         onClick={() => handleBuy(id, title)}
-                        className="bg-pink-500 text-white px-4 py-2 rounded"
+                        className="bg-pink-500 text-white px-4 py-2 rounded flex items-center gap-2"
                         disabled={buyingId === id}
                       >
-                        {buyingId === id ? "Redirecting..." : "Unlock for just $2.99"}
+                        {buyingId === id ? "Redirecting..." : "Unlock for $2.99"}
                       </button>
                     )
                   ) : (
@@ -154,9 +163,10 @@ export default function FormsPage() {
                   {code && !file_path && (
                     <button
                       onClick={() => handleCopyCode(code, id)}
-                      className="bg-gray-700 px-4 py-2 rounded text-amber-300"
+                      className="bg-gray-700 px-4 py-2 rounded text-amber-300 flex items-center gap-2"
                     >
-                      {copiedId === id ? <Check size={16} /> : <Copy size={16} />} {copiedId === id ? "Copied" : "Copy"}
+                      {copiedId === id ? <Check size={16} /> : <Copy size={16} />}
+                      {copiedId === id ? "Copied" : "Copy"}
                     </button>
                   )}
                 </div>
@@ -189,3 +199,4 @@ export default function FormsPage() {
     </div>
   );
 }
+
