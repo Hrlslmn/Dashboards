@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import HeaderGreen from '../components/HeaderGreen';
 import { supabase } from '../../supabaseClient';
 import { Download, X } from 'lucide-react';
@@ -10,6 +11,7 @@ export default function DashboardComponent() {
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+  const location = useLocation(); // 👈 watch for route changes
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,58 +40,57 @@ export default function DashboardComponent() {
     };
 
     fetchData();
-  }, []);
+  }, [location]); // 👈 re-run when route changes
 
   const handleBuy = async (productId, title) => {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
 
-  if (sessionError || !session?.user?.id) {
-    console.error("No user session or ID found");
-    alert("You must be logged in to make a purchase.");
-    return;
-  }
-
-  const userId = session.user.id;
-
-  try {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: title,
-        price: 2.99,
-        productId,
-        productType: "dashboard",
-        user_id: userId, // ✅ Send user_id instead of token
-      }),
-    });
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error("Checkout API failed:", res.status, errorText);
+    if (sessionError || !session?.user?.id) {
+      console.error("No user session or ID found");
+      alert("You must be logged in to make a purchase.");
       return;
     }
 
-    const result = await res.json();
+    const userId = session.user.id;
 
-    if (result?.sessionId) {
-      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
-      await stripe.redirectToCheckout({ sessionId: result.sessionId });
-    } else if (result?.url) {
-      window.location.href = result.url;
-    } else {
-      console.error("Missing session URL");
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: title,
+          price: 2.99,
+          productId,
+          productType: "dashboard",
+          user_id: userId,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Checkout API failed:", res.status, errorText);
+        return;
+      }
+
+      const result = await res.json();
+
+      if (result?.sessionId) {
+        const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+        await stripe.redirectToCheckout({ sessionId: result.sessionId });
+      } else if (result?.url) {
+        window.location.href = result.url;
+      } else {
+        console.error("Missing session URL");
+      }
+    } catch (err) {
+      console.error("Checkout request error:", err);
     }
-  } catch (err) {
-    console.error("Checkout request error:", err);
-  }
-};
-
+  };
 
   const handleDownload = async (filePath, id) => {
     setDownloadingId(id);
@@ -167,7 +168,6 @@ export default function DashboardComponent() {
         )}
       </div>
 
-      {/* Lightbox Full Image Viewer */}
       {previewImage && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center">
           <button
@@ -186,5 +186,3 @@ export default function DashboardComponent() {
     </div>
   );
 }
-
-

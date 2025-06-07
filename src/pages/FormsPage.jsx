@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import HeaderGreen from "../components/HeaderGreen";
 import { supabase } from "../../supabaseClient";
 import { Copy, Download, Check, X } from "lucide-react";
@@ -11,6 +12,7 @@ export default function FormsPage() {
   const [copiedId, setCopiedId] = useState(null);
   const [modalImage, setModalImage] = useState(null);
   const [downloadingId, setDownloadingId] = useState(null);
+  const location = useLocation(); // 👈 track route changes
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,7 +36,7 @@ export default function FormsPage() {
     };
 
     fetchData();
-  }, []);
+  }, [location]); // 👈 re-run every time route changes (e.g., after back button)
 
   const handleCopyCode = (code, id) => {
     navigator.clipboard.writeText(code);
@@ -67,7 +69,7 @@ export default function FormsPage() {
           price: 2.99,
           productId,
           productType: "component",
-          user_id: userId, // ✅ send user_id here
+          user_id: userId,
         }),
       });
 
@@ -91,7 +93,6 @@ export default function FormsPage() {
       console.error("Checkout request error:", err);
     }
   };
-
 
   const handleDownload = async (filePath, id) => {
     setDownloadingId(id);
