@@ -10,6 +10,7 @@ export default function DashboardComponent() {
   const [purchasedIds, setPurchasedIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState(null);
+  const [checkoutLoadingId, setCheckoutLoadingId] = useState(null); // 👈
   const [previewImage, setPreviewImage] = useState(null);
   const location = useLocation();
 
@@ -51,12 +52,12 @@ export default function DashboardComponent() {
       return;
     }
 
+    setCheckoutLoadingId(productId); // 👈 Start loader
+
     try {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: title,
           price: 2.99,
@@ -66,13 +67,8 @@ export default function DashboardComponent() {
         }),
       });
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error("Checkout API failed:", res.status, errorText);
-        return;
-      }
-
       const result = await res.json();
+      setCheckoutLoadingId(null); // 👈 Stop loader
 
       if (result?.sessionId) {
         const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -83,7 +79,9 @@ export default function DashboardComponent() {
         console.error("Missing session URL");
       }
     } catch (err) {
+      setCheckoutLoadingId(null); // 👈 Stop loader on error
       console.error("Checkout request error:", err);
+      alert("Checkout failed.");
     }
   };
 
@@ -153,8 +151,11 @@ export default function DashboardComponent() {
                   <button
                     onClick={() => handleBuy(dash.id, dash.title)}
                     className="bg-[#38bdf8] hover:bg-[#0ea5e9] text-black font-semibold py-2 px-4 rounded-md transition"
+                    disabled={checkoutLoadingId === dash.id}
                   >
-                    Pay to Unlock – ${dash.price || 2.99}
+                    {checkoutLoadingId === dash.id
+                      ? "Redirecting to checkout..."
+                      : `Pay to Unlock – $${dash.price || 2.99}`}
                   </button>
                 )}
               </div>
