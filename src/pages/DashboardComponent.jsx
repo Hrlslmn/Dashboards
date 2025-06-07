@@ -40,33 +40,32 @@ export default function DashboardComponent() {
     fetchData();
   }, []);
 
-const handleBuy = async (productId, title) => {
+  const handleBuy = async (productId, title) => {
   const {
     data: { session },
     error: sessionError,
   } = await supabase.auth.getSession();
 
-  if (sessionError || !session?.access_token) {
-    console.error("No user session or token found");
+  if (sessionError || !session?.user?.id) {
+    console.error("No user session or ID found");
     alert("You must be logged in to make a purchase.");
     return;
   }
 
-  const token = session.access_token;
+  const userId = session.user.id;
 
   try {
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         name: title,
         price: 2.99,
         productId,
         productType: "dashboard",
-        token,
+        user_id: userId, // ✅ Send user_id instead of token
       }),
     });
 
