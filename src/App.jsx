@@ -42,13 +42,11 @@ export default function App() {
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/upload" element={<UploadComponent />} />
           <Route path="/preview" element={<PagePreview />} />
-          <Route path="/success" element={<Success />} />
           <Route path="/purchase-history" element={<PurchaseHistory />} />
 
           {/* Authenticated Pages */}
           <Route path="/dashboards" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/success" element={<PrivateRoute><Success /></PrivateRoute>} />
-          <Route path="/cancel" element={<PrivateRoute><Cancel /></PrivateRoute>} />
           <Route path="/cancel" element={<PrivateRoute><Cancel /></PrivateRoute>} />
 
           {/* Component Pages */}
