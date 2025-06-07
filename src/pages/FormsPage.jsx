@@ -67,8 +67,8 @@ const handleBuy = async (productId, title) => {
         name: title,
         price: 2.99,
         productId,
-        productType: "component",
-        token, // also send inside body
+        productType: "dashboard",
+        token,
       }),
     });
 
@@ -92,6 +92,7 @@ const handleBuy = async (productId, title) => {
     console.error("Checkout request error:", err);
   }
 };
+
 
 
 

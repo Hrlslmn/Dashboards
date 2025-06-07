@@ -40,56 +40,57 @@ export default function DashboardComponent() {
     fetchData();
   }, []);
 
-  const handleBuy = async (productId, title) => {
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession();
+const handleBuy = async (productId, title) => {
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
 
-    if (sessionError || !session?.access_token) {
-      console.error("No user session or token found");
-      alert("You must be logged in to make a purchase.");
+  if (sessionError || !session?.access_token) {
+    console.error("No user session or token found");
+    alert("You must be logged in to make a purchase.");
+    return;
+  }
+
+  const token = session.access_token;
+
+  try {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        name: title,
+        price: 2.99,
+        productId,
+        productType: "dashboard",
+        token,
+      }),
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("Checkout API failed:", res.status, errorText);
       return;
     }
 
-    const token = session.access_token;
+    const result = await res.json();
 
-    try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: title,
-          price: 2.99,
-          productId,
-          productType: "dashboard", // Fixed here
-          token,
-        }),
-      });
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error("Checkout API failed:", res.status, errorText);
-        return;
-      }
-
-      const result = await res.json();
-
-      if (result?.sessionId) {
-        const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
-        await stripe.redirectToCheckout({ sessionId: result.sessionId });
-      } else if (result?.url) {
-        window.location.href = result.url;
-      } else {
-        console.error("Missing session URL");
-      }
-    } catch (err) {
-      console.error("Checkout request error:", err);
+    if (result?.sessionId) {
+      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+      await stripe.redirectToCheckout({ sessionId: result.sessionId });
+    } else if (result?.url) {
+      window.location.href = result.url;
+    } else {
+      console.error("Missing session URL");
     }
-  };
+  } catch (err) {
+    console.error("Checkout request error:", err);
+  }
+};
+
 
   const handleDownload = async (filePath, id) => {
     setDownloadingId(id);
