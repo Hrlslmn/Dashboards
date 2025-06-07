@@ -3,31 +3,23 @@ import { Navigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 
 export default function PrivateRoute({ children }) {
-  const [isLoading, setIsLoading] = useState(true);
   const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      setSession(session);
-      setIsLoading(false);
+    const fetchSession = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (data?.session) {
+        setSession(data.session);
+      }
+      setLoading(false);
     };
 
-    checkSession();
-
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => listener.subscription.unsubscribe();
+    fetchSession();
   }, []);
 
-  if (isLoading) return null;
-
-  if (!session) return <Navigate to="/login" />;
+  if (loading) return null; // Or show a loader
+  if (!session) return <Navigate to="/login" replace />;
 
   return children;
 }
-

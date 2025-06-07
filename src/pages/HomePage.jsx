@@ -9,15 +9,22 @@ import {
 } from "lucide-react"; // Icons
 
 export default function Homepage() {
-  useEffect(() => {
-    const logoutOnVisit = async () => {
+useEffect(() => {
+  const hasLoggedOut = localStorage.getItem('hasLoggedOutOnce');
+
+  if (!hasLoggedOut) {
+    const logoutOnFirstVisit = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) await supabase.auth.signOut();
+      localStorage.setItem('hasLoggedOutOnce', 'true');
     };
 
-    logoutOnVisit();
-    AOS.init({ once: true, duration: 800, delay: 100 });
-  }, []);
+    logoutOnFirstVisit();
+  }
+
+  AOS.init({ once: true, duration: 800, delay: 100 });
+}, []);
+
 
   const coreFeatures = [
     {

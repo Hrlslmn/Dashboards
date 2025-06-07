@@ -1,17 +1,12 @@
-// supabaseClient.js
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Supabase env variables are not set!');
-}
-
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    persistSession: true,
-    autoRefreshToken: true,
+    persistSession: true,       // ✅ ensures session survives reloads
+    autoRefreshToken: true,     // ✅ refreshes tokens automatically
     detectSessionInUrl: true,
   },
 });
