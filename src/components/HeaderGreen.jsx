@@ -13,6 +13,7 @@ import {
   ShieldCheck
 } from "lucide-react";
 import { supabase } from "../../supabaseClient";
+import { useAuth } from "../components/AuthContext"; // ✅ Correct import path
 
 const navLinks = [
   { icon: <LayoutDashboard size={22} />, label: "Home", path: "/" },
@@ -25,68 +26,31 @@ export default function HeaderGreen() {
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [user, setUser] = useState(null);
+  const { user, loading } = useAuth(); // ✅ Get user & loading from context
   const [profile, setProfile] = useState({ full_name: "", is_admin: false });
-  const [loading, setLoading] = useState(true); // ✅ loading state
 
+  // ✅ Only fetch profile when user is available
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      const authUser = session?.user || null;
-
-      if (error || !authUser) {
-        setUser(null);
-        setProfile({ full_name: "", is_admin: false });
-      } else {
-        setUser(authUser);
+    const fetchProfile = async () => {
+      if (user) {
         const { data: profileData } = await supabase
           .from("profiles")
           .select("full_name, is_admin")
-          .eq("id", authUser.id)
+          .eq("id", user.id)
           .single();
 
         setProfile(profileData || { full_name: "User", is_admin: false });
+      } else {
+        setProfile({ full_name: "", is_admin: false });
       }
-
-      setLoading(false); // ✅ stop loading after initial check
     };
 
-    fetchUser();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        const currentUser = session?.user || null;
-
-        if (currentUser) {
-          setUser(currentUser);
-          const { data: profileData } = await supabase
-            .from("profiles")
-            .select("full_name, is_admin")
-            .eq("id", currentUser.id)
-            .single();
-
-          setProfile(profileData || { full_name: "User", is_admin: false });
-        } else {
-          setUser(null);
-          setProfile({ full_name: "", is_admin: false });
-        }
-
-        setLoading(false); // ✅ stop loading after auth change
-      }
-    );
-
-    return () => {
-      authListener?.subscription?.unsubscribe();
-    };
-  }, []);
+    fetchProfile();
+  }, [user]);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "auto";
-    if (open) {
-      document.body.classList.add("mobile-menu-open");
-    } else {
-      document.body.classList.remove("mobile-menu-open");
-    }
+    document.body.classList.toggle("mobile-menu-open", open);
     return () => {
       document.body.style.overflow = "auto";
       document.body.classList.remove("mobile-menu-open");
@@ -94,22 +58,11 @@ export default function HeaderGreen() {
   }, [open]);
 
   const handleLogout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-
-      setUser(null);
-      setProfile({ full_name: "", is_admin: false });
-      setOpen(false);
-      navigate("/login");
-    } catch (err) {
-      console.error("Logout failed:", err.message);
-    }
+    await supabase.auth.signOut();
+    navigate("/login");
   };
 
-  const handleLinkClick = () => {
-    setOpen(false);
-  };
+  const handleLinkClick = () => setOpen(false);
 
   return (
     <>
@@ -136,12 +89,11 @@ export default function HeaderGreen() {
               <Link
                 key={label}
                 to={path}
-                className={`flex items-center gap-2.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out group
-                  ${
-                    location.pathname === path
-                      ? "bg-amber-400/10 text-amber-300 shadow-inner"
-                      : "text-neutral-300 hover:bg-slate-700/50 hover:text-amber-400"
-                  }`}
+                className={`flex items-center gap-2.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out group ${
+                  location.pathname === path
+                    ? "bg-amber-400/10 text-amber-300 shadow-inner"
+                    : "text-neutral-300 hover:bg-slate-700/50 hover:text-amber-400"
+                }`}
               >
                 <span className={`${location.pathname === path ? "" : "group-hover:scale-110"} transition-transform`}>
                   {icon}
@@ -153,7 +105,7 @@ export default function HeaderGreen() {
 
           <div className="hidden md:flex items-center gap-3">
             {!loading && user ? (
-              <div className="flex items-center gap-3">
+              <>
                 {profile.is_admin && (
                   <span className="flex items-center gap-1.5 text-xs bg-sky-500/20 text-sky-400 px-3 py-1 rounded-full font-medium border border-sky-500/30">
                     <ShieldCheck size={14} />
@@ -167,7 +119,7 @@ export default function HeaderGreen() {
                   <LogOut size={18} />
                   <span>Logout</span>
                 </button>
-              </div>
+              </>
             ) : (
               !loading && (
                 <Link
@@ -182,75 +134,6 @@ export default function HeaderGreen() {
           </div>
         </div>
       </header>
-
-      {/* Mobile Menu */}
-      <div
-        className={`fixed inset-0 z-50 bg-gray-900/95 backdrop-blur-md p-6 flex flex-col transition-opacity duration-300 ease-in-out md:hidden ${
-          open ? "opacity-100 visible" : "opacity-0 invisible"
-        }`}
-      >
-        <div className="flex justify-between items-center mb-10">
-          <Link to="/" onClick={handleLinkClick} className="flex items-center gap-2 group">
-            <Palette size={30} className="text-amber-400 group-hover:text-amber-300 transition-colors transform group-hover:rotate-[-12deg]" />
-            <h2 className="text-2xl font-bold text-amber-400 group-hover:text-amber-300 transition-colors">Codecanverse</h2>
-          </Link>
-          <button onClick={() => setOpen(false)} aria-label="Close mobile menu" className="text-neutral-300 hover:text-amber-400 p-2">
-            <X size={28} />
-          </button>
-        </div>
-
-        <nav className="flex flex-col items-center justify-center gap-y-6 my-auto text-center">
-          {navLinks.map(({ icon, label, path }) => (
-            <Link
-              key={label}
-              to={path}
-              onClick={handleLinkClick}
-              className={`w-full max-w-xs flex items-center justify-center gap-3.5 px-6 py-4 rounded-lg text-xl font-medium transition-colors duration-200 group ${
-                location.pathname === path
-                  ? "bg-amber-400/15 text-amber-300"
-                  : "text-neutral-100 hover:bg-gray-700/70 hover:text-amber-300"
-              }`}
-            >
-              {icon}
-              <span>{label}</span>
-            </Link>
-          ))}
-        </nav>
-
-        <div className="pt-8 mt-auto border-t border-gray-700/50">
-          {!loading && user ? (
-            <>
-              <div className="flex items-center justify-center gap-3 text-neutral-200 mb-3 px-3">
-                <User size={22} />
-                <span className="font-medium text-lg truncate">{profile.full_name || "User"}</span>
-                {profile.is_admin && (
-                  <span className="ml-2 text-xs bg-sky-500/20 text-sky-400 px-2.5 py-1 rounded-full font-medium border border-sky-500/30">
-                    Admin
-                  </span>
-                )}
-              </div>
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center justify-center gap-2.5 px-4 py-3 text-lg bg-amber-500 hover:bg-amber-600 text-slate-900 rounded-lg font-semibold transition-colors"
-              >
-                <LogOut size={20} />
-                Logout
-              </button>
-            </>
-          ) : (
-            !loading && (
-              <Link
-                to="/login"
-                onClick={handleLinkClick}
-                className="w-full flex items-center justify-center gap-2.5 px-4 py-3 text-lg bg-amber-500 hover:bg-amber-600 text-slate-900 rounded-lg font-semibold transition-colors"
-              >
-                <LogIn size={20} />
-                Login
-              </Link>
-            )
-          )}
-        </div>
-      </div>
     </>
   );
 }

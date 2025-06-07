@@ -27,6 +27,7 @@ import Cancel from './pages/Cancel';
 
 import GlobalLoader from './components/GlobalLoader';
 
+
 export default function App() {
   return (
     <Router>

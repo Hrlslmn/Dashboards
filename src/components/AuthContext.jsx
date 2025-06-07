@@ -6,14 +6,11 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const init = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
+      const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user || null);
       setLoading(false);
     };
@@ -22,6 +19,7 @@ export function AuthProvider({ children }) {
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
+      setLoading(false); // Ensure this updates when login/logout happens
     });
 
     return () => listener.subscription.unsubscribe();
@@ -29,15 +27,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{ user, loading }}>
-      {loading ? (
-        <div className="h-screen flex items-center justify-center bg-white dark:bg-black">
-          <div className="text-lg font-semibold animate-pulse text-gray-700 dark:text-gray-200">
-            Loading...
-          </div>
-        </div>
-      ) : (
-        children
-      )}
+      {children}
     </AuthContext.Provider>
   );
 }

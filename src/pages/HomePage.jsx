@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, Suspense} from "react";
 import HeaderGreen from "../components/HeaderGreen"; // Assuming this is a pre-styled header
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -49,7 +49,7 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#111827] via-[#1A1D24] to-[#222831] text-[#EEEEEE] font-['Inter',sans-serif] overflow-x-hidden">
-      <HeaderGreen />
+      <Suspense><HeaderGreen /></Suspense>
 
       <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         {/* HERO */}
