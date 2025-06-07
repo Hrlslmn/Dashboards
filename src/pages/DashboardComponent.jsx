@@ -54,7 +54,7 @@ const handleBuy = async (productId, title) => {
   const token = session.access_token;
 
   try {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/create-checkout-session`, {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
