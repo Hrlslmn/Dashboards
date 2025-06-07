@@ -67,7 +67,7 @@ const handleBuy = async (productId, title) => {
         name: title,
         price: 2.99,
         productId,
-        productType: "dashboard",
+        productType: "component",
         token,
       }),
     });
