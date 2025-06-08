@@ -45,7 +45,6 @@ export default function DashboardComponent() {
     };
 
     fetchData();
-
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') fetchData();
     };
@@ -53,21 +52,10 @@ export default function DashboardComponent() {
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [location]);
 
-  useEffect(() => {
-    if (document.referrer.includes("stripe.com")) {
-      const toastShown = sessionStorage.getItem("toast_shown");
-      if (!toastShown) {
-        alert("🎉 Purchase Successful! Your item is now unlocked.");
-        sessionStorage.setItem("toast_shown", "true");
-      }
-    }
-  }, []);
-
   const handleBuy = async (productId, title) => {
     const { data: { user }, error } = await supabase.auth.getUser();
 
     if (error || !user?.id) {
-      console.error("User not found or error fetching user:", error);
       alert("You must be logged in to make a purchase.");
       return;
     }
@@ -80,7 +68,7 @@ export default function DashboardComponent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: title,
-          price: 0.50,
+          price: 0.5,
           productId,
           productType: "dashboard",
           user_id: user.id,
@@ -96,11 +84,10 @@ export default function DashboardComponent() {
       } else if (result?.url) {
         window.location.href = result.url;
       } else {
-        console.error("Missing session URL");
+        alert("Missing Stripe session URL");
       }
     } catch (err) {
       setCheckoutLoadingId(null);
-      console.error("Checkout request error:", err);
       alert("Checkout failed.");
     }
   };
@@ -116,7 +103,6 @@ export default function DashboardComponent() {
     setDownloadingId(null);
 
     if (!data?.signedUrl || error) {
-      console.error("Download error:", error?.message || error);
       alert("Download failed.");
       return;
     }
@@ -144,7 +130,7 @@ export default function DashboardComponent() {
             {dashboards.map((dash) => (
               <div
                 key={dash.id}
-                className="relative bg-[#1f2937] border border-slate-600 rounded-xl p-5 shadow-lg hover:shadow-xl transition duration-300"
+                className="relative bg-[#1f2937] border border-slate-600 rounded-xl p-5 shadow-lg"
               >
                 {purchasedIds.includes(dash.id) && (
                   <span className="absolute top-3 right-3 bg-green-600 text-white text-xs px-2 py-1 rounded-full shadow">
@@ -160,14 +146,12 @@ export default function DashboardComponent() {
                   />
                 )}
                 <h2 className="text-xl font-semibold mb-1 text-[#38bdf8]">{dash.title}</h2>
-                <p className="text-sm text-slate-300 mb-4">
-                  {dash.description || 'No description available'}
-                </p>
+                <p className="text-sm text-slate-300 mb-4">{dash.description}</p>
 
                 {purchasedIds.includes(dash.id) ? (
                   <button
                     onClick={() => handleDownload(dash.file_path, dash.id)}
-                    className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-400 text-black font-semibold py-2 px-4 rounded-md transition"
+                    className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-400 text-black font-semibold py-2 px-4 rounded-md"
                   >
                     <Download size={18} />
                     {downloadingId === dash.id ? "Preparing..." : "Download"}
@@ -175,12 +159,12 @@ export default function DashboardComponent() {
                 ) : (
                   <button
                     onClick={() => handleBuy(dash.id, dash.title)}
-                    className="bg-[#38bdf8] hover:bg-[#0ea5e9] text-black font-semibold py-2 px-4 rounded-md transition"
+                    className="bg-[#38bdf8] hover:bg-[#0ea5e9] text-black font-semibold py-2 px-4 rounded-md"
                     disabled={checkoutLoadingId === dash.id}
                   >
                     {checkoutLoadingId === dash.id
                       ? "Redirecting to checkout..."
-                      : `Unlock for just – $${dash.price || 0.50}`}
+                      : `Unlock for just – $${dash.price || 0.5}`}
                   </button>
                 )}
               </div>
@@ -192,7 +176,7 @@ export default function DashboardComponent() {
       {previewImage && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center">
           <button
-            className="absolute top-6 right-6 text-white bg-red-600 hover:bg-red-500 p-2 rounded-full z-50"
+            className="absolute top-6 right-6 text-white bg-red-600 hover:bg-red-500 p-2 rounded-full"
             onClick={() => setPreviewImage(null)}
           >
             <X size={20} />
