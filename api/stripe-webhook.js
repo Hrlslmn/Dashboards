@@ -1,12 +1,10 @@
+// /api/stripe-webhook.js
+
 import Stripe from 'stripe';
 import { buffer } from 'micro';
 import { createClient } from '@supabase/supabase-js';
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+export const config = { api: { bodyParser: false } };
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16',
@@ -18,50 +16,52 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).send('Method Not Allowed');
-  }
+  if (req.method !== 'POST') return res.status(405).end('Method Not Allowed');
 
   const sig = req.headers['stripe-signature'];
   const buf = await buffer(req);
 
   let event;
-
   try {
     event = stripe.webhooks.constructEvent(buf, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    console.log("✅ Stripe webhook verified");
   } catch (err) {
-    console.error('Webhook signature verification failed:', err.message);
+    console.error("❌ Webhook signature verification failed:", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
+    const { user_id, product_id, product_type } = session.metadata || {};
 
-    const { user_id, product_id, product_type } = session.metadata;
+    console.log("📦 Session metadata:", { user_id, product_id, product_type });
 
-    if (!user_id || !product_id) {
-      console.error('Missing metadata for purchase.');
-      return res.status(400).send('Missing metadata');
+    if (!user_id || !product_id || !product_type) {
+      console.error("❌ Missing metadata fields");
+      return res.status(400).send("Missing metadata");
     }
 
-    // ✅ Insert into purchases table
-    const { error: insertError } = await supabase.from('purchases').insert([
-      {
-        user_id,
-        product_id,
-        product_type,
-        session_id: session.id,
-      },
-    ]);
+    const { error: updateError } = await supabase
+      .from('checkout_sessions')
+      .update({ status: 'completed' })
+      .eq('session_id', session.id);
+
+    if (updateError) {
+      console.error("❌ Failed to update checkout_sessions:", updateError.message);
+    }
+
+    const { error: insertError } = await supabase
+      .from('purchases')
+      .insert([{ user_id, product_id, product_type, session_id: session.id }]);
 
     if (insertError) {
-      console.error('❌ Failed to insert purchase:', insertError.message);
-      return res.status(500).send('Failed to record purchase');
+      console.error("❌ Failed to insert purchase:", insertError.message);
+      return res.status(500).send("Failed to insert purchase");
     }
 
-    console.log('✅ Purchase recorded successfully');
-    return res.status(200).send('Purchase recorded');
+    console.log("✅ Purchase recorded successfully");
+    return res.status(200).send("Success");
   }
 
-  res.status(200).send('Event received');
+  res.status(200).send("Unhandled event");
 }
