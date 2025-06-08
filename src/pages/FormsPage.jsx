@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import HeaderGreen from "../components/HeaderGreen";
 import { supabase } from "../../supabaseClient";
 import { Copy, Download, Check, X } from "lucide-react";
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe } from "@stripe/stripe-js";
 
 export default function FormsPage() {
   const [purchasedIds, setPurchasedIds] = useState([]);
@@ -38,13 +38,23 @@ export default function FormsPage() {
 
     fetchData();
 
-    // Re-check purchases when returning from Stripe success page
+    // Re-check purchases when returning from Stripe
     const handleVisibility = () => {
       if (document.visibilityState === "visible") fetchData();
     };
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [location]);
+
+  useEffect(() => {
+    if (document.referrer.includes("stripe.com")) {
+      const toastShown = sessionStorage.getItem("toast_shown");
+      if (!toastShown) {
+        alert("🎉 Purchase Successful! Your item is now unlocked.");
+        sessionStorage.setItem("toast_shown", "true");
+      }
+    }
+  }, []);
 
   const handleBuy = async (productId, title) => {
     const { data: { user }, error } = await supabase.auth.getUser();
@@ -199,4 +209,3 @@ export default function FormsPage() {
     </div>
   );
 }
-

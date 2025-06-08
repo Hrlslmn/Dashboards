@@ -1,4 +1,4 @@
-// pages/api/create-checkout-session.js
+// /api/create-checkout-session.js
 
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
@@ -20,9 +20,11 @@ export default async function handler(req, res) {
   try {
     const { name, price, productId, productType, user_id } = req.body;
 
-    if (!user_id) {
-      return res.status(400).json({ error: 'Missing user ID' });
+    if (!user_id || !productId || !productType) {
+      return res.status(400).json({ error: 'Missing required fields' });
     }
+
+    const redirectPath = productType === 'component' ? 'components' : 'dashboards';
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -37,7 +39,7 @@ export default async function handler(req, res) {
         },
       ],
       mode: 'payment',
-      success_url: `https://www.codecanverse.com/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `https://www.codecanverse.com/${redirectPath}`,
       cancel_url: `https://www.codecanverse.com/cancel`,
       metadata: {
         user_id,

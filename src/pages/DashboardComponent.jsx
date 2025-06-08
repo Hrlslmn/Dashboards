@@ -10,7 +10,7 @@ export default function DashboardComponent() {
   const [purchasedIds, setPurchasedIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState(null);
-  const [checkoutLoadingId, setCheckoutLoadingId] = useState(null); // 👈
+  const [checkoutLoadingId, setCheckoutLoadingId] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const location = useLocation();
 
@@ -41,7 +41,23 @@ export default function DashboardComponent() {
     };
 
     fetchData();
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') fetchData();
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [location]);
+
+  useEffect(() => {
+    if (document.referrer.includes("stripe.com")) {
+      const toastShown = sessionStorage.getItem("toast_shown");
+      if (!toastShown) {
+        alert("🎉 Purchase Successful! Your item is now unlocked.");
+        sessionStorage.setItem("toast_shown", "true");
+      }
+    }
+  }, []);
 
   const handleBuy = async (productId, title) => {
     const { data: { user }, error } = await supabase.auth.getUser();
@@ -52,7 +68,7 @@ export default function DashboardComponent() {
       return;
     }
 
-    setCheckoutLoadingId(productId); // 👈 Start loader
+    setCheckoutLoadingId(productId);
 
     try {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
@@ -68,7 +84,7 @@ export default function DashboardComponent() {
       });
 
       const result = await res.json();
-      setCheckoutLoadingId(null); // 👈 Stop loader
+      setCheckoutLoadingId(null);
 
       if (result?.sessionId) {
         const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -79,7 +95,7 @@ export default function DashboardComponent() {
         console.error("Missing session URL");
       }
     } catch (err) {
-      setCheckoutLoadingId(null); // 👈 Stop loader on error
+      setCheckoutLoadingId(null);
       console.error("Checkout request error:", err);
       alert("Checkout failed.");
     }
