@@ -4,7 +4,7 @@ import { Readable } from 'stream';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
-// Disable body parsing — needed for raw payload verification
+// Disable body parsing for Stripe
 export const config = {
   api: { bodyParser: false },
 };
@@ -44,7 +44,6 @@ export default async function handler(req, res) {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Handle checkout completion
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
     const metadata = session.metadata || {};
@@ -60,7 +59,7 @@ export default async function handler(req, res) {
     }
 
     try {
-      // Update checkout_sessions status
+      // Update checkout_sessions
       await supabase
         .from('checkout_sessions')
         .update({ status: 'completed' })
