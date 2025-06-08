@@ -53,6 +53,7 @@ export default async function handler(req, res) {
         .update({ status: 'completed' })
         .eq('session_id', session.id);
 
+        if (updateError) console.error('⚠️ Failed to update session status:', updateError.message);
       // Check for duplicate
       const { data: existing } = await supabase
         .from('purchases')
