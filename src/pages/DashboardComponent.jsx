@@ -10,7 +10,7 @@ export default function DashboardComponent() {
   const [purchasedIds, setPurchasedIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState(null);
-  const [checkoutLoadingId, setCheckoutLoadingId] = useState(null); // 👈
+  const [checkoutLoadingId, setCheckoutLoadingId] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const location = useLocation();
 
@@ -20,17 +20,17 @@ export default function DashboardComponent() {
       const user = session?.user;
 
       if (user) {
-        const { data: purchases } = await supabase
+        const { data: purchases, error: purchaseError } = await supabase
           .from('purchases')
           .select('product_id')
           .eq('user_id', user.id)
           .eq('product_type', 'dashboard');
 
         if (purchaseError) {
-  console.error("Failed to fetch purchases:", purchaseError.message);
-} else {
-  setPurchasedIds(Array.isArray(purchases) ? purchases.map(p => p.product_id) : []);
-}
+          console.error("Failed to fetch purchases:", purchaseError.message);
+        } else {
+          setPurchasedIds(Array.isArray(purchases) ? purchases.map(p => p.product_id) : []);
+        }
       }
 
       const { data, error } = await supabase
@@ -45,7 +45,23 @@ export default function DashboardComponent() {
     };
 
     fetchData();
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') fetchData();
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [location]);
+
+  useEffect(() => {
+    if (document.referrer.includes("stripe.com")) {
+      const toastShown = sessionStorage.getItem("toast_shown");
+      if (!toastShown) {
+        alert("🎉 Purchase Successful! Your item is now unlocked.");
+        sessionStorage.setItem("toast_shown", "true");
+      }
+    }
+  }, []);
 
   const handleBuy = async (productId, title) => {
     const { data: { user }, error } = await supabase.auth.getUser();
@@ -56,7 +72,7 @@ export default function DashboardComponent() {
       return;
     }
 
-    setCheckoutLoadingId(productId); // 👈 Start loader
+    setCheckoutLoadingId(productId);
 
     try {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
@@ -72,7 +88,7 @@ export default function DashboardComponent() {
       });
 
       const result = await res.json();
-      setCheckoutLoadingId(null); // 👈 Stop loader
+      setCheckoutLoadingId(null);
 
       if (result?.sessionId) {
         const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -83,7 +99,7 @@ export default function DashboardComponent() {
         console.error("Missing session URL");
       }
     } catch (err) {
-      setCheckoutLoadingId(null); // 👈 Stop loader on error
+      setCheckoutLoadingId(null);
       console.error("Checkout request error:", err);
       alert("Checkout failed.");
     }
@@ -131,11 +147,11 @@ export default function DashboardComponent() {
                 className="relative bg-[#1f2937] border border-slate-600 rounded-xl p-5 shadow-lg hover:shadow-xl transition duration-300"
               >
                 {purchasedIds.includes(dash.id) && (
-  <span className="absolute top-3 right-3 bg-green-600 text-white text-xs px-2 py-1 rounded-full shadow">
-    ✅ Purchased
-  </span>
-)}
-{dash.image_path && (
+                  <span className="absolute top-3 right-3 bg-green-600 text-white text-xs px-2 py-1 rounded-full shadow">
+                    ✅ Purchased
+                  </span>
+                )}
+                {dash.image_path && (
                   <img
                     src={dash.image_path}
                     alt={dash.title}
