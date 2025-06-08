@@ -180,7 +180,7 @@ export default function DashboardComponent() {
                   >
                     {checkoutLoadingId === dash.id
                       ? "Redirecting to checkout..."
-                      : `Unlock for just – $${dash.price || 2.99}`}
+                      : `Unlock for just – $${dash.price || 0.50}`}
                   </button>
                 )}
               </div>

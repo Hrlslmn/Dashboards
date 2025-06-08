@@ -159,7 +159,7 @@ export default function FormsPage() {
                         className="bg-pink-500 text-white px-4 py-2 rounded flex items-center gap-2"
                         disabled={buyingId === id}
                       >
-                        {buyingId === id ? "Redirecting..." : "Unlock for $2.99"}
+                        {buyingId === id ? "Redirecting..." : "Unlock for $0.50"}
                       </button>
                     )
                   ) : (
