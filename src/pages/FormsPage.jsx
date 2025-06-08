@@ -43,9 +43,11 @@ export default function FormsPage() {
     };
 
     fetchData();
+
     const handleVisibility = () => {
       if (document.visibilityState === "visible") fetchData();
     };
+
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, []);
@@ -135,12 +137,13 @@ export default function FormsPage() {
                     ✅ Purchased
                   </span>
                 )}
-                {form.image_path && (
+
+                {form.image_url && (
                   <img
-                    src={form.image_path}
+                    src={form.image_url}
                     alt={form.title}
                     className="w-full h-80 object-cover rounded-md mb-4 cursor-pointer hover:opacity-90"
-                    onClick={() => setPreviewImage(form.image_path)}
+                    onClick={() => setPreviewImage(form.image_url)}
                   />
                 )}
                 <h2 className="text-xl font-semibold mb-1 text-[#38bdf8]">{form.title}</h2>
