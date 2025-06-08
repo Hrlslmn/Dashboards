@@ -32,7 +32,7 @@ export default function FormsPage() {
       }
 
       const { data, error } = await supabase
-        .from("forms")
+        .from("components")
         .select("*")
         .order("created_at", { ascending: false });
 
