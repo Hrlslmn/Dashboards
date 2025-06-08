@@ -12,11 +12,11 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// CORS wrapper
+// CORS middleware
 function enableCors(handler) {
   return async (req, res) => {
     res.setHeader('Access-Control-Allow-Credentials', true);
-    res.setHeader('Access-Control-Allow-Origin', '*'); // or set to specific origin
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
     res.setHeader(
       'Access-Control-Allow-Headers',
@@ -39,11 +39,9 @@ async function handler(req, res) {
   try {
     const { name, price, productId, productType, user_id } = req.body;
 
-    if (!user_id || !productId || !productType) {
+    if (!user_id || !productId || !productType || !name) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-
-    const redirectPath = productType === 'component' ? 'components' : 'dashboards';
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -58,22 +56,24 @@ async function handler(req, res) {
         },
       ],
       mode: 'payment',
-      success_url: `https://www.codecanverse.com/${redirectPath}?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `https://www.codecanverse.com/cancel`,
+      success_url: `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.CLIENT_URL}/cancel`,
       metadata: {
-        user_id: String(user_id),
-        product_id: String(productId),
-        product_type: String(productType),
+        user_id,
+        product_id: productId,
+        product_type: productType,
       },
     });
 
-    await supabase.from('checkout_sessions').insert([{
-      user_id,
-      session_id: session.id,
-      status: 'pending',
-      product_id: productId,
-      product_type: productType,
-    }]);
+    await supabase.from('checkout_sessions').insert([
+      {
+        user_id,
+        session_id: session.id,
+        status: 'pending',
+        product_id: productId,
+        product_type: productType,
+      },
+    ]);
 
     return res.status(200).json({ sessionId: session.id, url: session.url });
   } catch (err) {
