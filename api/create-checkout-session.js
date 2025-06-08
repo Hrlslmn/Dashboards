@@ -37,8 +37,8 @@ export default async function handler(req, res) {
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.CLIENT_URL}/cancel`,
+      success_url: `https://www.codecanverse.com/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `https://www.codecanverse.com/cancel`,
       metadata: {
         user_id,
         product_id: productId,
