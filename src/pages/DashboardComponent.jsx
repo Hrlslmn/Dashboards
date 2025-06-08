@@ -10,7 +10,7 @@ export default function DashboardComponent() {
   const [purchasedIds, setPurchasedIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState(null);
-  const [checkoutLoadingId, setCheckoutLoadingId] = useState(null);
+  const [checkoutLoadingId, setCheckoutLoadingId] = useState(null); // 👈
   const [previewImage, setPreviewImage] = useState(null);
   const location = useLocation();
 
@@ -26,7 +26,11 @@ export default function DashboardComponent() {
           .eq('user_id', user.id)
           .eq('product_type', 'dashboard');
 
-        setPurchasedIds(purchases?.map(p => p.product_id) || []);
+        if (purchaseError) {
+  console.error("Failed to fetch purchases:", purchaseError.message);
+} else {
+  setPurchasedIds(Array.isArray(purchases) ? purchases.map(p => p.product_id) : []);
+}
       }
 
       const { data, error } = await supabase
@@ -41,23 +45,7 @@ export default function DashboardComponent() {
     };
 
     fetchData();
-
-    const handleVisibility = () => {
-      if (document.visibilityState === 'visible') fetchData();
-    };
-    document.addEventListener("visibilitychange", handleVisibility);
-    return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [location]);
-
-  useEffect(() => {
-    if (document.referrer.includes("stripe.com")) {
-      const toastShown = sessionStorage.getItem("toast_shown");
-      if (!toastShown) {
-        alert("🎉 Purchase Successful! Your item is now unlocked.");
-        sessionStorage.setItem("toast_shown", "true");
-      }
-    }
-  }, []);
 
   const handleBuy = async (productId, title) => {
     const { data: { user }, error } = await supabase.auth.getUser();
@@ -68,7 +56,7 @@ export default function DashboardComponent() {
       return;
     }
 
-    setCheckoutLoadingId(productId);
+    setCheckoutLoadingId(productId); // 👈 Start loader
 
     try {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
@@ -84,7 +72,7 @@ export default function DashboardComponent() {
       });
 
       const result = await res.json();
-      setCheckoutLoadingId(null);
+      setCheckoutLoadingId(null); // 👈 Stop loader
 
       if (result?.sessionId) {
         const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -95,7 +83,7 @@ export default function DashboardComponent() {
         console.error("Missing session URL");
       }
     } catch (err) {
-      setCheckoutLoadingId(null);
+      setCheckoutLoadingId(null); // 👈 Stop loader on error
       console.error("Checkout request error:", err);
       alert("Checkout failed.");
     }
@@ -140,9 +128,14 @@ export default function DashboardComponent() {
             {dashboards.map((dash) => (
               <div
                 key={dash.id}
-                className="bg-[#1f2937] border border-slate-600 rounded-xl p-5 shadow-lg hover:shadow-xl transition duration-300"
+                className="relative bg-[#1f2937] border border-slate-600 rounded-xl p-5 shadow-lg hover:shadow-xl transition duration-300"
               >
-                {dash.image_path && (
+                {purchasedIds.includes(dash.id) && (
+  <span className="absolute top-3 right-3 bg-green-600 text-white text-xs px-2 py-1 rounded-full shadow">
+    ✅ Purchased
+  </span>
+)}
+{dash.image_path && (
                   <img
                     src={dash.image_path}
                     alt={dash.title}
