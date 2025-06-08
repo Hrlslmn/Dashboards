@@ -1,12 +1,13 @@
 // /api/webhook.js
 
-import { Readable } from 'stream';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { buffer } from 'micro'; // ✅ micro is required!
 
-// Disable body parsing for Stripe
 export const config = {
-  api: { bodyParser: false },
+  api: {
+    bodyParser: false, // ✅ Must disable body parser
+  },
 };
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -18,27 +19,18 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// Read raw stream
-async function getRawBody(stream) {
-  const chunks = [];
-  for await (const chunk of stream) {
-    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-  }
-  return Buffer.concat(chunks);
-}
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).send('Method Not Allowed');
   }
 
-  const sig = req.headers['stripe-signature'];
-  const buf = await getRawBody(req);
-
   let event;
   try {
+    const buf = await buffer(req); // ✅ get raw body
+    const sig = req.headers['stripe-signature'];
+
     event = stripe.webhooks.constructEvent(buf, sig, process.env.STRIPE_WEBHOOK_SECRET);
-    console.log('✅ Stripe event verified:', event.type);
+    console.log('✅ Webhook verified:', event.type);
   } catch (err) {
     console.error('❌ Signature verification failed:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
@@ -53,30 +45,29 @@ export default async function handler(req, res) {
     const product_type = metadata.product_type;
     const session_id = session.id;
 
-    if (!user_id || !product_id || !product_type) {
-      console.error('❌ Missing metadata:', { user_id, product_id, product_type });
-      return res.status(400).send('Missing metadata.');
-    }
-
     try {
-      // Update checkout_sessions
+      if (!user_id || !product_id || !product_type) {
+        throw new Error('Missing metadata fields');
+      }
+
+      // ✅ Update checkout_sessions
       await supabase
         .from('checkout_sessions')
         .update({ status: 'completed' })
         .eq('session_id', session_id);
 
-      // Insert into purchases
+      // ✅ Insert purchase
       await supabase
         .from('purchases')
         .insert([{ user_id, product_id, product_type, session_id }]);
 
-      console.log('✅ Purchase recorded for:', product_id);
+      console.log('✅ Purchase saved for:', product_id);
       return res.status(200).send('Success');
-    } catch (error) {
-      console.error('❌ Supabase DB error:', error.message);
-      return res.status(500).send('Database error');
+    } catch (err) {
+      console.error('❌ Supabase error:', err.message);
+      return res.status(500).send('Internal Server Error');
     }
   }
 
-  return res.status(200).send('Unhandled event');
+  res.status(200).send('Event received');
 }
