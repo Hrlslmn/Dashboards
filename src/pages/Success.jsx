@@ -1,80 +1,141 @@
-// pages/Success.jsx
-
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
-import { CheckCircle } from 'lucide-react';
+import { Download } from 'lucide-react';
 
 export default function Success() {
   const [searchParams] = useSearchParams();
+  const [component, setComponent] = useState(null);
+  const [error, setError] = useState('');
+  const [downloading, setDownloading] = useState(false);
   const navigate = useNavigate();
-  const [sessionValid, setSessionValid] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   const sessionId = searchParams.get('session_id');
 
   useEffect(() => {
-    const fetchSession = async () => {
+    const fetchPurchase = async () => {
       if (!sessionId) {
-        setLoading(false);
+        setError('Missing session ID.');
         return;
       }
 
-      const { data, error } = await supabase
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (sessionError || !session?.user) {
+        setError('You must be logged in.');
+        return;
+      }
+
+      const user = session.user;
+
+      const { data: sessionData, error: csError } = await supabase
         .from('checkout_sessions')
         .select('*')
         .eq('session_id', sessionId)
         .eq('status', 'completed')
-        .single();
+        .maybeSingle();
 
-      if (!error && data) {
-        setSessionValid(true);
+      if (csError || !sessionData) {
+        setError('Session not found or not completed.');
+        return;
       }
 
-      setLoading(false);
+      const { data: purchase } = await supabase
+        .from('purchases')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('product_id', sessionData.product_id)
+        .eq('product_type', sessionData.product_type)
+        .maybeSingle();
+
+      if (!purchase) {
+        setError('Purchase not found.');
+        return;
+      }
+
+      const { data: componentData } = await supabase
+        .from('components')
+        .select('*')
+        .eq('id', sessionData.product_id)
+        .maybeSingle();
+
+      if (componentData) {
+        setComponent(componentData);
+      } else {
+        setError('Component not found.');
+      }
     };
 
-    fetchSession();
+    fetchPurchase();
   }, [sessionId]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-300 text-lg">
-        Verifying your purchase...
-      </div>
-    );
-  }
+  const handleDownload = async () => {
+    if (!component?.file_path) return;
+    setDownloading(true);
 
-  if (!sessionValid) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-slate-900 text-red-600 text-center px-4">
-        <p className="text-xl font-semibold mb-3">❌ Session not found or not completed.</p>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Please contact support if you believe this is a mistake.</p>
-        <button
-          onClick={() => navigate('/')}
-          className="px-6 py-2 text-sm font-medium bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-700 transition"
-        >
-          Return Home
-        </button>
-      </div>
-    );
-  }
+    const { data, error } = await supabase.storage
+      .from('component-file')
+      .createSignedUrl(component.file_path, 60, { download: true });
+
+    setDownloading(false);
+
+    if (error || !data?.signedUrl) {
+      alert('Failed to create download link.');
+      return;
+    }
+
+    const link = document.createElement('a');
+    link.href = data.signedUrl;
+    link.download = component.file_path.split('/').pop();
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-slate-900 text-center px-4">
-      <CheckCircle className="text-green-500 mb-4" size={64} />
-      <h1 className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400 mb-2">
-        Payment Successful!
-      </h1>
-      <p className="text-gray-600 dark:text-gray-300 mb-6">
-        Your content is now unlocked. You can access it anytime from your dashboard.
-      </p>
-      <button
-        onClick={() => navigate('/dashboards')}
-        className="px-6 py-2 text-sm font-semibold bg-green-500 hover:bg-green-600 text-white rounded-lg shadow transition duration-200"
-      >
-        Go to Dashboard
-      </button>
+    <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center px-6 text-center">
+      {error ? (
+        <div className="bg-red-500 text-white px-6 py-4 rounded-md shadow">
+          <p className="font-bold text-lg">❌ {error}</p>
+          <button
+            onClick={() => navigate('/')}
+            className="mt-4 px-4 py-2 bg-white text-black font-medium rounded hover:bg-gray-200"
+          >
+            Back to Home
+          </button>
+        </div>
+      ) : component ? (
+        <div className="bg-gray-800 p-8 rounded-xl shadow-md max-w-xl w-full">
+          <h1 className="text-3xl font-bold text-amber-400 mb-4">🎉 Purchase Successful!</h1>
+          <p className="text-gray-300 mb-6">Thank you for purchasing <strong>{component.title}</strong>.</p>
+          {component.image_url && (
+            <img
+              src={component.image_url}
+              alt={component.title}
+              className="w-full h-64 object-cover rounded mb-6 border border-white/10"
+            />
+          )}
+          <button
+            onClick={handleDownload}
+            disabled={downloading}
+            className="bg-amber-400 text-black px-6 py-3 rounded font-semibold flex items-center justify-center gap-2 w-full"
+          >
+            <Download size={18} />
+            {downloading ? 'Preparing...' : 'Download Now'}
+          </button>
+          <button
+            onClick={() => navigate('/dashboards')}
+            className="mt-4 px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded w-full"
+          >
+            Go to Dashboard
+          </button>
+        </div>
+      ) : (
+        <p className="text-gray-400">Validating your purchase...</p>
+      )}
     </div>
   );
 }
