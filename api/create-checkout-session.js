@@ -1,11 +1,11 @@
-// /api/create-checkout-session.js
-
+// /api/webhook.js
 import Stripe from 'stripe';
+import { buffer } from 'micro';
 import { createClient } from '@supabase/supabase-js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2023-10-16',
-});
+export const config = { api: { bodyParser: false } };
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2023-10-16' });
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -13,54 +13,52 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
+  if (req.method !== 'POST') return res.status(405).end('Method Not Allowed');
+
+  const sig = req.headers['stripe-signature'];
+  const buf = await buffer(req);
+
+  let event;
 
   try {
-    const { name, price, productId, productType, user_id } = req.body;
+    event = stripe.webhooks.constructEvent(buf, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    console.error('⚠️ Webhook signature verification failed:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
 
-    if (!user_id || !productId || !productType) {
-      return res.status(400).json({ error: 'Missing required fields' });
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const { user_id, product_id, product_type } = session.metadata;
+
+    console.log('✅ Session completed for:', { user_id, product_id, product_type });
+
+    if (!user_id || !product_id) {
+      console.error('❌ Missing metadata in session');
+      return res.status(400).send('Missing metadata');
     }
 
-    const redirectPath = productType === 'component' ? 'components' : 'dashboards';
+    const { error: updateError } = await supabase
+      .from('checkout_sessions')
+      .update({ status: 'completed' })
+      .eq('session_id', session.id);
 
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: { name },
-            unit_amount: Math.round(price * 100),
-          },
-          quantity: 1,
-        },
-      ],
-      mode: 'payment',
-      success_url: `https://www.codecanverse.com/${redirectPath}`,
-      cancel_url: `https://www.codecanverse.com/cancel`,
-      metadata: {
-        user_id,
-        product_id: productId,
-        product_type: productType,
-      },
-    });
+    if (updateError) {
+      console.error('❌ Failed to update checkout_sessions:', updateError.message);
+    }
 
-    await supabase.from('checkout_sessions').insert([
-      {
-        user_id,
-        session_id: session.id,
-        status: 'pending',
-        product_id: productId,
-        product_type: productType,
-      },
-    ]);
+    const { error: insertError } = await supabase
+      .from('purchases')
+      .insert([{ user_id, product_id, product_type, session_id: session.id }]);
 
-    return res.status(200).json({ sessionId: session.id, url: session.url });
-  } catch (err) {
-    console.error('Checkout error:', err);
-    return res.status(500).json({ error: 'Internal Server Error' });
+    if (insertError) {
+      console.error('❌ Failed to insert into purchases:', insertError.message);
+      return res.status(500).send('Failed to insert purchase');
+    }
+
+    console.log('✅ Purchase successfully inserted!');
+    return res.status(200).send('Success');
   }
+
+  res.status(200).send('Unhandled event');
 }

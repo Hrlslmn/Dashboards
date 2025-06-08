@@ -30,31 +30,38 @@ export default async function handler(req, res) {
   try {
     event = stripe.webhooks.constructEvent(buf, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
-    console.error('⚠️ Webhook signature error:', err.message);
+    console.error('Webhook signature verification failed:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
 
-    const user_id = session.metadata.user_id;
-    const product_id = session.metadata.product_id;
-    const product_type = session.metadata.product_type;
+    const { user_id, product_id, product_type } = session.metadata;
 
-    const { error } = await supabase.from('purchases').insert([
+    if (!user_id || !product_id) {
+      console.error('Missing metadata for purchase.');
+      return res.status(400).send('Missing metadata');
+    }
+
+    // ✅ Insert into purchases table
+    const { error: insertError } = await supabase.from('purchases').insert([
       {
         user_id,
         product_id,
         product_type,
+        session_id: session.id,
       },
     ]);
 
-    if (error) {
-      console.error('❌ Supabase insert error:', error.message);
-    } else {
-      console.log('✅ Purchase inserted into Supabase');
+    if (insertError) {
+      console.error('❌ Failed to insert purchase:', insertError.message);
+      return res.status(500).send('Failed to record purchase');
     }
+
+    console.log('✅ Purchase recorded successfully');
+    return res.status(200).send('Purchase recorded');
   }
 
-  res.status(200).json({ received: true });
+  res.status(200).send('Event received');
 }
