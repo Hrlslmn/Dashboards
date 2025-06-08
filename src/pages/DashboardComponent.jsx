@@ -4,6 +4,7 @@ import HeaderGreen from '../components/HeaderGreen';
 import { supabase } from '../../supabaseClient';
 import { Download, X } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
+import TestInsertButton from '../components/TestButton'; // Import the test button
 
 export default function DashboardComponent() {
   const [dashboards, setDashboards] = useState([]);
@@ -118,6 +119,7 @@ export default function DashboardComponent() {
   return (
     <div className="min-h-screen bg-[#111827] text-white px-4 relative">
       <HeaderGreen />
+      <TestInsertButton /> {/* Include the test insert button */}
       <div className="max-w-6xl mx-auto mt-8">
         <h1 className="text-4xl font-bold text-center mb-10 drop-shadow">📊 Dashboard Designs</h1>
 
@@ -188,6 +190,8 @@ export default function DashboardComponent() {
           />
         </div>
       )}
+      
     </div>
+
   );
 }

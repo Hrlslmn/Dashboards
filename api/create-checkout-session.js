@@ -16,7 +16,7 @@ const supabase = createClient(
 function enableCors(handler) {
   return async (req, res) => {
     res.setHeader('Access-Control-Allow-Credentials', true);
-    res.setHeader('Access-Control-Allow-Origin', '*'); // or specify http://localhost:5173
+    res.setHeader('Access-Control-Allow-Origin', '*'); // or set to specific origin
     res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
     res.setHeader(
       'Access-Control-Allow-Headers',
@@ -60,7 +60,11 @@ async function handler(req, res) {
       mode: 'payment',
       success_url: `https://www.codecanverse.com/${redirectPath}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `https://www.codecanverse.com/cancel`,
-      metadata: { user_id, product_id: productId, product_type: productType },
+      metadata: {
+        user_id: String(user_id),
+        product_id: String(productId),
+        product_type: String(productType),
+      },
     });
 
     await supabase.from('checkout_sessions').insert([{
