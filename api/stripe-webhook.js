@@ -1,4 +1,4 @@
-// pages/api/stripe-webhook.js
+// /api/stripe-webhook.js
 
 import Stripe from 'stripe';
 import { buffer } from 'micro';
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     const buf = await buffer(req);
     event = stripe.webhooks.constructEvent(buf, sig, endpointSecret);
   } catch (err) {
-    console.error('❌ Stripe webhook signature error:', err.message);
+    console.error('❌ Stripe signature verification failed:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
@@ -41,66 +41,43 @@ export default async function handler(req, res) {
     const session = event.data.object;
     const { user_id, product_id, product_type } = session.metadata || {};
 
-    if (!user_id || !product_id) {
-      console.warn("⚠️ Missing metadata in session:", session.id);
+    console.log("✅ Webhook received session:", session.id);
+    console.log("🔍 Metadata:", { user_id, product_id, product_type });
+
+    if (!user_id || !product_id || !product_type) {
+      console.warn("⚠️ Missing required metadata in session:", session.metadata);
       return res.status(400).json({ error: "Missing metadata" });
     }
 
     try {
-      // Check if session exists
-      const { data: existingSession, error: fetchError } = await supabase
-        .from('checkout_sessions')
-        .select('*')
-        .eq('session_id', session.id)
-        .single();
-
-      if (fetchError || !existingSession) {
-        // Insert if not exists
-        const { error: insertError } = await supabase.from('checkout_sessions').insert([
-          {
-            session_id: session.id,
-            user_id,
-            product_id,
-            product_type,
-            status: 'completed',
-            created_at: new Date().toISOString(),
-          },
-        ]);
-
-        if (insertError) {
-          console.error('❌ Insert error:', insertError.message);
-        }
-      } else {
-        // Update existing session
-        const { error: updateError } = await supabase
-          .from('checkout_sessions')
-          .update({ status: 'completed' })
-          .eq('session_id', session.id);
-
-        if (updateError) {
-          console.error('⚠️ Failed to update session status:', updateError.message);
-        }
-      }
-
-      // Check for duplicate purchase
-      const { data: existingPurchase } = await supabase
+      // Insert purchase
+      const { data: existingPurchase, error: fetchError } = await supabase
         .from('purchases')
         .select('*')
         .eq('user_id', user_id)
         .eq('product_id', product_id)
         .eq('product_type', product_type)
-        .single();
+        .maybeSingle();
 
       if (!existingPurchase) {
-        await supabase.from('purchases').insert([
-          { user_id, product_id, product_type },
+        const { error: insertError } = await supabase.from('purchases').insert([
+          { user_id, product_id, product_type, created_at: new Date().toISOString() },
         ]);
+
+        if (insertError) {
+          console.error("❌ Failed to insert purchase:", insertError.message);
+          return res.status(500).json({ error: insertError.message });
+        }
+
+        console.log("✅ Purchase recorded for:", user_id, product_id);
+      } else {
+        console.log("ℹ️ Purchase already exists");
       }
 
       return res.status(200).json({ received: true });
-    } catch (error) {
-      console.error('❌ Supabase error:', error.message);
-      return res.status(500).json({ error: 'Failed to record session or purchase' });
+    } catch (err) {
+      console.error("❌ Unexpected error:", err.message);
+      return res.status(500).json({ error: "Unexpected error" });
     }
   }
 
