@@ -1,7 +1,7 @@
-// /api/stripe-webhook.js
+// /api/webhook.js
 
 import Stripe from 'stripe';
-import { buffer } from 'micro';
+import { Readable } from 'stream';
 import { createClient } from '@supabase/supabase-js';
 
 export const config = {
@@ -13,13 +13,18 @@ export const config = {
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16',
 });
-
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+async function getRawBody(readable) {
+  const chunks = [];
+  for await (const chunk of readable) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+  return Buffer.concat(chunks);
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -27,70 +32,58 @@ export default async function handler(req, res) {
   }
 
   const sig = req.headers['stripe-signature'];
-  const buf = await buffer(req);
+  const buf = await getRawBody(req);
 
   let event;
   try {
-    event = stripe.webhooks.constructEvent(buf, sig, endpointSecret);
+    event = stripe.webhooks.constructEvent(buf, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    console.log("✅ Stripe event verified:", event.type);
   } catch (err) {
-    console.error('❌ Webhook Error:', err.message);
+    console.error("❌ Signature verification failed:", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
+    console.log("📦 Stripe Session Object:", session);
 
-    const userId = session.metadata.user_id;
-    const productId = session.metadata.product_id;
-    const productType = session.metadata.product_type;
-    const sessionId = session.id;
+    const user_id = session.metadata?.user_id;
+    const product_id = session.metadata?.product_id;
+    const product_type = session.metadata?.product_type;
+    const session_id = session.id;
+
+    if (!user_id || !product_id || !product_type) {
+      console.error("❌ Missing metadata:", { user_id, product_id, product_type });
+      return res.status(400).send('Missing metadata values.');
+    }
 
     try {
-      // ✅ Update checkout session to completed
       const { error: updateError } = await supabase
         .from('checkout_sessions')
         .update({ status: 'completed' })
-        .eq('session_id', sessionId);
+        .eq('session_id', session_id);
 
       if (updateError) {
-        console.error('❌ Failed to update session status:', updateError.message);
-        return res.status(500).send('Failed to update session status');
+        console.error('❌ Failed to update session:', updateError.message);
+        return res.status(500).send('Failed to update checkout session');
       }
 
-      // ✅ Prevent duplicate purchase entry
-      const { data: existing, error: existingError } = await supabase
+      const { error: insertError } = await supabase
         .from('purchases')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('product_id', productId)
-        .eq('product_type', productType)
-        .maybeSingle();
+        .insert([{ user_id, product_id, product_type, session_id }]);
 
-      if (!existing && !existingError) {
-        // ✅ Insert new purchase record
-        const { error: insertError } = await supabase
-          .from('purchases')
-          .insert([
-            {
-              user_id: userId,
-              product_id: productId,
-              product_type: productType,
-              session_id: sessionId,
-            },
-          ]);
-
-        if (insertError) {
-          console.error('❌ Failed to insert purchase:', insertError.message);
-          return res.status(500).send('Purchase insert error');
-        }
+      if (insertError) {
+        console.error('❌ Failed to insert purchase:', insertError.message);
+        return res.status(500).send('Failed to insert into purchases');
       }
 
-      return res.status(200).send('✅ Purchase recorded successfully');
+      console.log("✅ Purchase recorded for", product_id);
+      return res.status(200).send('Success');
     } catch (err) {
-      console.error('❌ Server error:', err.message);
-      return res.status(500).send('Server Error');
+      console.error("❌ Server error:", err.message);
+      return res.status(500).send('A server error has occurred');
     }
   }
 
-  return res.status(200).send('✅ Event received');
+  return res.status(200).send('Unhandled event');
 }
