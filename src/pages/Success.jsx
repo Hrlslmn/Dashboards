@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import { Download } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 export default function Success() {
   const [searchParams] = useSearchParams();
@@ -19,10 +20,8 @@ export default function Success() {
         return;
       }
 
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabase.auth.getSession();
+      const { data: authData, error: sessionError } = await supabase.auth.getSession();
+      const session = authData?.session;
 
       if (sessionError || !session?.user) {
         setError('You must be logged in.');
@@ -40,10 +39,11 @@ export default function Success() {
 
       if (csError || !sessionData) {
         setError('Session not found or not completed.');
+        console.error('❌ Session Fetch Error:', csError);
         return;
       }
 
-      const { data: purchase } = await supabase
+      const { data: purchase, error: purchaseError } = await supabase
         .from('purchases')
         .select('*')
         .eq('user_id', user.id)
@@ -51,22 +51,32 @@ export default function Success() {
         .eq('product_type', sessionData.product_type)
         .maybeSingle();
 
-      if (!purchase) {
+      if (purchaseError || !purchase) {
         setError('Purchase not found.');
+        console.error('❌ Purchase Error:', purchaseError);
         return;
       }
 
-      const { data: componentData } = await supabase
+      const { data: componentData, error: compError } = await supabase
         .from('components')
         .select('*')
         .eq('id', sessionData.product_id)
         .maybeSingle();
 
-      if (componentData) {
-        setComponent(componentData);
-      } else {
+      if (compError || !componentData) {
         setError('Component not found.');
+        console.error('❌ Component Error:', compError);
+        return;
       }
+
+      setComponent(componentData);
+
+      // 🎉 Trigger confetti once purchase is validated
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+      });
     };
 
     fetchPurchase();

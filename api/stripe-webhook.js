@@ -1,11 +1,20 @@
-// pages/api/create-checkout-session.js
+// pages/api/stripe-webhook.js
 
 import Stripe from 'stripe';
+import { buffer } from 'micro';
 import { createClient } from '@supabase/supabase-js';
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16',
 });
+
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -17,38 +26,83 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  try {
-    const { name, price, productId, productType, user_id } = req.body;
+  const sig = req.headers['stripe-signature'];
+  let event;
 
-    if (!user_id || !productId || !price || !name) {
-      return res.status(400).json({ error: 'Missing required fields' });
+  try {
+    const buf = await buffer(req);
+    event = stripe.webhooks.constructEvent(buf, sig, endpointSecret);
+  } catch (err) {
+    console.error('❌ Stripe webhook signature error:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const { user_id, product_id, product_type } = session.metadata || {};
+
+    if (!user_id || !product_id) {
+      console.warn("⚠️ Missing metadata in session:", session.id);
+      return res.status(400).json({ error: "Missing metadata" });
     }
 
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: { name },
-            unit_amount: Math.round(price * 100),
-          },
-          quantity: 1,
-        },
-      ],
-      mode: 'payment',
-      success_url: `https://www.codecanverse.com/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `https://www.codecanverse.com/cancel`,
-      metadata: {
-        user_id: user_id,
-        product_id: productId,
-        product_type: productType || '',
-      },
-    });
+    try {
+      // Check if session exists
+      const { data: existingSession, error: fetchError } = await supabase
+        .from('checkout_sessions')
+        .select('*')
+        .eq('session_id', session.id)
+        .single();
 
-    return res.status(200).json({ sessionId: session.id });
-  } catch (error) {
-    console.error('Error creating checkout session:', error.message);
-    return res.status(500).json({ error: 'Internal Server Error' });
+      if (fetchError || !existingSession) {
+        // Insert if not exists
+        const { error: insertError } = await supabase.from('checkout_sessions').insert([
+          {
+            session_id: session.id,
+            user_id,
+            product_id,
+            product_type,
+            status: 'completed',
+            created_at: new Date().toISOString(),
+          },
+        ]);
+
+        if (insertError) {
+          console.error('❌ Insert error:', insertError.message);
+        }
+      } else {
+        // Update existing session
+        const { error: updateError } = await supabase
+          .from('checkout_sessions')
+          .update({ status: 'completed' })
+          .eq('session_id', session.id);
+
+        if (updateError) {
+          console.error('⚠️ Failed to update session status:', updateError.message);
+        }
+      }
+
+      // Check for duplicate purchase
+      const { data: existingPurchase } = await supabase
+        .from('purchases')
+        .select('*')
+        .eq('user_id', user_id)
+        .eq('product_id', product_id)
+        .eq('product_type', product_type)
+        .single();
+
+      if (!existingPurchase) {
+        await supabase.from('purchases').insert([
+          { user_id, product_id, product_type },
+        ]);
+      }
+
+      return res.status(200).json({ received: true });
+    } catch (error) {
+      console.error('❌ Supabase error:', error.message);
+      return res.status(500).json({ error: 'Failed to record session or purchase' });
+    }
   }
+
+  return res.status(200).json({ received: true });
 }
