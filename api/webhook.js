@@ -1,12 +1,12 @@
-// /api/webhook.js
+// pages/api/webhook.js
 
+import { buffer } from 'micro';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
-import { buffer } from 'micro'; // ✅ micro is required!
 
 export const config = {
   api: {
-    bodyParser: false, // ✅ Must disable body parser
+    bodyParser: false, // 🔥 VERY IMPORTANT
   },
 };
 
@@ -24,50 +24,45 @@ export default async function handler(req, res) {
     return res.status(405).send('Method Not Allowed');
   }
 
+  const buf = await buffer(req);
+  const sig = req.headers['stripe-signature'];
+
   let event;
   try {
-    const buf = await buffer(req); // ✅ get raw body
-    const sig = req.headers['stripe-signature'];
-
     event = stripe.webhooks.constructEvent(buf, sig, process.env.STRIPE_WEBHOOK_SECRET);
-    console.log('✅ Webhook verified:', event.type);
+    console.log('✅ Verified event:', event.type);
   } catch (err) {
     console.error('❌ Signature verification failed:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
+  // ✅ Handle event
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    const metadata = session.metadata || {};
-
-    const user_id = metadata.user_id;
-    const product_id = metadata.product_id;
-    const product_type = metadata.product_type;
-    const session_id = session.id;
+    const { user_id, product_id, product_type } = session.metadata || {};
 
     try {
       if (!user_id || !product_id || !product_type) {
-        throw new Error('Missing metadata fields');
+        throw new Error('Missing Stripe metadata');
       }
 
-      // ✅ Update checkout_sessions
+      // ✅ Update checkout_sessions status
       await supabase
         .from('checkout_sessions')
         .update({ status: 'completed' })
-        .eq('session_id', session_id);
+        .eq('session_id', session.id);
 
-      // ✅ Insert purchase
+      // ✅ Add to purchases
       await supabase
         .from('purchases')
-        .insert([{ user_id, product_id, product_type, session_id }]);
+        .insert([{ user_id, product_id, product_type, session_id: session.id }]);
 
-      console.log('✅ Purchase saved for:', product_id);
-      return res.status(200).send('Success');
-    } catch (err) {
-      console.error('❌ Supabase error:', err.message);
-      return res.status(500).send('Internal Server Error');
+      console.log('✅ Purchase recorded in Supabase');
+    } catch (error) {
+      console.error('❌ Supabase insert error:', error.message);
+      return res.status(500).send('Internal Supabase Error');
     }
   }
 
-  res.status(200).send('Event received');
+  res.status(200).send('OK');
 }
