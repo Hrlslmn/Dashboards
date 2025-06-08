@@ -40,7 +40,7 @@ export default function App() {
           {/* Public Pages */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignUpPage />} />
+
           <Route path="/upload" element={<UploadComponent />} />
           <Route path="/preview" element={<PagePreview />} />
           <Route path="/purchase-history" element={<PurchaseHistory />} />
