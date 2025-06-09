@@ -184,11 +184,11 @@ export default function FormsPage() {
           >
             <X size={20} />
           </button>
-          <img
-            src={previewImage}
-            alt="Preview"
-            className="max-w-3xl w-full max-h-[90vh] rounded-md shadow-lg border border-white/10"
-          />
+<img
+  src={previewImage}
+  alt="Preview"
+  className="w-full max-w-3xl aspect-auto object-contain max-h-[90vh] rounded-md shadow-lg border border-white/10"
+/>
         </div>
       )}
     </div>

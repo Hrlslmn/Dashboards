@@ -10,10 +10,10 @@ import {
   User,
   Menu,
   X,
-  ShieldCheck
+  ShieldCheck,
 } from "lucide-react";
 import { supabase } from "../../supabaseClient";
-import { useAuth } from "../components/AuthContext"; // ✅ Correct import path
+import { useAuth } from "../components/AuthContext";
 
 const navLinks = [
   { icon: <LayoutDashboard size={22} />, label: "Home", path: "/" },
@@ -26,10 +26,9 @@ export default function HeaderGreen() {
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const { user, loading } = useAuth(); // ✅ Get user & loading from context
+  const { user, loading } = useAuth();
   const [profile, setProfile] = useState({ full_name: "", is_admin: false });
 
-  // ✅ Only fetch profile when user is available
   useEffect(() => {
     const fetchProfile = async () => {
       if (user) {
@@ -38,7 +37,6 @@ export default function HeaderGreen() {
           .select("full_name, is_admin")
           .eq("id", user.id)
           .single();
-
         setProfile(profileData || { full_name: "User", is_admin: false });
       } else {
         setProfile({ full_name: "", is_admin: false });
@@ -134,6 +132,56 @@ export default function HeaderGreen() {
           </div>
         </div>
       </header>
+
+      {/* ✅ Mobile menu */}
+      {open && (
+        <div className="md:hidden bg-slate-900 border-t border-slate-700 shadow-lg z-30 relative">
+          <nav className="flex flex-col space-y-2 px-6 py-4">
+            {navLinks.map(({ icon, label, path }) => (
+              <Link
+                key={label}
+                to={path}
+                onClick={handleLinkClick}
+                className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                  location.pathname === path
+                    ? "bg-amber-500/20 text-amber-300"
+                    : "text-neutral-300 hover:text-amber-400 hover:bg-slate-700/40"
+                }`}
+              >
+                {icon}
+                {label}
+              </Link>
+            ))}
+
+            {!loading && user ? (
+              <>
+                {profile.is_admin && (
+                  <span className="flex items-center gap-1.5 text-xs bg-sky-500/20 text-sky-400 px-3 py-1 rounded-full font-medium border border-sky-500/30">
+                    <ShieldCheck size={14} />
+                    Admin
+                  </span>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="mt-2 flex items-center gap-2 text-sm bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-4 py-2 rounded-lg transition-colors duration-200"
+                >
+                  <LogOut size={18} />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                onClick={handleLinkClick}
+                className="mt-2 flex items-center gap-2 text-sm bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-4 py-2 rounded-lg transition-colors duration-200"
+              >
+                <LogIn size={18} />
+                Login
+              </Link>
+            )}
+          </nav>
+        </div>
+      )}
     </>
   );
 }
