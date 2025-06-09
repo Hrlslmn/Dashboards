@@ -33,24 +33,43 @@ export default async function handler(req, res) {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // ✅ Only run this on checkout.session.completed
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    const { user_id, product_id, product_type } = session.metadata;
 
-    if (!user_id || !product_id || !product_type) {
-      return res.status(400).json({ error: 'Missing metadata' });
+    // Always mark checkout session as completed
+    const { error: updateError } = await supabase
+      .from('checkout_sessions')
+      .update({ status: 'completed' })
+      .eq('session_id', session.id);
+
+    if (updateError) {
+      console.error('❌ Failed to update session status:', updateError.message);
     }
 
-    // ✅ FIX: Await is now inside the async handler function
+    // Get metadata
+    const { user_id, product_id, product_type } = session.metadata || {};
+
+    // Allowed product types based on your CHECK constraint
+    const allowedTypes = ['form', 'dashboard', 'theme', 'component'];
+
+    if (!user_id || !product_id || !product_type) {
+      console.warn('⚠️ Missing metadata in session. Skipping insert.');
+      return res.status(200).json({ received: true });
+    }
+
+    if (!allowedTypes.includes(product_type.trim().toLowerCase())) {
+      console.warn(`❌ Invalid product_type: "${product_type}"`);
+      return res.status(400).json({ error: `Invalid product_type: "${product_type}"` });
+    }
+
     const { error: insertError } = await supabase
       .from('purchases')
       .insert([
         {
           user_id,
           product_id,
-          product_type,
-          session_id: session.id, // ✅ Ensure session_id is included
+          product_type: product_type.trim().toLowerCase(), // ✅ Ensures it matches constraint
+          session_id: session.id,
         },
       ]);
 
@@ -59,11 +78,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: insertError.message });
     }
 
-    await supabase
-      .from('checkout_sessions')
-      .update({ status: 'completed' })
-      .eq('session_id', session.id);
-
+    console.log('✅ Purchase recorded successfully.');
     return res.status(200).json({ received: true });
   }
 
