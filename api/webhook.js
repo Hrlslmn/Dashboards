@@ -33,27 +33,16 @@ export default async function handler(req, res) {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
+  // ✅ Only run this on checkout.session.completed
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-
-    // Always update the checkout_sessions table to mark the session as completed
-    const { error: updateError } = await supabase
-      .from('checkout_sessions')
-      .update({ status: 'completed' })
-      .eq('session_id', session.id);
-
-    if (updateError) {
-      console.error('❌ Failed to update session status:', updateError.message);
-    }
-
-    // Check if metadata exists before inserting into purchases
-    const { user_id, product_id, product_type } = session.metadata || {};
+    const { user_id, product_id, product_type } = session.metadata;
 
     if (!user_id || !product_id || !product_type) {
-      console.warn('⚠️ Missing metadata in session. Skipping purchases insert.');
-      return res.status(200).json({ received: true });
+      return res.status(400).json({ error: 'Missing metadata' });
     }
 
+    // ✅ FIX: Await is now inside the async handler function
     const { error: insertError } = await supabase
       .from('purchases')
       .insert([
@@ -61,7 +50,7 @@ export default async function handler(req, res) {
           user_id,
           product_id,
           product_type,
-          session_id: session.id, // ✅ Prevents NOT NULL constraint errors
+          session_id: session.id, // ✅ Ensure session_id is included
         },
       ]);
 
@@ -70,7 +59,11 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: insertError.message });
     }
 
-    console.log('✅ Purchase recorded and session marked as completed.');
+    await supabase
+      .from('checkout_sessions')
+      .update({ status: 'completed' })
+      .eq('session_id', session.id);
+
     return res.status(200).json({ received: true });
   }
 
