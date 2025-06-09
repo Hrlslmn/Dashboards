@@ -99,7 +99,7 @@ export default function FormsPage() {
 
     const { data, error } = await supabase
       .storage
-      .from("components")
+      .from("component-file")
       .createSignedUrl(filePath, 60, { download: true });
 
     setDownloadingId(null);
