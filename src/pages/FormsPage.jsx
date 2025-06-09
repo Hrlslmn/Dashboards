@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import HeaderGreen from "../components/HeaderGreen";
 import { supabase } from "../../supabaseClient";
 import { Download, X } from "lucide-react";
@@ -11,6 +12,7 @@ export default function FormsPage() {
   const [downloadingId, setDownloadingId] = useState(null);
   const [checkoutLoadingId, setCheckoutLoadingId] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+  const location = useLocation(); // ✅ Add this
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,7 +52,7 @@ export default function FormsPage() {
 
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
-  }, []);
+  }, [location]); // ✅ Triggers useEffect when returning to /forms
 
   const handleBuy = async (productId, title) => {
     const { data: { user }, error } = await supabase.auth.getUser();
