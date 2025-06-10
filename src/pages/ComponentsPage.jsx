@@ -12,17 +12,16 @@ import {
     LayoutDashboard
 } from 'lucide-react';
 
-// Animation variants for Framer Motion
 const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
-        transition: { staggerChildren: 0.1 }
+        transition: { staggerChildren: 0.1, delayChildren: 0.2 }
     }
 };
 
 const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 30 },
     visible: {
         opacity: 1,
         y: 0,
@@ -30,6 +29,14 @@ const itemVariants = {
     }
 };
 
+const pageVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.6, ease: 'easeOut' }
+    }
+};
 
 export default function ComponentsPage() {
     const components = [
@@ -72,10 +79,15 @@ export default function ComponentsPage() {
     ];
 
     return (
-        <div className="relative min-h-screen bg-slate-900 text-slate-300 font-['Inter',sans-serif] overflow-x-hidden">
+        <motion.div
+            className="relative min-h-screen bg-slate-900 text-slate-300 font-['Inter',sans-serif] overflow-x-hidden"
+            initial="hidden"
+            animate="visible"
+            variants={pageVariants}
+        >
             <HeaderGreen />
 
-            {/* Background Glow Effects - Styled to match the brand */}
+            {/* Background Glow Effects */}
             <div className="absolute -top-60 -left-60 w-[500px] h-[500px] bg-gradient-to-r from-[#64FFDA]/20 to-slate-900/0 blur-[120px] rounded-full" />
             <div className="absolute -bottom-80 -right-80 w-[600px] h-[600px] bg-gradient-to-l from-[#64FFDA]/10 to-slate-900/0 blur-[100px] rounded-full" />
 
@@ -106,11 +118,15 @@ export default function ComponentsPage() {
                             to="/themes"
                             className="mt-12 inline-flex items-center gap-3 text-[#64FFDA] font-semibold group hover:text-white transition-colors duration-300 text-lg hover:bg-[#64FFDA]/10 px-3 py-2 rounded-lg -ml-3"
                         >
-                            Explore AI Branding Boards <ArrowRight size={22} className="transform group-hover:translate-x-1.5 transition-transform duration-300" />
+                            Explore AI Branding Boards{" "}
+                            <ArrowRight
+                                size={22}
+                                className="transform group-hover:translate-x-1.5 transition-transform duration-300"
+                            />
                         </Link>
                     </motion.div>
 
-                    {/* Component Cards Container */}
+                    {/* Component Cards */}
                     <motion.div
                         variants={containerVariants}
                         className="w-full lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-6"
@@ -119,7 +135,10 @@ export default function ComponentsPage() {
                             <motion.div
                                 key={i}
                                 variants={itemVariants}
-                                whileHover={{ scale: 1.03, transition: { type: 'spring', stiffness: 300 } }}
+                                whileHover={{
+                                    scale: 1.03,
+                                    transition: { type: "spring", stiffness: 300 }
+                                }}
                             >
                                 <Link
                                     to={item.link}
@@ -145,6 +164,6 @@ export default function ComponentsPage() {
                     </motion.div>
                 </motion.div>
             </main>
-        </div>
+        </motion.div>
     );
 }

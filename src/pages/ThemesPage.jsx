@@ -11,7 +11,6 @@ import {
     Rocket
 } from 'lucide-react';
 
-// Animation variant for sections to fade in as they enter the viewport
 const sectionVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
@@ -62,19 +61,15 @@ export default function ThemesPage() {
     ];
 
     return (
-        // ✅ FIX 1: The root element is a flex column that takes up the minimum height of the screen.
-        <div className="min-h-screen flex flex-col bg-slate-900 text-slate-300 font-['Inter',sans-serif] relative">
-            {/* On-brand Background Glows */}
-            <div className="absolute -top-1/3 -left-1/4 w-[65vw] h-[65vw] bg-gradient-radial from-[#64FFDA]/10 to-transparent blur-3xl rounded-full pointer-events-none z-0" />
-            <div className="absolute -bottom-1/3 -right-1/4 w-[65vw] h-[65vw] bg-gradient-radial from-[#64FFDA]/10 to-transparent blur-3xl rounded-full pointer-events-none z-0" />
+        <div className="flex flex-col min-h-screen bg-slate-900 text-slate-300 font-['Inter',sans-serif] relative overflow-x-hidden">
+            {/* Background glows */}
+            <div className="absolute top-0 left-0 w-[100vw] h-[100vw] bg-gradient-radial from-[#64FFDA]/10 to-transparent blur-3xl rounded-full pointer-events-none z-0" />
+            <div className="absolute bottom-0 right-0 w-[100vw] h-[100vw] bg-gradient-radial from-[#64FFDA]/10 to-transparent blur-3xl rounded-full pointer-events-none z-0" />
 
-            {/* ✅ FIX 2: The Header, Main, and Footer are now direct children of the flex container. */}
             <HeaderGreen />
-            
-            {/* ✅ FIX 3: `flex-1` is now on the <main> tag. This makes it expand to fill all available space, pushing the footer down. */}
+
             <main className="flex-1 w-full relative z-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-28 pb-20 sm:pb-24">
-                    {/* Intro Section */}
                     <motion.section 
                         className="text-center mb-16 sm:mb-24"
                         initial="hidden"
@@ -89,7 +84,6 @@ export default function ThemesPage() {
                         </p>
                     </motion.section>
 
-                    {/* Branding Boards Section */}
                     <motion.section 
                         className="mb-20 sm:mb-24"
                         initial="hidden"
@@ -108,7 +102,7 @@ export default function ThemesPage() {
                                     <div className="relative overflow-hidden h-56 sm:h-64">
                                         <img src={board.image} alt={board.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
-                                            <button onClick={() => { /* Logic to open modal */ }} className="text-sm bg-[#64FFDA] text-slate-900 px-5 py-2.5 rounded-full font-bold opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-white">
+                                            <button onClick={() => {}} className="text-sm bg-[#64FFDA] text-slate-900 px-5 py-2.5 rounded-full font-bold opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-white">
                                                 View Board
                                             </button>
                                         </div>
@@ -123,7 +117,6 @@ export default function ThemesPage() {
                         </div>
                     </motion.section>
 
-                    {/* Why Branding Section */}
                     <motion.section 
                         className="mb-20 sm:mb-28 max-w-4xl mx-auto text-center"
                         initial="hidden"
@@ -147,7 +140,6 @@ export default function ThemesPage() {
                         </ul>
                     </motion.section>
 
-                    {/* AI Advantage Section */}
                     <motion.section 
                         className="mb-20 sm:mb-28 max-w-5xl mx-auto"
                         initial="hidden"
@@ -155,14 +147,14 @@ export default function ThemesPage() {
                         viewport={{ once: true, amount: 0.2 }}
                         variants={sectionVariants}
                     >
-                       <div className="text-center mb-12">
+                        <div className="text-center mb-12">
                             <h2 className="text-3xl sm:text-4xl font-bold text-slate-100 mb-6 tracking-tight">
                                 How AI <span className="text-[#64FFDA]">Supercharges</span> Your Design Workflow
                             </h2>
                             <p className="text-slate-400 text-base sm:text-lg leading-relaxed max-w-3xl mx-auto">
                                 Traditional branding takes weeks and thousands of dollars. With our AI engine, get polished, pitch-ready branding kits in minutes – zero design skills required.
                             </p>
-                       </div>
+                        </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 text-left">
                             {aiAdvantages.map((adv, idx) => (
                                 <div key={idx} className="bg-slate-800/50 backdrop-blur-md border border-slate-700/70 rounded-2xl p-6 md:p-8">
@@ -180,7 +172,6 @@ export default function ThemesPage() {
                         </div>
                     </motion.section>
 
-                    {/* CTA Section */}
                     <motion.section
                         className="bg-slate-800/50 backdrop-blur-md p-8 sm:p-12 md:p-16 rounded-3xl text-center shadow-2xl border border-slate-700/70"
                         initial="hidden"
@@ -206,16 +197,15 @@ export default function ThemesPage() {
                 </div>
             </main>
 
-            {/* ✅ FIX 4: A simple footer is added to anchor the bottom of the page. */}
             <footer className="w-full text-center p-4 text-slate-500 text-sm border-t border-slate-800">
                 <p>CodeCanverse © {new Date().getFullYear()}</p>
             </footer>
 
             <style jsx global>{`
-                 .bg-gradient-radial {
-                   background-image: radial-gradient(circle, var(--tw-gradient-from), var(--tw-gradient-to));
-                 }
-              `}</style>
+                .bg-gradient-radial {
+                    background-image: radial-gradient(circle, var(--tw-gradient-from), var(--tw-gradient-to));
+                }
+            `}</style>
         </div>
     );
 }

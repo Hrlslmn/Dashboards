@@ -1,28 +1,19 @@
-/* src/index.css */
-
-/* Imports Tailwind's base styles, components, and utilities. */
+/* Tailwind core */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ✅ THE DEFINITIVE FIX:
-  This is the most important part. It sets the HTML document, the body, 
-  and the root div where your React app lives to all have a full, unbroken height.
-  This allows the `min-h-screen` class inside your components to work correctly.
-*/
-html,
-body,
-#root {
-  height: 100%;
+/* Fix layout height issues */
+html, body, #root {
+  min-height: 100%;
+  height: auto;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
+  scroll-behavior: smooth; /* ✅ Enables smooth scrolling */
 }
 
-/* ✅ SAFETY NET:
-  This sets the background color on the body itself. So even if something
-  were to break in the future, the background you see will be your app's
-  dark color, NOT the default browser white.
-*/
+/* Optional safety net background */
 body {
-  background-color: #0a192f; /* This is Tailwind's `bg-slate-900` */
+  background-color: #0a192f; /* Tailwind's bg-slate-900 */
 }
