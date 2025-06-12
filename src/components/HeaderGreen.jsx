@@ -11,7 +11,7 @@ import {
     Menu,
     X,
     ShieldCheck,
-    GitBranch, // Added for a more "dev" feel to the logo
+    GitBranch,
 } from "lucide-react";
 import { supabase } from "../../supabaseClient";
 import { useAuth } from "../components/AuthContext";
@@ -43,12 +43,10 @@ export default function HeaderGreen() {
                 setProfile({ full_name: "", is_admin: false });
             }
         };
-
         fetchProfile();
     }, [user]);
 
     useEffect(() => {
-        // Prevent body scroll when mobile menu is open
         document.body.style.overflow = open ? "hidden" : "auto";
         return () => {
             document.body.style.overflow = "auto";
@@ -65,8 +63,8 @@ export default function HeaderGreen() {
     return (
         <>
             <header className="bg-slate-900/70 backdrop-blur-xl text-slate-300 sticky top-0 z-40 border-b border-slate-700/80">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
-                    {/* Left Side: Mobile Menu Toggle & Logo */}
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-20">
+                    {/* Mobile toggle & logo */}
                     <div className="flex items-center gap-3">
                         <button
                             aria-label="Toggle mobile menu"
@@ -76,14 +74,16 @@ export default function HeaderGreen() {
                             {open ? <X size={26} /> : <Menu size={26} />}
                         </button>
                         <Link to="/" className="flex items-center gap-2 group">
-                            <GitBranch size={28} className="text-[#64FFDA] group-hover:text-white transition-all duration-300 group-hover:rotate-[-12deg]" />
-                            <h1 className="text-xl font-bold text-slate-200 group-hover:text-white transition-colors">
-                                CodeCanverse
-                            </h1>
+                            <img
+                                src="/images/logo.png"
+                                alt="CodeCanverse Logo"
+                                className="h-[120px] w-auto transition-transform duration-300 group-hover:scale-105"
+                            />
+                            <span className="sr-only">CodeCanverse</span>
                         </Link>
                     </div>
 
-                    {/* Center Navigation (Desktop) */}
+                    {/* Navigation links */}
                     <nav className="hidden md:flex items-center gap-2">
                         {navLinks.map(({ icon, label, path }) => (
                             <Link
@@ -101,7 +101,7 @@ export default function HeaderGreen() {
                         ))}
                     </nav>
 
-                    {/* Right Side: Auth buttons (Desktop) */}
+                    {/* Right-side auth */}
                     <div className="hidden md:flex items-center gap-4">
                         {!loading && user ? (
                             <>
@@ -134,9 +134,9 @@ export default function HeaderGreen() {
                 </div>
             </header>
 
-            {/* Mobile Menu Panel */}
+            {/* Mobile menu */}
             <div
-                className={`md:hidden fixed top-16 left-0 w-full h-[calc(100vh-4rem)] bg-slate-900 z-30 transition-all duration-300 ease-in-out ${
+                className={`md:hidden fixed top-20 left-0 w-full h-[calc(100vh-5rem)] bg-slate-900 z-30 transition-all duration-300 ease-in-out ${
                     open ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
                 }`}
             >
@@ -165,8 +165,11 @@ export default function HeaderGreen() {
                                         Admin
                                     </span>
                                 )}
-                                 <button
-                                    onClick={() => { handleLinkClick(); handleLogout(); }}
+                                <button
+                                    onClick={() => {
+                                        handleLinkClick();
+                                        handleLogout();
+                                    }}
                                     className="w-full flex items-center gap-4 px-4 py-3 rounded-md text-base font-medium text-slate-300 hover:text-[#64FFDA] hover:bg-slate-800"
                                 >
                                     <LogOut size={20} />

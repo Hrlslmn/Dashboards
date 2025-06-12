@@ -5,7 +5,7 @@ import "aos/dist/aos.css";
 import { supabase } from "../../supabaseClient";
 import {
     Code2, Paintbrush2, Puzzle, Sparkles, BrainCircuit, ArrowRight,
-    LayoutDashboard, Layers, Zap, Star, Users, GitBranch,
+    LayoutDashboard, Layers, Zap, Star, Users, GitBranch, Database
 } from "lucide-react";
 
 export default function Homepage() {
@@ -123,30 +123,47 @@ export default function Homepage() {
                     </section>
                     
                     {/* INFINITE SCROLLING TICKER */}
-                    <section className="relative w-full overflow-hidden bg-slate-800/30 py-4 my-24 sm:my-32 border-y border-slate-700" data-aos="zoom-in">
-                        <div className="flex animate-infinite-scroll group-hover:pause">
-                            {techStack.concat(techStack).map((tech, index) => (
-                                <div key={index} className="flex items-center mx-6">
-                                    <Star className="w-5 h-5 text-[#64FFDA] mr-3" />
-                                    <span className="text-lg font-medium text-slate-300 whitespace-nowrap">{tech}</span>
-                                </div>
-                            ))}
+            {/* INFINITE SCROLLING TICKER */}
+                <section className="relative w-full overflow-hidden bg-slate-800/30 py-4 my-24 sm:my-32 border-y border-slate-700" data-aos="zoom-in">
+                <div className="flex animate-infinite-scroll group-hover:pause">
+                    {techStack.concat(techStack).map((tech, index) => {
+                    const iconMap = {
+                        "React": <LayoutDashboard className="w-5 h-5 text-[#64FFDA] mr-3" />,
+                        "AI": <BrainCircuit className="w-5 h-5 text-[#64FFDA] mr-3" />,
+                        "TailwindCSS": <Paintbrush2 className="w-5 h-5 text-[#64FFDA] mr-3" />,
+                        "Figma": <Puzzle className="w-5 h-5 text-[#64FFDA] mr-3" />,
+                        "Next.js": <Code2 className="w-5 h-5 text-[#64FFDA] mr-3" />,
+                        "Supabase": <Database className="w-5 h-5 text-[#64FFDA] mr-3" />,
+                        "Vercel": <Zap className="w-5 h-5 text-[#64FFDA] mr-3" />,
+                        "Automation": <Sparkles className="w-5 h-5 text-[#64FFDA] mr-3" />,
+                        "UI/UX": <Users className="w-5 h-5 text-[#64FFDA] mr-3" />,
+                    };
+
+                    return (
+                        <div key={index} className="flex items-center mx-6">
+                        {iconMap[tech] || <Star className="w-5 h-5 text-[#64FFDA] mr-3" />}
+                        <span className="text-lg font-medium text-slate-300 whitespace-nowrap">{tech}</span>
                         </div>
-                         <style jsx>{`
-                            @keyframes infinite-scroll {
-                                from { transform: translateX(0); }
-                                to { transform: translateX(-50%); }
-                            }
-                            .animate-infinite-scroll {
-                                display: flex;
-                                width: calc(2 * ${techStack.length * 150}px); /* Adjust multiplier based on your content */
-                                animation: infinite-scroll 40s linear infinite;
-                            }
-                            .group-hover\\:pause:hover {
-                                animation-play-state: paused;
-                            }
-                        `}</style>
-                    </section>
+                    );
+                    })}
+                </div>
+
+                <style jsx>{`
+                    @keyframes infinite-scroll {
+                    from { transform: translateX(0); }
+                    to { transform: translateX(-50%); }
+                    }
+                    .animate-infinite-scroll {
+                    display: flex;
+                    width: calc(2 * ${techStack.length * 150}px);
+                    animation: infinite-scroll 40s linear infinite;
+                    }
+                    .group-hover\\:pause:hover {
+                    animation-play-state: paused;
+                    }
+                `}</style>
+                </section>
+
 
 
                     {/* CTA */}

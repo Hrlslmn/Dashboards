@@ -1,45 +1,37 @@
 // src/components/DesignCategoryCard.jsx
 import React from 'react';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-export default function DesignCategoryCard({ item, idx }) {
+export default function DesignCategoryCard({ item }) {
   return (
-    <div
-      key={idx}
-      data-aos="fade-up"
-      data-aos-delay={`${idx * 100}`}
-      className={`bg-gradient-to-br ${item.bgColor} backdrop-blur-lg border border-neutral-700/60 rounded-2xl p-6 sm:p-7 md:p-8 shadow-xl ${item.borderColor} transition-all duration-300 ease-in-out group flex flex-col`}
-    >
-      <div className="flex items-start gap-5 mb-5">
-        <div className="mt-1 bg-amber-400/10 p-3.5 rounded-xl group-hover:bg-amber-400/20 group-hover:scale-110 group-hover:rotate-[-6deg] transition-all duration-300 flex-shrink-0">
+    <Link to={item.link}>
+      <div
+        className={`
+          group border rounded-xl p-6 bg-gradient-to-br ${item.bgColor} 
+          transition-all duration-300 ease-in-out transform hover:scale-[1.02] 
+          ${item.borderColor} hover:shadow-[0_0_0_2px_rgba(100,255,218,0.3)]
+        `}
+      >
+        <div className="flex items-center gap-3 mb-4">
           {item.icon}
-        </div>
-        <div>
-          <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-amber-300 group-hover:text-amber-200 transition-colors mb-1.5">
+          <h3 className="text-xl font-semibold text-white group-hover:text-[#64FFDA] transition-colors duration-200">
             {item.title}
           </h3>
-          <p className="text-sm sm:text-base text-neutral-400 leading-relaxed">
-            {item.description}
-          </p>
+        </div>
+
+        <p className="text-slate-400 text-sm mb-4 group-hover:text-slate-300 transition-colors">
+          {item.description}
+        </p>
+
+        <div className="text-sm text-slate-300 space-y-1">
+          <strong className="block text-white mb-1">{item.aiAssistance.heading}</strong>
+          <ul className="list-disc list-inside">
+            {item.aiAssistance.points.map((point, index) => (
+              <li key={index}>{point}</li>
+            ))}
+          </ul>
         </div>
       </div>
-
-      <hr className="border-neutral-700/50 my-4 sm:my-5 md:my-6 group-hover:border-amber-500/30 transition-colors duration-300" />
-
-      <div className="flex-grow">
-        <h4 className="flex items-center text-base sm:text-lg font-semibold text-sky-400 group-hover:text-sky-300 transition-colors mb-3">
-          <Sparkles className="w-5 h-5 mr-2.5 text-sky-500" />
-          {item.aiAssistance.heading}
-        </h4>
-        <ul className="space-y-2.5 text-sm text-neutral-400/90">
-          {item.aiAssistance.points.map((point, pIdx) => (
-            <li key={pIdx} className="flex items-start">
-              <ArrowRight className="w-4 h-4 text-amber-500 mr-2.5 mt-1 flex-shrink-0" />
-              <span>{point}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+    </Link>
   );
 }
