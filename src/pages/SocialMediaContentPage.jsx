@@ -43,7 +43,7 @@ const SocialMediaContentPage = () => {
     setResult(null);
 
     try {
-      const response = await fetch("https://codecanverse.app.n8n.cloud/webhook/166a60e9-ff76-4866-ba21-26b4b5655ca7", {
+      const response = await fetch("https://codecanverse.app.n8n.cloud/webhook-test/166a60e9-ff76-4866-ba21-26b4b5655ca7", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
