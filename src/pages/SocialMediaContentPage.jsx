@@ -38,54 +38,46 @@ const SocialMediaContentPage = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setResult(null);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setResult(null);
 
-    try {
-      const response = await fetch("https://codecanverse.app.n8n.cloud/webhook/166a60e9-ff76-4866-ba21-26b4b5655ca7", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+  try {
+    const response = await fetch("https://codecanverse.app.n8n.cloud/webhook/166a60e9-ff76-4866-ba21-26b4b5655ca7", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+
+    if (!response.ok) throw new Error("Failed to generate image from n8n");
+
+    const blob = await response.blob(); // get binary blob from n8n
+    const fileExt = blob.type.split("/")[1]; // e.g., 'png'
+    const fileName = `social-images/generated-${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("code-canverse-bucket")
+      .upload(fileName, blob, {
+        contentType: blob.type,
+        upsert: true,
       });
 
-      const data = await response.json();
-      const base64Image = data?.imageUrl;
+    if (uploadError) throw uploadError;
 
-      if (!base64Image || !base64Image.startsWith("data:image")) {
-        throw new Error("Invalid base64 image data");
-      }
+    const { data: publicUrlData } = await supabase.storage
+      .from("code-canverse-bucket")
+      .getPublicUrl(fileName);
 
-      const fileName = `social-images/generated-${Date.now()}.png`;
-      const base64Data = base64Image.split(',')[1];
-      const binary = atob(base64Data);
-      const arrayBuffer = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) {
-        arrayBuffer[i] = binary.charCodeAt(i);
-      }
+    setResult({ imageUrl: publicUrlData.publicUrl });
+  } catch (err) {
+    console.error("Submit error:", err);
+    alert("Failed to generate or store image.");
+  }
 
-      const { error: uploadError } = await supabase.storage
-        .from("code-canverse-bucket")
-        .upload(fileName, arrayBuffer, {
-          contentType: "image/png",
-          upsert: true,
-        });
+  setLoading(false);
+};
 
-      if (uploadError) throw uploadError;
-
-      const { data: publicUrlData } = await supabase.storage
-        .from("code-canverse-bucket")
-        .getPublicUrl(fileName);
-
-      setResult({ imageUrl: publicUrlData.publicUrl });
-    } catch (err) {
-      console.error("Submit error:", err);
-      alert("Failed to generate or store image.");
-    }
-
-    setLoading(false);
-  };
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-300 font-['Inter',sans-serif] relative overflow-hidden">
