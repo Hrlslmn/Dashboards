@@ -43,27 +43,29 @@ const SocialMediaContentPage = () => {
     setResult(null);
 
     try {
-const response = await fetch("https://codecanverse.app.n8n.cloud/webhook-test/166a60e9-ff76-4866-ba21-26b4b5655ca7", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(form),
-});
+      const response = await fetch("https://codecanverse.app.n8n.cloud/webhook/166a60e9-ff76-4866-ba21-26b4b5655ca7", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-let data;
-try {
-  data = await response.json(); // 🔐 Safely tries to parse
-} catch (error) {
-  console.error("Invalid JSON response:", error);
-  alert("Something went wrong. Try again.");
-  return;
-}
+      let data;
+      try {
+        data = await response.json();
+      } catch (error) {
+        console.error("Invalid JSON response:", error);
+        alert("Something went wrong. Try again.");
+        setLoading(false);
+        return;
+      }
 
-if (!data?.imageUrl) {
-  alert("Image URL missing from response.");
-  return;
-}
+      if (!data?.imageUrl) {
+        alert("Image URL missing from response.");
+        setLoading(false);
+        return;
+      }
 
-setResult({ imageUrl: data.imageUrl });
+      setResult({ imageUrl: data.imageUrl });
     } catch (err) {
       console.error("Submit error:", err);
       alert("Failed to generate content. Try again.");
