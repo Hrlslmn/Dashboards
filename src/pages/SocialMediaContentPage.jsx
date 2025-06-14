@@ -59,20 +59,40 @@ export default function SocialMediaContentPage() {
     setCopied(false);
 
     try {
-      const response = await fetch("https://codecanverse.app.n8n.cloud/webhook/166a60e9-ff76-4866-ba21-26b4b5655ca7", {
+      // Step 1: Trigger image generation via serverless
+      const generateRes = await fetch("/api/generate-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          topic: form.topic,
+          audience: form.audience,
+        }),
       });
 
-      const blob = await response.blob();
+      const generateData = await generateRes.json();
+      const imageUid = generateData.uid;
 
-      if (!blob.type.startsWith("image/")) {
-        throw new Error("Expected an image, but got a different content type.");
+      if (!imageUid) throw new Error("No UID returned from Bannerbear");
+
+      // Step 2: Poll for image completion
+      let imageUrl = null;
+      for (let i = 0; i < 10; i++) {
+        const statusRes = await fetch(`/api/image-status?uid=${imageUid}`);
+        const statusData = await statusRes.json();
+        if (statusData.image_url) {
+          imageUrl = statusData.image_url;
+          break;
+        }
+        await new Promise((r) => setTimeout(r, 2000));
       }
 
+      if (!imageUrl) throw new Error("Image generation timed out");
+
+      // Step 3: Upload image to Supabase
+      const blobRes = await fetch(imageUrl);
+      const blob = await blobRes.blob();
       const fileExt = blob.type.split('/')[1] || 'png';
-      const fileName = `social-images/generated-${Date.now()}.${fileExt}`;
+      const fileName = `social-images/bannerbear-${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from("code-canverse-bucket")
@@ -87,13 +107,10 @@ export default function SocialMediaContentPage() {
         .from("code-canverse-bucket")
         .getPublicUrl(fileName);
 
-      setResult({
-        imageUrl: publicUrlData.publicUrl,
-        caption: '', // Caption not available from image blob directly
-      });
+      setResult({ imageUrl: publicUrlData.publicUrl, caption: '' });
 
     } catch (err) {
-      console.error("Submit error:", err);
+      console.error("Bannerbear frontend error:", err);
       setError(err.message || "Something went wrong.");
     } finally {
       setLoading(false);
