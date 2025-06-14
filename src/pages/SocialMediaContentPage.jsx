@@ -1,19 +1,18 @@
+// SocialMediaContentPage.jsx
 import React, { useState } from 'react';
 import HeaderGreen from '../components/HeaderGreen';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../supabaseClient';
 
 const Loader = () => (
-  <motion.div
-    className="flex space-x-2 justify-center items-center"
+  <motion.div className="flex space-x-2 justify-center items-center"
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
-    exit={{ opacity: 0 }}
-  >
+    exit={{ opacity: 0 }}>
     <span className="sr-only">Loading...</span>
-    <div className="h-2 w-2 bg-slate-900 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-    <div className="h-2 w-2 bg-slate-900 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-    <div className="h-2 w-2 bg-slate-900 rounded-full animate-bounce"></div>
+    <div className="h-2 w-2 bg-slate-900 rounded-full animate-bounce [animation-delay:-0.3s]" />
+    <div className="h-2 w-2 bg-slate-900 rounded-full animate-bounce [animation-delay:-0.15s]" />
+    <div className="h-2 w-2 bg-slate-900 rounded-full animate-bounce" />
   </motion.div>
 );
 
@@ -59,7 +58,7 @@ export default function SocialMediaContentPage() {
     setCopied(false);
 
     try {
-      // Step 1: Trigger image generation via serverless
+      // Step 1: Generate image via serverless function
       const generateRes = await fetch("/api/generate-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -71,10 +70,9 @@ export default function SocialMediaContentPage() {
 
       const generateData = await generateRes.json();
       const imageUid = generateData.uid;
-
       if (!imageUid) throw new Error("No UID returned from Bannerbear");
 
-      // Step 2: Poll for image completion
+      // Step 2: Poll status until complete
       let imageUrl = null;
       for (let i = 0; i < 10; i++) {
         const statusRes = await fetch(`/api/image-status?uid=${imageUid}`);
@@ -83,17 +81,18 @@ export default function SocialMediaContentPage() {
           imageUrl = statusData.image_url;
           break;
         }
-        await new Promise((r) => setTimeout(r, 2000));
+        await new Promise(r => setTimeout(r, 2000));
       }
 
       if (!imageUrl) throw new Error("Image generation timed out");
 
-      // Step 3: Upload image to Supabase
-      const blobRes = await fetch(imageUrl);
+      // Step 3: Download via proxy to bypass CSP
+      const blobRes = await fetch(`/api/download-image?url=${encodeURIComponent(imageUrl)}`);
       const blob = await blobRes.blob();
       const fileExt = blob.type.split('/')[1] || 'png';
       const fileName = `social-images/bannerbear-${Date.now()}.${fileExt}`;
 
+      // Step 4: Upload to Supabase
       const { error: uploadError } = await supabase.storage
         .from("code-canverse-bucket")
         .upload(fileName, blob, {
@@ -108,7 +107,6 @@ export default function SocialMediaContentPage() {
         .getPublicUrl(fileName);
 
       setResult({ imageUrl: publicUrlData.publicUrl, caption: '' });
-
     } catch (err) {
       console.error("Bannerbear frontend error:", err);
       setError(err.message || "Something went wrong.");
@@ -133,45 +131,29 @@ export default function SocialMediaContentPage() {
       <HeaderGreen />
 
       <main className="px-4 sm:px-6 lg:px-8 pt-24 pb-20 max-w-7xl mx-auto">
-        <motion.h1
-          className="text-4xl sm:text-5xl font-bold text-center mb-4 bg-gradient-to-r from-slate-100 to-[#64FFDA] text-transparent bg-clip-text"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <motion.h1 className="text-4xl sm:text-5xl font-bold text-center mb-4 bg-gradient-to-r from-slate-100 to-[#64FFDA] text-transparent bg-clip-text"
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           AI Social Media Image Generator
         </motion.h1>
-        <motion.p
-          className="text-slate-400 text-center mb-12 max-w-2xl mx-auto"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
+
+        <motion.p className="text-slate-400 text-center mb-12 max-w-2xl mx-auto"
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
           Instantly create high-quality marketing images with just a few inputs.
         </motion.p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <motion.form
-            onSubmit={handleSubmit}
+          {/* Form */}
+          <motion.form onSubmit={handleSubmit}
             className="backdrop-blur-xl bg-slate-800/40 p-6 sm:p-8 rounded-2xl border border-slate-700 shadow-xl space-y-5"
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
+            initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
             {[{ name: 'topic', label: 'Topic / Product', placeholder: 'e.g. Eco-friendly water bottles' },
               { name: 'audience', label: 'Target Audience', placeholder: 'e.g. Hikers, students, eco-conscious buyers' }]
               .map(({ name, label, placeholder }) => (
                 <div key={name}>
                   <label htmlFor={name} className="block text-sm mb-2 font-medium text-slate-400">{label}</label>
-                  <input
-                    id={name}
-                    name={name}
-                    value={form[name]}
-                    onChange={handleChange}
-                    placeholder={placeholder}
-                    required
-                    className="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded-md text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#64FFDA]"
-                  />
+                  <input id={name} name={name} value={form[name]} onChange={handleChange}
+                    placeholder={placeholder} required
+                    className="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded-md text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#64FFDA]" />
                 </div>
               ))}
 
@@ -182,36 +164,28 @@ export default function SocialMediaContentPage() {
               .map(({ id, label, options }) => (
                 <div key={id}>
                   <label htmlFor={id} className="block text-sm mb-2 font-medium text-slate-400">{label}</label>
-                  <select
-                    id={id}
-                    name={id}
-                    value={form[id]}
-                    onChange={handleChange}
-                    className="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded-md text-slate-200"
-                  >
+                  <select id={id} name={id} value={form[id]} onChange={handleChange}
+                    className="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded-md text-slate-200">
                     {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                   </select>
                 </div>
               ))}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#64FFDA] text-slate-900 font-bold py-3 rounded-md hover:bg-opacity-90 transition-all duration-300 disabled:bg-slate-600 disabled:cursor-not-allowed flex justify-center items-center"
-            >
+            <button type="submit" disabled={loading}
+              className="w-full bg-[#64FFDA] text-slate-900 font-bold py-3 rounded-md hover:bg-opacity-90 transition-all duration-300 disabled:bg-slate-600 disabled:cursor-not-allowed flex justify-center items-center">
               <AnimatePresence mode="wait">
                 {loading ? <Loader key="loader" /> : <span key="text">Generate Image</span>}
               </AnimatePresence>
             </button>
           </motion.form>
 
+          {/* Preview */}
           <motion.div
             className="rounded-2xl border border-slate-700 bg-slate-800/30 p-4 sm:p-6 flex flex-col items-center justify-center transition-all duration-300"
             style={{ aspectRatio: getAspectRatio(form.resolution) }}
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
+            transition={{ duration: 0.5, delay: 0.2 }}>
             <AnimatePresence mode="wait">
               {loading && (
                 <motion.div key="loading-preview" className="text-slate-500 text-center">
@@ -226,18 +200,11 @@ export default function SocialMediaContentPage() {
                 </motion.div>
               )}
               {result?.imageUrl && !loading && !error && (
-                <motion.div
-                  key="image-result"
-                  className="w-full h-full"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <img
-                    src={result.imageUrl}
-                    alt="Generated AI content"
-                    className="rounded-lg shadow-lg w-full h-full object-contain"
-                  />
+                <motion.div key="image-result" className="w-full h-full"
+                  initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}>
+                  <img src={result.imageUrl} alt="Generated AI content"
+                    className="rounded-lg shadow-lg w-full h-full object-contain" />
                 </motion.div>
               )}
               {!result && !loading && !error && (
