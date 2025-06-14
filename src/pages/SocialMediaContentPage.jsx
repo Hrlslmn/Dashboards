@@ -46,6 +46,7 @@ export default function SocialMediaContentPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+<<<<<<< HEAD
   const getAspectRatio = (resolution) => {
     const [width, height] = resolution.split('x');
     return `${width} / ${height}`;
@@ -60,11 +61,21 @@ export default function SocialMediaContentPage() {
 
     try {
       const response = await fetch("https://codecanverse.app.n8n.cloud/webhook-test/166a60e9-ff76-4866-ba21-26b4b5655ca7", {
+=======
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setResult(null);
+
+    try {
+      const response = await fetch("https://codecanverse.app.n8n.cloud/webhook/166a60e9-ff76-4866-ba21-26b4b5655ca7", {
+>>>>>>> parent of 237420d (Switch to production URL 03)
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
 
+<<<<<<< HEAD
       const text = await response.text();
       const json = JSON.parse(text);
 
@@ -112,6 +123,43 @@ export default function SocialMediaContentPage() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
+=======
+      const data = await response.json();
+      const base64Image = data?.imageUrl;
+
+      if (!base64Image || !base64Image.startsWith("data:image")) {
+        throw new Error("Invalid base64 image data");
+      }
+
+      const fileName = `social-images/generated-${Date.now()}.png`;
+      const base64Data = base64Image.split(',')[1];
+      const binary = atob(base64Data);
+      const arrayBuffer = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        arrayBuffer[i] = binary.charCodeAt(i);
+      }
+
+      const { error: uploadError } = await supabase.storage
+        .from("code-canverse-bucket")
+        .upload(fileName, arrayBuffer, {
+          contentType: "image/png",
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = await supabase.storage
+        .from("code-canverse-bucket")
+        .getPublicUrl(fileName);
+
+      setResult({ imageUrl: publicUrlData.publicUrl });
+    } catch (err) {
+      console.error("Submit error:", err);
+      alert("Failed to generate or store image.");
+    }
+
+    setLoading(false);
+>>>>>>> parent of 237420d (Switch to production URL 03)
   };
 
   return (
