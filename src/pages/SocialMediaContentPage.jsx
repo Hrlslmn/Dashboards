@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import HeaderGreen from '../components/HeaderGreen';
 import { motion, AnimatePresence } from 'framer-motion';
-import { supabase } from '../supabaseClient'; // adjust if path differs
+import { supabase } from '../../supabaseClient'; // adjust if path differs
 
 const Loader = () => (
   <motion.div className="flex space-x-2 justify-center items-center">
