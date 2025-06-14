@@ -17,6 +17,11 @@ const Loader = () => (
   </motion.div>
 );
 
+const getAspectRatio = (resolution) => {
+  const [width, height] = resolution.split('x');
+  return `${width} / ${height}`;
+};
+
 export default function SocialMediaContentPage() {
   const [form, setForm] = useState({
     topic: '',
@@ -50,6 +55,8 @@ export default function SocialMediaContentPage() {
     e.preventDefault();
     setLoading(true);
     setResult(null);
+    setError(null);
+    setCopied(false);
 
     try {
       const response = await fetch("https://codecanverse.app.n8n.cloud/webhook/166a60e9-ff76-4866-ba21-26b4b5655ca7", {
@@ -58,25 +65,19 @@ export default function SocialMediaContentPage() {
         body: JSON.stringify(form),
       });
 
-      const data = await response.json();
-      const base64Image = data?.imageUrl;
+      const blob = await response.blob();
 
-      if (!base64Image || !base64Image.startsWith("data:image")) {
-        throw new Error("Invalid base64 image data");
+      if (!blob.type.startsWith("image/")) {
+        throw new Error("Expected an image, but got a different content type.");
       }
 
-      const fileName = `social-images/generated-${Date.now()}.png`;
-      const base64Data = base64Image.split(',')[1];
-      const binary = atob(base64Data);
-      const arrayBuffer = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) {
-        arrayBuffer[i] = binary.charCodeAt(i);
-      }
+      const fileExt = blob.type.split('/')[1] || 'png';
+      const fileName = `social-images/generated-${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from("code-canverse-bucket")
-        .upload(fileName, arrayBuffer, {
-          contentType: "image/png",
+        .upload(fileName, blob, {
+          contentType: blob.type,
           upsert: true,
         });
 
@@ -86,13 +87,25 @@ export default function SocialMediaContentPage() {
         .from("code-canverse-bucket")
         .getPublicUrl(fileName);
 
-      setResult({ imageUrl: publicUrlData.publicUrl });
+      setResult({
+        imageUrl: publicUrlData.publicUrl,
+        caption: '', // Caption not available from image blob directly
+      });
+
     } catch (err) {
       console.error("Submit error:", err);
-      alert("Failed to generate or store image.");
+      setError(err.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    setLoading(false);
+  const handleCopy = () => {
+    if (result?.caption) {
+      navigator.clipboard.writeText(result.caption);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   return (
@@ -145,25 +158,24 @@ export default function SocialMediaContentPage() {
                 </div>
               ))}
 
-            {[
-              { id: 'tone', label: 'Tone', options: toneOptions },
+            {[{ id: 'tone', label: 'Tone', options: toneOptions },
               { id: 'imageStyle', label: 'Image Style', options: imageStyleOptions },
               { id: 'resolution', label: 'Resolution', options: resolutionOptions },
-              { id: 'platform', label: 'Platform', options: platformOptions },
-            ].map(({ id, label, options }) => (
-              <div key={id}>
-                <label htmlFor={id} className="block text-sm mb-2 font-medium text-slate-400">{label}</label>
-                <select
-                  id={id}
-                  name={id}
-                  value={form[id]}
-                  onChange={handleChange}
-                  className="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded-md text-slate-200"
-                >
-                  {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                </select>
-              </div>
-            ))}
+              { id: 'platform', label: 'Platform', options: platformOptions }]
+              .map(({ id, label, options }) => (
+                <div key={id}>
+                  <label htmlFor={id} className="block text-sm mb-2 font-medium text-slate-400">{label}</label>
+                  <select
+                    id={id}
+                    name={id}
+                    value={form[id]}
+                    onChange={handleChange}
+                    className="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded-md text-slate-200"
+                  >
+                    {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                  </select>
+                </div>
+              ))}
 
             <button
               type="submit"
@@ -209,24 +221,11 @@ export default function SocialMediaContentPage() {
                     alt="Generated AI content"
                     className="rounded-lg shadow-lg w-full h-full object-contain"
                   />
-                  {result.caption && (
-                    <>
-                      <div className="mt-4 p-4 bg-slate-900 text-slate-200 border border-slate-700 rounded-lg text-center text-base whitespace-pre-wrap">
-                        {result.caption}
-                      </div>
-                      <button
-                        onClick={handleCopy}
-                        className="mt-3 px-4 py-2 bg-[#64FFDA] text-slate-900 font-semibold rounded hover:bg-opacity-90 transition"
-                      >
-                        {copied ? "Copied!" : "Copy Caption"}
-                      </button>
-                    </>
-                  )}
                 </motion.div>
               )}
               {!result && !loading && !error && (
                 <motion.div key="placeholder" className="text-slate-500 text-center">
-                  <p>Your generated image and caption will appear here.</p>
+                  <p>Your generated image will appear here.</p>
                 </motion.div>
               )}
             </AnimatePresence>
