@@ -49,15 +49,7 @@ const SocialMediaContentPage = () => {
         body: JSON.stringify(form),
       });
 
-      let data;
-      try {
-        data = await response.json();
-      } catch (error) {
-        console.error("Invalid JSON response:", error);
-        alert("Something went wrong. Try again.");
-        setLoading(false);
-        return;
-      }
+      const data = await response.json();
 
       if (!data?.imageUrl) {
         alert("Image URL missing from response.");
@@ -98,27 +90,25 @@ const SocialMediaContentPage = () => {
         </motion.p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Form */}
           <form
             onSubmit={handleSubmit}
             className="backdrop-blur-xl bg-slate-800/40 p-6 sm:p-8 rounded-2xl border border-slate-700 shadow-xl space-y-5"
           >
-            {[
-              { name: 'topic', label: 'Topic / Product', placeholder: 'e.g. Modern cat food' },
-              { name: 'audience', label: 'Target Audience', placeholder: 'e.g. Cat owners, pet lovers' },
-            ].map(({ name, label, placeholder }) => (
-              <div key={name}>
-                <label className="block text-sm mb-1 text-slate-400">{label}</label>
-                <input
-                  name={name}
-                  value={form[name]}
-                  onChange={handleChange}
-                  placeholder={placeholder}
-                  required
-                  className="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded-md text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-[#64FFDA]"
-                />
-              </div>
-            ))}
+            {[{ name: 'topic', label: 'Topic / Product', placeholder: 'e.g. Modern cat food' },
+              { name: 'audience', label: 'Target Audience', placeholder: 'e.g. Cat owners, pet lovers' }]
+              .map(({ name, label, placeholder }) => (
+                <div key={name}>
+                  <label className="block text-sm mb-1 text-slate-400">{label}</label>
+                  <input
+                    name={name}
+                    value={form[name]}
+                    onChange={handleChange}
+                    placeholder={placeholder}
+                    required
+                    className="w-full bg-slate-900 border border-slate-700 px-4 py-2 rounded-md text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-[#64FFDA]"
+                  />
+                </div>
+              ))}
 
             <div>
               <label className="block text-sm mb-1 text-slate-400">Tone</label>
@@ -158,7 +148,6 @@ const SocialMediaContentPage = () => {
             </button>
           </form>
 
-          {/* Preview */}
           <motion.div
             className="rounded-2xl border border-slate-700 bg-slate-800/30 p-6 min-h-[350px] flex items-center justify-center"
             initial={{ opacity: 0 }}
