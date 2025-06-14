@@ -46,107 +46,32 @@ export default function SocialMediaContentPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-<<<<<<< HEAD
-  const getAspectRatio = (resolution) => {
-    const [width, height] = resolution.split('x');
-    return `${width} / ${height}`;
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setResult(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setResult(null);
-    setError(null);
-    setCopied(false);
+  try {
+    const response = await fetch("https://codecanverse.app.n8n.cloud/webhook/166a60e9-ff76-4866-ba21-26b4b5655ca7", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
 
-    try {
-      const response = await fetch("https://codecanverse.app.n8n.cloud/webhook-test/166a60e9-ff76-4866-ba21-26b4b5655ca7", {
-=======
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setResult(null);
+    if (!response.ok) throw new Error("Failed to generate image from n8n");
 
-    try {
-      const response = await fetch("https://codecanverse.app.n8n.cloud/webhook/166a60e9-ff76-4866-ba21-26b4b5655ca7", {
->>>>>>> parent of 237420d (Switch to production URL 03)
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+    const blob = await response.blob(); // get binary blob from n8n
+    const fileExt = blob.type.split("/")[1]; // e.g., 'png'
+    const fileName = `social-images/generated-${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("code-canverse-bucket")
+      .upload(fileName, blob, {
+        contentType: blob.type,
+        upsert: true,
       });
 
-<<<<<<< HEAD
-      const text = await response.text();
-      const json = JSON.parse(text);
-
-      const captionText =
-        typeof json.caption === 'object' && json.caption.caption
-          ? json.caption.caption
-          : json.caption;
-
-      const fileUrl = json.imageUrl;
-      const res = await fetch(fileUrl);
-      const blob = await res.blob();
-
-      const fileExt = blob.type.split('/')[1] || 'png';
-      const fileName = `social-images/generated-${Date.now()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("code-canverse-bucket")
-        .upload(fileName, blob, {
-          contentType: blob.type,
-          upsert: true,
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data: publicUrlData } = supabase.storage
-        .from("code-canverse-bucket")
-        .getPublicUrl(fileName);
-
-      setResult({
-        imageUrl: publicUrlData.publicUrl,
-        caption: captionText,
-      });
-
-    } catch (err) {
-      console.error("Upload error:", err);
-      setError(err.message || "Something went wrong.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleCopy = () => {
-    if (result?.caption) {
-      navigator.clipboard.writeText(result.caption);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-=======
-      const data = await response.json();
-      const base64Image = data?.imageUrl;
-
-      if (!base64Image || !base64Image.startsWith("data:image")) {
-        throw new Error("Invalid base64 image data");
-      }
-
-      const fileName = `social-images/generated-${Date.now()}.png`;
-      const base64Data = base64Image.split(',')[1];
-      const binary = atob(base64Data);
-      const arrayBuffer = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) {
-        arrayBuffer[i] = binary.charCodeAt(i);
-      }
-
-      const { error: uploadError } = await supabase.storage
-        .from("code-canverse-bucket")
-        .upload(fileName, arrayBuffer, {
-          contentType: "image/png",
-          upsert: true,
-        });
-
-      if (uploadError) throw uploadError;
+    if (uploadError) throw uploadError;
 
       const { data: publicUrlData } = await supabase.storage
         .from("code-canverse-bucket")
@@ -158,9 +83,9 @@ export default function SocialMediaContentPage() {
       alert("Failed to generate or store image.");
     }
 
-    setLoading(false);
->>>>>>> parent of 237420d (Switch to production URL 03)
-  };
+  setLoading(false);
+};
+
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-300 font-['Inter',sans-serif] relative overflow-hidden">
