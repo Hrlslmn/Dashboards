@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import HeaderGreen from '../components/HeaderGreen';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '../supabaseClient'; // adjust if path differs
 
 const Loader = () => (
   <motion.div className="flex space-x-2 justify-center items-center">
@@ -50,17 +51,37 @@ const SocialMediaContentPage = () => {
       });
 
       const data = await response.json();
+      const base64Image = data?.imageUrl;
 
-      if (!data?.imageUrl) {
-        alert("Image URL missing from response.");
-        setLoading(false);
-        return;
+      if (!base64Image || !base64Image.startsWith("data:image")) {
+        throw new Error("Invalid base64 image data");
       }
 
-      setResult({ imageUrl: data.imageUrl });
+      const fileName = `social-images/generated-${Date.now()}.png`;
+      const base64Data = base64Image.split(',')[1];
+      const binary = atob(base64Data);
+      const arrayBuffer = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        arrayBuffer[i] = binary.charCodeAt(i);
+      }
+
+      const { error: uploadError } = await supabase.storage
+        .from("code-canverse-bucket")
+        .upload(fileName, arrayBuffer, {
+          contentType: "image/png",
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = await supabase.storage
+        .from("code-canverse-bucket")
+        .getPublicUrl(fileName);
+
+      setResult({ imageUrl: publicUrlData.publicUrl });
     } catch (err) {
       console.error("Submit error:", err);
-      alert("Failed to generate content. Try again.");
+      alert("Failed to generate or store image.");
     }
 
     setLoading(false);
