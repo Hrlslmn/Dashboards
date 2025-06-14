@@ -23,6 +23,7 @@ import ResumePortfolioPage from './pages/ResumePortfolioPage';
 import ResumeBuilderPage from './pages/ResumeBuilderPage';
 import TShirtDesignPage from './pages/TShirtDesignsPage';
 import SocialMediaContentPage from './pages/SocialMediaContentPage';
+import ComingSoon from './pages/ComingSoon';
 
 import DesignsPage from './pages/DesignsPage';
 import ThemesPage from './pages/ThemesPage';
@@ -42,9 +43,9 @@ export default function App() {
       <Suspense fallback={<div className="text-center text-gray-400 mt-10">Loading...</div>}>
         <Routes>
           {/* Public Pages */}
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/" element={<ComingSoon />} />
+          <Route path="/login" element={<ComingSoon />} />
+          <Route path="/signup" element={<ComingSoon />} />
           <Route path="/upload" element={<UploadComponent />} />
           <Route path="/preview" element={<PagePreview />} />
           <Route path="/purchase-history" element={<PurchaseHistory />} />
