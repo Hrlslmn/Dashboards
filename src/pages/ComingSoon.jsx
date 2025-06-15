@@ -1,18 +1,24 @@
 import React, { useEffect } from "react";
-import { ArrowRight, Hourglass, Sparkles } from "lucide-react";
+import { Hourglass, Sparkles, Code, Wind } from "lucide-react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
 export default function ComingSoon() {
     useEffect(() => {
         const updateMousePosition = (ev) => {
+            // GSAP might be better for performance here, but this is fine for a simple effect.
             const { clientX, clientY } = ev;
             document.documentElement.style.setProperty('--x', `${clientX}px`);
             document.documentElement.style.setProperty('--y', `${clientY}px`);
         };
+
         window.addEventListener('mousemove', updateMousePosition);
 
-        AOS.init({ once: true, duration: 1000, delay: 100 });
+        AOS.init({
+            once: true,
+            duration: 1200, // Slightly longer duration for a smoother feel
+            easing: 'ease-out-cubic', // A more refined easing function
+        });
 
         return () => {
             window.removeEventListener('mousemove', updateMousePosition);
@@ -21,49 +27,65 @@ export default function ComingSoon() {
 
     return (
         <>
+            {/* Using styled-jsx for component-scoped and global styles */}
             <style jsx global>{`
                 :root {
                     --x: 50%;
                     --y: 50%;
+                    --brand-color: #7DF9FF; /* Electric Blue, for a more modern tech feel */
+                    --background-color: #020c1b; /* A deeper, darker navy */
+                    --light-background-color: #0a192f;
+                    --text-primary: #e6f1ff;
+                    --text-secondary: #a8b2d1;
+                }
+                body {
+                    background-color: var(--background-color);
                 }
                 .spotlight-bg {
-                    background: radial-gradient(circle at var(--x) var(--y), rgba(100, 255, 218, 0.08), transparent 30%), #0a192f;
+                    background: radial-gradient(circle at var(--x) var(--y), rgba(125, 249, 255, 0.07), transparent 40%), var(--background-color);
+                    color: var(--text-secondary);
+                }
+                .brand-text {
+                    color: var(--brand-color);
+                }
+                /* Adding a subtle glow to the brand text for emphasis */
+                .brand-glow {
+                    text-shadow: 0 0 8px rgba(125, 249, 255, 0.3);
                 }
             `}</style>
 
-            <div className="min-h-screen spotlight-bg flex flex-col justify-center items-center text-slate-200 px-4 text-center">
-                <Hourglass className="w-16 h-16 text-[#64FFDA] animate-pulse mb-6" />
-                <h1 data-aos="fade-up" className="text-4xl sm:text-5xl font-extrabold mb-4 text-slate-100 leading-tight">
-                    CodeCanverse is Almost Here.
-                </h1>
-                <p data-aos="fade-up" data-aos-delay="100" className="text-lg sm:text-xl text-slate-400 max-w-xl mx-auto mb-8 leading-relaxed">
-                    We're crafting something magical — a platform where AI, automation, and code come together to supercharge your creative flow.
-                </p>
+            <div className="min-h-screen spotlight-bg flex flex-col justify-center items-center px-4 text-center overflow-hidden">
 
-                <a
-                    href="mailto:hello@codecanverse.com"
-                    className="inline-flex items-center gap-3 px-8 py-4 bg-[#64FFDA] text-[#0a192f] font-semibold rounded-full hover:bg-opacity-90 transition-all duration-300 shadow-lg shadow-[#64FFDA]/20 transform hover:scale-105 group"
-                >
-                    Notify Me on Launch
-                    <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
-                </a>
-
-                <div className="mt-16 flex flex-col sm:flex-row items-center gap-4 text-sm text-slate-500">
-                    <span className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-[#64FFDA]" /> AI-Powered Art
-                    </span>
-                    <span className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-[#64FFDA]" /> Developer Components
-                    </span>
-                    <span className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-[#64FFDA]" /> Smart Automation
-                    </span>
+                <div data-aos="fade-down" data-aos-delay="100">
+                    <Hourglass className="w-16 h-16 brand-text animate-spin" style={{ animationDuration: '3s' }} />
                 </div>
 
-                <footer className="mt-24 text-slate-500 text-xs">
-                    🚀 CodeCanverse © {new Date().getFullYear()} • Built for creators and coders
+                <h1 data-aos="fade-up" data-aos-delay="200" className="text-4xl sm:text-6xl font-black mt-8 mb-4 text-primary leading-tight brand-glow">
+                    Something <span className="brand-text">Awesome</span> is Coming
+                </h1>
+
+                <p data-aos="fade-up" data-aos-delay="400" className="text-lg sm:text-xl max-w-2xl mx-auto mb-12 leading-relaxed">
+                    Welcome to <span className="font-semibold text-white">CodeCanverse</span>. We're building a next-generation platform to merge AI-driven creativity with powerful development tools. Get ready to innovate faster.
+                </p>
+
+                <div data-aos="fade-up" data-aos-delay="600" className="flex flex-col sm:flex-row items-center justify-center gap-6 text-base">
+                    <FeatureItem icon={<Code />} text="Intuitive Components" />
+                    <FeatureItem icon={<Sparkles />} text="AI-Powered Design" />
+                    <FeatureItem icon={<Wind />} text="Workflow Automation" />
+                </div>
+
+                <footer className="absolute bottom-6 text-xs text-slate-600">
+                    CodeCanverse © {new Date().getFullYear()} | The future of creation is loading...
                 </footer>
             </div>
         </>
     );
 }
+
+// A reusable component for feature items to keep the main return block clean
+const FeatureItem = ({ icon, text }) => (
+    <div className="flex items-center gap-3 bg-[var(--light-background-color)] bg-opacity-50 border border-slate-800 px-4 py-2 rounded-full">
+        <span className="brand-text">{React.cloneElement(icon, { className: "w-5 h-5" })}</span>
+        <span className="text-sm font-medium text-slate-300">{text}</span>
+    </div>
+);
