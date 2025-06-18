@@ -7,7 +7,8 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing required fields: topic, audience, or imageStyle' });
   }
 
-  const prompt = `Create a ${imageStyle} style image for "${topic}" targeting "${audience}".`;
+  const prompt = `A realistic photo of ${topic} for ${audience}, in ${imageStyle} style. Do not include any text, logos, watermarks, or letters in the image.`;
+
 
   try {
     const openaiRes = await fetch('https://api.openai.com/v1/images/generations', {
