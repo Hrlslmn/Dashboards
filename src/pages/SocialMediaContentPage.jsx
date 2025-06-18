@@ -55,24 +55,24 @@ export default function SocialMediaContentPage() {
     setError(null);
     setCopied(false);
 
+    const prompt = `Design a visually engaging ${form.imageStyle} style image suitable for a ${form.platform} post. The image should represent the theme: "${form.topic}" and appeal directly to "${form.audience}". Use elements that match a "${form.tone}" tone. Avoid any text or branding in the image.`;
+
     try {
-      // Step 1: Get OpenAI image URL
       const genRes = await fetch("/api/generate-openai-image-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: `Create a ${form.imageStyle} style image for \"${form.topic}\" targeting \"${form.audience}\".`,
-        }),
+        body: JSON.stringify({ topic: form.topic, audience: form.audience, imageStyle: form.imageStyle, prompt }),
       });
+
       const { imageUrl } = await genRes.json();
       if (!imageUrl) throw new Error("Failed to generate image");
 
-      // Step 2: Upload to Supabase
       const uploadRes = await fetch("/api/upload-to-supabase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageUrl }),
       });
+
       const { publicUrl } = await uploadRes.json();
       if (!publicUrl) throw new Error("Upload to Supabase failed");
 
@@ -107,7 +107,6 @@ export default function SocialMediaContentPage() {
           <motion.form onSubmit={handleSubmit}
             className="backdrop-blur-xl bg-slate-800/40 p-6 sm:p-8 rounded-2xl border border-slate-700 shadow-xl space-y-5"
             initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
-
             {[{ name: 'topic', label: 'Topic / Product', placeholder: 'e.g. Eco-friendly water bottles' },
               { name: 'audience', label: 'Target Audience', placeholder: 'e.g. Hikers, students, eco-conscious buyers' }]
               .map(({ name, label, placeholder }) => (

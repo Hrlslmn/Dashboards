@@ -2,9 +2,8 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Use VITE-prefixed env vars but available directly via process.env in server functions on Vercel
 const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
+  process.env.VITE_SUPABASE_URL, // safe to use in Vercel functions
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
@@ -20,9 +19,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Fetch image from OpenAI URL
     const imageResponse = await fetch(imageUrl);
-
     if (!imageResponse.ok) {
       throw new Error('Failed to fetch image from OpenAI URL');
     }
@@ -30,7 +27,6 @@ export default async function handler(req, res) {
     const buffer = await imageResponse.arrayBuffer();
     const fileName = `social-images/openai-${Date.now()}.png`;
 
-    // Upload to Supabase storage
     const { error: uploadError } = await supabase.storage
       .from('code-canverse-bucket')
       .upload(fileName, buffer, {
@@ -43,7 +39,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Failed to upload to Supabase' });
     }
 
-    // Get public URL
     const { data: publicUrlData } = await supabase.storage
       .from('code-canverse-bucket')
       .getPublicUrl(fileName);

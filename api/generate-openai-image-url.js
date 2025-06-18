@@ -1,15 +1,18 @@
+// File: /api/generate-openai-image-url.js
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { topic, audience, imageStyle } = req.body;
-  const prompt = `Create a ${imageStyle} style image for "${topic}" targeting "${audience}".`;
+  const { topic, audience, imageStyle, prompt: customPrompt } = req.body;
+
+  const prompt = customPrompt || `Create a ${imageStyle} style image for "${topic}" targeting "${audience}".`;
 
   try {
     const openaiRes = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, // works if set in Vercel
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
         prompt,
