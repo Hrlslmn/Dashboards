@@ -56,28 +56,27 @@ export default function SocialMediaContentPage() {
     setCopied(false);
 
     try {
-      const res = await fetch("/api/generate-image-openai", {
+      // Step 1: Get OpenAI image URL
+      const genRes = await fetch("/api/generate-openai-image-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          topic: form.topic,
-          audience: form.audience,
-          imageStyle: form.imageStyle,
+          prompt: `Create a ${form.imageStyle} style image for \"${form.topic}\" targeting \"${form.audience}\".`,
         }),
       });
+      const { imageUrl } = await genRes.json();
+      if (!imageUrl) throw new Error("Failed to generate image");
 
-      const text = await res.text(); // Raw response for debugging
-      let data;
+      // Step 2: Upload to Supabase
+      const uploadRes = await fetch("/api/upload-to-supabase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl }),
+      });
+      const { publicUrl } = await uploadRes.json();
+      if (!publicUrl) throw new Error("Upload to Supabase failed");
 
-      try {
-        data = JSON.parse(text);
-      } catch {
-        throw new Error(`Invalid JSON response: ${text}`);
-      }
-
-      if (!data.imageUrl) throw new Error("Image generation failed");
-
-      setResult({ imageUrl: data.imageUrl });
+      setResult({ imageUrl: publicUrl });
     } catch (err) {
       console.error("OpenAI image error:", err);
       setError(err.message || "Something went wrong.");
