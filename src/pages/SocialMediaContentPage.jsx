@@ -15,6 +15,13 @@ const Loader = () => (
   </motion.div>
 );
 
+const Spinner = () => (
+  <div className="flex items-center justify-center">
+    <div className="w-5 h-5 border-2 border-t-transparent border-[#64FFDA] rounded-full animate-spin"></div>
+    <span className="ml-2 text-slate-400">Checking image quota...</span>
+  </div>
+);
+
 const getAspectRatio = (resolution) => {
   const [width, height] = resolution.split('x');
   return `${width} / ${height}`;
@@ -36,20 +43,28 @@ export default function SocialMediaContentPage() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [imageCountToday, setImageCountToday] = useState(0);
+  const [quotaLoading, setQuotaLoading] = useState(true);
 
   const remainingQuota = DAILY_LIMIT - imageCountToday;
 
   useEffect(() => {
     const fetchUsage = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const res = await fetch("/api/usage-today", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id })
-      });
-      const { count } = await res.json();
-      setImageCountToday(count || 0);
+      if (!user) return setQuotaLoading(false);
+
+      try {
+        const res = await fetch("/api/usage-today", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id })
+        });
+        const { count } = await res.json();
+        setImageCountToday(count || 0);
+      } catch (err) {
+        console.error("Failed to fetch quota", err);
+      } finally {
+        setQuotaLoading(false);
+      }
     };
     fetchUsage();
   }, []);
@@ -113,11 +128,15 @@ export default function SocialMediaContentPage() {
           AI Social Media Image Generator
         </motion.h1>
 
-        <p className="text-center text-slate-400 mb-4">
-          {remainingQuota > 0
-            ? `You can generate ${remainingQuota} more images today.`
-            : "You’ve reached today’s generation limit (10 images)."}
-        </p>
+        <div className="text-center mb-6">
+          {quotaLoading ? <Spinner /> : (
+            <p className="text-slate-400">
+              {remainingQuota > 0
+                ? `You can generate ${remainingQuota} more images today.`
+                : "You’ve reached today’s generation limit (10 images)."}
+            </p>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <motion.form onSubmit={handleSubmit}
