@@ -1,4 +1,3 @@
-// /api/usage-today.js
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -7,19 +6,24 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
-  const userId = req.headers['x-user-id']; // Or get from session
-  if (!userId) return res.status(400).json({ error: 'Missing user ID' });
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // midnight today
+  const { userId } = req.body;
+  if (!userId) return res.status(400).json({ error: 'Missing userId' });
+
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
   const { count, error } = await supabase
     .from('image_generation_logs')
     .select('*', { count: 'exact', head: true })
     .eq('user_id', userId)
-    .gte('created_at', today.toISOString());
+    .gte('created_at', `${today}T00:00:00.000Z`)
+    .lte('created_at', `${today}T23:59:59.999Z`);
 
-  if (error) return res.status(500).json({ error: error.message });
+  if (error) {
+    console.error('[Supabase Count Error]', error);
+    return res.status(500).json({ count: 0 });
+  }
 
   return res.status(200).json({ count });
 }
