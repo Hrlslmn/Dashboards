@@ -1,18 +1,15 @@
-// 1. /api/generate-openai-image-url.js
-import { config } from 'dotenv';
-config();
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { prompt } = req.body;
+  const { topic, audience, imageStyle } = req.body;
+  const prompt = `Create a ${imageStyle} style image for "${topic}" targeting "${audience}".`;
 
   try {
     const openaiRes = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, // works if set in Vercel
       },
       body: JSON.stringify({
         prompt,
@@ -22,13 +19,22 @@ export default async function handler(req, res) {
       }),
     });
 
-    const data = await openaiRes.json();
-    const imageUrl = data?.data?.[0]?.url;
+    const text = await openaiRes.text();
+    console.log('[OpenAI Raw Response]', text);
 
-    if (!imageUrl) return res.status(500).json({ error: 'Failed to get image URL' });
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      return res.status(500).json({ error: 'Invalid JSON from OpenAI' });
+    }
+
+    const imageUrl = data?.data?.[0]?.url;
+    if (!imageUrl) return res.status(500).json({ error: 'No image URL returned from OpenAI' });
 
     return res.status(200).json({ imageUrl });
   } catch (err) {
-    return res.status(500).json({ error: 'OpenAI generation failed' });
+    console.error('[OpenAI Error]', err);
+    return res.status(500).json({ error: 'Server error contacting OpenAI' });
   }
 }
