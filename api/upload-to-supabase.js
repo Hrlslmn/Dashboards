@@ -34,10 +34,10 @@ export default async function handler(req, res) {
       .from('code-canverse-bucket')
       .getPublicUrl(fileName);
 
-    // Log usage
-    await supabase.from('image_generation_logs').insert([
-      { user_id: userId, image_path: fileName },
-    ]);
+    // Log image generation usage
+    await supabase
+      .from('image_generation_logs')
+      .insert([{ user_id: userId, image_url: publicUrlData.publicUrl }], { returning: 'minimal' });
 
     return res.status(200).json({ publicUrl: publicUrlData.publicUrl });
   } catch (err) {
