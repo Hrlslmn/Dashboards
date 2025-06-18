@@ -1,8 +1,6 @@
-// SocialMediaContentPage.jsx
 import React, { useState } from 'react';
 import HeaderGreen from '../components/HeaderGreen';
 import { motion, AnimatePresence } from 'framer-motion';
-import { supabase } from '../../supabaseClient';
 
 const Loader = () => (
   <motion.div className="flex space-x-2 justify-center items-center"
@@ -50,44 +48,43 @@ export default function SocialMediaContentPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setResult(null);
-  setError(null);
-  setCopied(false);
-
-  try {
-    const res = await fetch("/api/generate-image-openai", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        topic: form.topic,
-        audience: form.audience,
-        imageStyle: form.imageStyle,
-      }),
-    });
-
-    const text = await res.text(); // Get raw text for debug
-    let data;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setResult(null);
+    setError(null);
+    setCopied(false);
 
     try {
-      data = JSON.parse(text);
-    } catch {
-      throw new Error(`Invalid JSON response: ${text}`);
+      const res = await fetch("/api/generate-image-openai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic: form.topic,
+          audience: form.audience,
+          imageStyle: form.imageStyle,
+        }),
+      });
+
+      const text = await res.text(); // Raw response for debugging
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(`Invalid JSON response: ${text}`);
+      }
+
+      if (!data.imageUrl) throw new Error("Image generation failed");
+
+      setResult({ imageUrl: data.imageUrl });
+    } catch (err) {
+      console.error("OpenAI image error:", err);
+      setError(err.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
     }
-
-    if (!data.imageUrl) throw new Error("Failed to generate image");
-
-    setResult({ imageUrl: data.imageUrl, caption: '' });
-  } catch (err) {
-    console.error("OpenAI image error:", err);
-    setError(err.message || "Something went wrong.");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-300 font-['Inter',sans-serif] relative overflow-hidden">
@@ -108,10 +105,10 @@ const handleSubmit = async (e) => {
         </motion.p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Form */}
           <motion.form onSubmit={handleSubmit}
             className="backdrop-blur-xl bg-slate-800/40 p-6 sm:p-8 rounded-2xl border border-slate-700 shadow-xl space-y-5"
             initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
+
             {[{ name: 'topic', label: 'Topic / Product', placeholder: 'e.g. Eco-friendly water bottles' },
               { name: 'audience', label: 'Target Audience', placeholder: 'e.g. Hikers, students, eco-conscious buyers' }]
               .map(({ name, label, placeholder }) => (
@@ -145,7 +142,6 @@ const handleSubmit = async (e) => {
             </button>
           </motion.form>
 
-          {/* Preview */}
           <motion.div
             className="rounded-2xl border border-slate-700 bg-slate-800/30 p-4 sm:p-6 flex flex-col items-center justify-center transition-all duration-300"
             style={{ aspectRatio: getAspectRatio(form.resolution) }}

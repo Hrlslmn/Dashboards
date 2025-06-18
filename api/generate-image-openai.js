@@ -1,19 +1,24 @@
-// pages/api/generate-image-openai.js
+// api/generate-image-openai.js
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY // not anon key, use service role on server
+  process.env.VITE_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY // DO NOT expose this key in frontend!
 );
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
-  const { topic, audience, imageStyle } = req.body;
-  const prompt = `Create a ${imageStyle} style image for "${topic}" targeting "${audience}".`;
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
 
   try {
-    // Step 1: Generate image via OpenAI
+    const { topic, audience, imageStyle } = await req.json();
+    const prompt = `Create a ${imageStyle} style image for "${topic}" targeting "${audience}".`;
+
+    // Step 1: Call OpenAI
     const openaiRes = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
       headers: {
@@ -31,25 +36,33 @@ export default async function handler(req, res) {
     const openaiData = await openaiRes.json();
     const imageUrl = openaiData?.data?.[0]?.url;
 
-    if (!imageUrl) return res.status(500).json({ error: 'Failed to generate image' });
+    if (!imageUrl) {
+      return new Response(JSON.stringify({ error: 'Failed to generate image' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
-    // Step 2: Download the image blob
-    const imageResponse = await fetch(imageUrl);
-    const imageBuffer = await imageResponse.arrayBuffer();
+    // Step 2: Download image
+    const imageRes = await fetch(imageUrl);
+    const buffer = await imageRes.arrayBuffer();
     const fileName = `social-images/generated-${Date.now()}.png`;
 
     // Step 3: Upload to Supabase
     const { error: uploadError } = await supabase
       .storage
       .from('code-canverse-bucket')
-      .upload(fileName, imageBuffer, {
+      .upload(fileName, buffer, {
         contentType: 'image/png',
         upsert: true,
       });
 
     if (uploadError) {
-      console.error('[Upload error]', uploadError);
-      return res.status(500).json({ error: 'Failed to upload to Supabase' });
+      console.error('Upload error:', uploadError);
+      return new Response(JSON.stringify({ error: 'Upload failed' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     // Step 4: Get public URL
@@ -58,9 +71,15 @@ export default async function handler(req, res) {
       .from('code-canverse-bucket')
       .getPublicUrl(fileName);
 
-    return res.status(200).json({ imageUrl: publicUrlData.publicUrl });
+    return new Response(JSON.stringify({ imageUrl: publicUrlData.publicUrl }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (err) {
-    console.error('[OpenAI Handler Error]', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('OpenAI Handler error:', err);
+    return new Response(JSON.stringify({ error: 'Server error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
