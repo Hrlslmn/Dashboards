@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 // Use VITE-prefixed env vars but available directly via process.env in server functions on Vercel
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
-  process.env.VITE_SUPABASE_SERVICE_ROLE_KEY
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 export default async function handler(req, res) {
