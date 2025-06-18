@@ -1,6 +1,4 @@
-import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
-config();
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -35,6 +33,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ publicUrl: publicUrlData.publicUrl });
   } catch (err) {
+    console.error('[Supabase Upload Failed]', err);
     return res.status(500).json({ error: 'Supabase upload failed' });
   }
 }
