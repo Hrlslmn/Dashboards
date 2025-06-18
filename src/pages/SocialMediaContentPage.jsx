@@ -50,78 +50,44 @@ export default function SocialMediaContentPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setResult(null);
-    setError(null);
-    setCopied(false);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setResult(null);
+  setError(null);
+  setCopied(false);
+
+  try {
+    const res = await fetch("/api/generate-image-openai", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        topic: form.topic,
+        audience: form.audience,
+        imageStyle: form.imageStyle,
+      }),
+    });
+
+    const text = await res.text(); // Get raw text for debug
+    let data;
 
     try {
-      // Step 1: Generate image via serverless function
-      const generateRes = await fetch("/api/generate-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          topic: form.topic,
-          audience: form.audience,
-        }),
-      });
-
-      const generateData = await generateRes.json();
-      const imageUid = generateData.uid;
-      if (!imageUid) throw new Error("No UID returned from Bannerbear");
-
-      // Step 2: Poll status until complete
-      let imageUrl = null;
-      for (let i = 0; i < 10; i++) {
-        const statusRes = await fetch(`/api/image-status?uid=${imageUid}`);
-        const statusData = await statusRes.json();
-        if (statusData.image_url) {
-          imageUrl = statusData.image_url;
-          break;
-        }
-        await new Promise(r => setTimeout(r, 2000));
-      }
-
-      if (!imageUrl) throw new Error("Image generation timed out");
-
-      // Step 3: Download via proxy to bypass CSP
-      const blobRes = await fetch(`/api/download-image?url=${encodeURIComponent(imageUrl)}`);
-      const blob = await blobRes.blob();
-      const fileExt = blob.type.split('/')[1] || 'png';
-      const fileName = `social-images/bannerbear-${Date.now()}.${fileExt}`;
-
-      // Step 4: Upload to Supabase
-      const { error: uploadError } = await supabase.storage
-        .from("code-canverse-bucket")
-        .upload(fileName, blob, {
-          contentType: blob.type,
-          upsert: true,
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data: publicUrlData } = await supabase.storage
-        .from("code-canverse-bucket")
-        .getPublicUrl(fileName);
-
-      setResult({ imageUrl: publicUrlData.publicUrl, caption: '' });
-    } catch (err) {
-      console.error("Bannerbear frontend error:", err);
-      setError(err.message || "Something went wrong.");
-    } finally {
-      setLoading(false);
+      data = JSON.parse(text);
+    } catch {
+      throw new Error(`Invalid JSON response: ${text}`);
     }
-  };
 
-  const handleCopy = () => {
-    if (result?.caption) {
-      navigator.clipboard.writeText(result.caption);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
+    if (!data.imageUrl) throw new Error("Failed to generate image");
+
+    setResult({ imageUrl: data.imageUrl, caption: '' });
+  } catch (err) {
+    console.error("OpenAI image error:", err);
+    setError(err.message || "Something went wrong.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-300 font-['Inter',sans-serif] relative overflow-hidden">

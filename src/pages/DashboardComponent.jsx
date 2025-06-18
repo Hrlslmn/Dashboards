@@ -3,36 +3,16 @@ import { useLocation } from 'react-router-dom';
 import HeaderGreen from '../components/HeaderGreen';
 import { supabase } from '../../supabaseClient';
 import { Download, X } from 'lucide-react';
-import { loadStripe } from '@stripe/stripe-js';
 
 export default function DashboardComponent() {
   const [dashboards, setDashboards] = useState([]);
-  const [purchasedIds, setPurchasedIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState(null);
-  const [checkoutLoadingId, setCheckoutLoadingId] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const location = useLocation();
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      const user = session?.user;
-
-      if (user) {
-        const { data: purchases, error: purchaseError } = await supabase
-          .from('purchases')
-          .select('product_id')
-          .eq('user_id', user.id)
-          .eq('product_type', 'dashboard');
-
-        if (purchaseError) {
-          console.error("Failed to fetch purchases:", purchaseError.message);
-        } else {
-          setPurchasedIds(Array.isArray(purchases) ? purchases.map(p => p.product_id) : []);
-        }
-      }
-
       const { data, error } = await supabase
         .from('dashboard')
         .select('*')
@@ -51,46 +31,6 @@ export default function DashboardComponent() {
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [location]);
-
-  const handleBuy = async (productId, title) => {
-    const { data: { user }, error } = await supabase.auth.getUser();
-
-    if (error || !user?.id) {
-      alert("You must be logged in to make a purchase.");
-      return;
-    }
-
-    setCheckoutLoadingId(productId);
-
-    try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: title,
-          price: 0.5,
-          productId,
-          productType: "dashboard",
-          user_id: user.id,
-        }),
-      });
-
-      const result = await res.json();
-      setCheckoutLoadingId(null);
-
-      if (result?.sessionId) {
-        const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
-        await stripe.redirectToCheckout({ sessionId: result.sessionId });
-      } else if (result?.url) {
-        window.location.href = result.url;
-      } else {
-        alert("Missing Stripe session URL");
-      }
-    } catch (err) {
-      setCheckoutLoadingId(null);
-      alert("Checkout failed.");
-    }
-  };
 
   const handleDownload = async (filePath, id) => {
     setDownloadingId(id);
@@ -132,11 +72,6 @@ export default function DashboardComponent() {
                 key={dash.id}
                 className="relative bg-[#1f2937] border border-slate-600 rounded-xl p-5 shadow-lg"
               >
-                {purchasedIds.includes(dash.id) && (
-                  <span className="absolute top-3 right-3 bg-green-600 text-white text-xs px-2 py-1 rounded-full shadow">
-                    ✅ Purchased
-                  </span>
-                )}
                 {dash.image_path && (
                   <img
                     src={dash.image_path}
@@ -148,25 +83,13 @@ export default function DashboardComponent() {
                 <h2 className="text-xl font-semibold mb-1 text-[#38bdf8]">{dash.title}</h2>
                 <p className="text-sm text-slate-300 mb-4">{dash.description}</p>
 
-                {purchasedIds.includes(dash.id) ? (
-                  <button
-                    onClick={() => handleDownload(dash.file_path, dash.id)}
-                    className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-400 text-black font-semibold py-2 px-4 rounded-md"
-                  >
-                    <Download size={18} />
-                    {downloadingId === dash.id ? "Preparing..." : "Download"}
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleBuy(dash.id, dash.title)}
-                    className="bg-[#38bdf8] hover:bg-[#0ea5e9] text-black font-semibold py-2 px-4 rounded-md"
-                    disabled={checkoutLoadingId === dash.id}
-                  >
-                    {checkoutLoadingId === dash.id
-                      ? "Redirecting to checkout..."
-                      : `Unlock for just – $${dash.price || 0.5}`}
-                  </button>
-                )}
+                <button
+                  onClick={() => handleDownload(dash.file_path, dash.id)}
+                  className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-400 text-black font-semibold py-2 px-4 rounded-md"
+                >
+                  <Download size={18} />
+                  {downloadingId === dash.id ? "Preparing..." : "Download"}
+                </button>
               </div>
             ))}
           </div>
@@ -188,8 +111,6 @@ export default function DashboardComponent() {
           />
         </div>
       )}
-      
     </div>
-
   );
 }

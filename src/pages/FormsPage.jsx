@@ -1,38 +1,19 @@
+// FormsPage.jsx (Stripe removed, free downloads enabled)
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import HeaderGreen from "../components/HeaderGreen";
 import { supabase } from "../../supabaseClient";
 import { Download, X } from "lucide-react";
-import { loadStripe } from "@stripe/stripe-js";
 
 export default function FormsPage() {
   const [forms, setForms] = useState([]);
-  const [purchasedIds, setPurchasedIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState(null);
-  const [checkoutLoadingId, setCheckoutLoadingId] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
-  const location = useLocation(); // ✅ Add this
+  const location = useLocation();
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      const user = session?.user;
-
-      if (user) {
-        const { data: purchases, error: purchaseError } = await supabase
-          .from("purchases")
-          .select("product_id")
-          .eq("user_id", user.id)
-          .eq("product_type", "form");
-
-        if (purchaseError) {
-          console.error("Failed to fetch purchases:", purchaseError.message);
-        } else {
-          setPurchasedIds(Array.isArray(purchases) ? purchases.map(p => p.product_id) : []);
-        }
-      }
-
       const { data, error } = await supabase
         .from("components")
         .select("*")
@@ -52,47 +33,7 @@ export default function FormsPage() {
 
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
-  }, [location]); // ✅ Triggers useEffect when returning to /forms
-
-  const handleBuy = async (productId, title) => {
-    const { data: { user }, error } = await supabase.auth.getUser();
-
-    if (error || !user?.id) {
-      alert("You must be logged in to make a purchase.");
-      return;
-    }
-
-    setCheckoutLoadingId(productId);
-
-    try {
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/create-checkout-session`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: title,
-          price: 0.5,
-          productId,
-          productType: "form",
-          user_id: user.id,
-        }),
-      });
-
-      const result = await res.json();
-      setCheckoutLoadingId(null);
-
-      if (result?.sessionId) {
-        const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
-        await stripe.redirectToCheckout({ sessionId: result.sessionId });
-      } else if (result?.url) {
-        window.location.href = result.url;
-      } else {
-        alert("Missing Stripe session URL");
-      }
-    } catch (err) {
-      setCheckoutLoadingId(null);
-      alert("Checkout failed.");
-    }
-  };
+  }, [location]);
 
   const handleDownload = async (filePath, id) => {
     setDownloadingId(id);
@@ -134,12 +75,6 @@ export default function FormsPage() {
                 key={form.id}
                 className="relative bg-[#1f2937] border border-slate-600 rounded-xl p-5 shadow-lg"
               >
-                {purchasedIds.includes(form.id) && (
-                  <span className="absolute top-3 right-3 bg-green-600 text-white text-xs px-2 py-1 rounded-full shadow">
-                    ✅ Purchased
-                  </span>
-                )}
-
                 {form.image_url && (
                   <img
                     src={form.image_url}
@@ -151,25 +86,13 @@ export default function FormsPage() {
                 <h2 className="text-xl font-semibold mb-1 text-[#38bdf8]">{form.title}</h2>
                 <p className="text-sm text-slate-300 mb-4">{form.description}</p>
 
-                {purchasedIds.includes(form.id) ? (
-                  <button
-                    onClick={() => handleDownload(form.file_path, form.id)}
-                    className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-400 text-black font-semibold py-2 px-4 rounded-md"
-                  >
-                    <Download size={18} />
-                    {downloadingId === form.id ? "Preparing..." : "Download"}
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleBuy(form.id, form.title)}
-                    className="bg-[#38bdf8] hover:bg-[#0ea5e9] text-black font-semibold py-2 px-4 rounded-md"
-                    disabled={checkoutLoadingId === form.id}
-                  >
-                    {checkoutLoadingId === form.id
-                      ? "Redirecting to checkout..."
-                      : `Unlock for just – $${form.price || 0.5}`}
-                  </button>
-                )}
+                <button
+                  onClick={() => handleDownload(form.file_path, form.id)}
+                  className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-400 text-black font-semibold py-2 px-4 rounded-md"
+                >
+                  <Download size={18} />
+                  {downloadingId === form.id ? "Preparing..." : "Download"}
+                </button>
               </div>
             ))}
           </div>
@@ -184,11 +107,11 @@ export default function FormsPage() {
           >
             <X size={20} />
           </button>
-<img
-  src={previewImage}
-  alt="Preview"
-  className="w-full max-w-3xl aspect-auto object-contain max-h-[90vh] rounded-md shadow-lg border border-white/10"
-/>
+          <img
+            src={previewImage}
+            alt="Preview"
+            className="w-full max-w-3xl aspect-auto object-contain max-h-[90vh] rounded-md shadow-lg border border-white/10"
+          />
         </div>
       )}
     </div>

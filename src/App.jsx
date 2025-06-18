@@ -43,9 +43,9 @@ export default function App() {
       <Suspense fallback={<div className="text-center text-gray-400 mt-10">Loading...</div>}>
         <Routes>
           {/* Public Pages */}
-          <Route path="/" element={<ComingSoon />} />
-          <Route path="/login" element={<ComingSoon />} />
-          <Route path="/signup" element={<ComingSoon />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
           <Route path="/upload" element={<UploadComponent />} />
           <Route path="/preview" element={<PagePreview />} />
           <Route path="/purchase-history" element={<PurchaseHistory />} />
