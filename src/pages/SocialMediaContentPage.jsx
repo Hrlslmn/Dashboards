@@ -55,7 +55,7 @@ export default function SocialMediaContentPage() {
     setError(null);
     setCopied(false);
 
-    const prompt = `Design a visually engaging ${form.imageStyle} style image suitable for a ${form.platform} post. The image should represent the theme: "${form.topic}" and appeal directly to "${form.audience}". Use elements that match a "${form.tone}" tone. Avoid any text or branding in the image.`;
+    const prompt = `A realistic photo of a ${imageStyle} style "${topic}" targeted at ${audience}, no text, no words, no labels`;
 
     try {
       const genRes = await fetch("/api/generate-openai-image-url", {

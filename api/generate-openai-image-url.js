@@ -1,11 +1,8 @@
-// File: /api/generate-openai-image-url.js
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { topic, audience, imageStyle, prompt: customPrompt } = req.body;
-
-  const prompt = customPrompt || `Create a ${imageStyle} style image for "${topic}" targeting "${audience}".`;
+  const { topic, audience, imageStyle } = req.body;
+  const prompt = `A realistic ${imageStyle} style image of "${topic}" targeting "${audience}", no text, no words, no writing, no labels`;
 
   try {
     const openaiRes = await fetch('https://api.openai.com/v1/images/generations', {
