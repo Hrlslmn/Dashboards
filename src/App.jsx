@@ -19,13 +19,7 @@ import FormsPage from './pages/FormsPage';
 import UploadComponent from './components/UploadComponent';
 import PagePreview from './components/PagePreview'; 
 import PurchaseHistory from './pages/PurchaseHistory';
-import ResumePortfolioPage from './pages/ResumePortfolioPage';
-import ResumeBuilderPage from './pages/ResumeBuilderPage';
-import TShirtDesignPage from './pages/TShirtDesignsPage';
-import SocialMediaContentPage from './pages/SocialMediaContentPage';
-import ComingSoon from './pages/ComingSoon';
 
-import DesignsPage from './pages/DesignsPage';
 import ThemesPage from './pages/ThemesPage';
 import Success from './pages/Success';
 import Cancel from './pages/Cancel';
@@ -63,15 +57,11 @@ export default function App() {
           <Route path="/components/tables" element={<PrivateRoute><TablesPage /></PrivateRoute>} />
           <Route path="/components/navigation" element={<PrivateRoute><NavigationPage /></PrivateRoute>} />
           <Route path="/components/landing-pages" element={<PrivateRoute><FormsPage /></PrivateRoute>} />
-          <Route path="/resume-portfolio" element={<PrivateRoute><ResumePortfolioPage /></PrivateRoute>} />
-          <Route path="/resume-builder" element={<PrivateRoute><ResumeBuilderPage /></PrivateRoute>} />
-          <Route path="/designs/tshirt" element={<PrivateRoute><TShirtDesignPage /></PrivateRoute>} />
-          <Route path="/designs/socialmedia" element={<PrivateRoute><SocialMediaContentPage /></PrivateRoute>} />
+
 
 
 
           {/* Design & Branding */}
-          <Route path="/designs" element={<PrivateRoute><DesignsPage /></PrivateRoute>} />
           <Route path="/themes" element={<PrivateRoute><ThemesPage /></PrivateRoute>} />
         </Routes>
       </Suspense>

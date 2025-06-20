@@ -19,7 +19,6 @@ import { useAuth } from "../components/AuthContext";
 const navLinks = [
     { icon: <LayoutDashboard size={20} />, label: "Home", path: "/" },
     { icon: <Monitor size={20} />, label: "UI Components", path: "/components" },
-    { icon: <Image size={20} />, label: "Designs", path: "/designs" },
     { icon: <Palette size={20} />, label: "Branding", path: "/themes" },
 ];
 
